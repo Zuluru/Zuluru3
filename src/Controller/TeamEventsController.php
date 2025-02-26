@@ -6,6 +6,7 @@ use Authorization\Exception\MissingIdentityException;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use App\PasswordHasher\HasherTrait;
 use App\Model\Table\GamesTable;
@@ -25,7 +26,7 @@ class TeamEventsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		// Attendance updates may come from emailed links; people might not be logged in
 		return ['attendance_change'];
 	}
@@ -33,7 +34,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('event');
@@ -46,10 +47,7 @@ class TeamEventsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team event.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
 		}
@@ -67,7 +65,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$id = $this->getRequest()->getQuery('team');
@@ -75,10 +73,7 @@ class TeamEventsController extends AppController {
 			$team = $this->TeamEvents->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect('/');
 		}
@@ -90,7 +85,7 @@ class TeamEventsController extends AppController {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		}
 
-		$team_event = $this->TeamEvents->newEntity();
+		$team_event = $this->TeamEvents->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$team_event = $this->TeamEvents->patchEntity($team_event, array_merge($this->getRequest()->getData(), ['team_id' => $id, 'dates' => []]));
@@ -109,7 +104,7 @@ class TeamEventsController extends AppController {
 									$team_event['dates'][$i] = $this->TeamEvents->newEntity(array_merge($this->getRequest()->getData(), ['date' => $this->getRequest()->getData("dates.$i.date")]));
 									$this->TeamEvents->save($team_event['dates'][$i]);
 									if (in_array($team_event['dates'][$i]->date, $dates)) {
-										$team_event['dates'][$i]->setErrors('date', __('You cannot select the same date more than once.'));
+										$team_event['dates'][$i]->setError('date', __('You cannot select the same date more than once.'));
 									} else {
 										$dates[] = $team_event['dates'][$i]->date;
 									}
@@ -141,11 +136,11 @@ class TeamEventsController extends AppController {
 							// Calculate the date of the next event
 							switch ($this->getRequest()->getData('repeat_type')) {
 								case 'weekly':
-									$date = $date->addWeek();
+									$date = $date->addWeeks(1);
 									break;
 
 								case 'daily':
-									$date = $date->addDay();
+									$date = $date->addDays(1);
 									break;
 
 								// TODO: Confirm that the first day is a Monday
@@ -156,7 +151,7 @@ class TeamEventsController extends AppController {
 								// TODO: Confirm that the first day is a Saturday
 								case 'weekends':
 									do {
-										$date = $date->addDay();
+										$date = $date->addDays(1);
 									} while ($date->isWeekday());
 									break;
 							}
@@ -186,7 +181,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('event');
@@ -198,10 +193,7 @@ class TeamEventsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team event.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
 		}
@@ -226,7 +218,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -234,10 +226,7 @@ class TeamEventsController extends AppController {
 		$id = $this->getRequest()->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team event.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
 		}
@@ -327,6 +316,7 @@ class TeamEventsController extends AppController {
 		$past = $team_event->start_time->isPast();
 
 		$identity = $this->Authentication->getIdentity();
+		// The is_player and is_captain may have been set by TeamPolicy::canAttendance_change
 		$is_me = $context->is_player || ($identity && ($identity->isMe($attendance) || $identity->isRelative($attendance)));
 		$is_captain = $context->is_captain || ($identity && $identity->isCaptainOf($attendance));
 
@@ -341,8 +331,7 @@ class TeamEventsController extends AppController {
 				$data = $this->getRequest()->getData();
 			}
 
-			// Future dates give a negative diff; a positive number is more logical here.
-			$days_to_event = - $date->diffInDays(null, false);
+			$days_to_event = FrozenDate::now()->diffInDays($date, false);
 
 			if (array_key_exists('status', $data) && $data['status'] == 'comment') {
 				// Comments that come via Ajax will have the status set to comment, which is not useful.
@@ -361,9 +350,9 @@ class TeamEventsController extends AppController {
 				if ($this->getRequest()->is('ajax')) {
 					$this->set('dedicated', $this->getRequest()->getQuery('dedicated'));
 				} else if (!$this->Authorization->can($team, 'attendance')) {
-					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
+					return $this->redirect(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team_id]]);
 				} else {
-					return $this->redirect(['action' => 'view', 'event' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['event' => $id]]);
 				}
 			}
 		}

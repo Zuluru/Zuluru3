@@ -5,7 +5,6 @@
  */
 namespace App\Core;
 
-use App\Event\FlashTrait;
 use App\Model\Entity\User;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -18,8 +17,6 @@ use App\Controller\AppController;
 use Cake\Routing\Router;
 
 class UserCache {
-
-	use FlashTrait;
 
 	private static $instance = null;
 	private static $identity = null;
@@ -129,7 +126,7 @@ class UserCache {
 			}
 		}
 
-		$self->data[$id] = Cache::read("person/$id", 'long_term');
+		$self->data[$id] = Cache::read("person_$id", 'long_term');
 		if (!$self->data[$id]) {
 			$self->data[$id] = [];
 		}
@@ -156,16 +153,7 @@ class UserCache {
 
 				case 'AllOwnedTeams':
 					$self->data[$id][$key] = TableRegistry::getTableLocator()->get('Teams')->find()
-						->contain(['Divisions' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-							'Leagues' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-						]])
+						->contain(['Divisions' => ['Leagues']])
 						->matching('People', function (Query $q) use ($id) {
 							return $q
 								->where(['People.id' => $id]);
@@ -191,6 +179,7 @@ class UserCache {
 								return $q
 									->where(['People.id IN' => $relatives]);
 							})
+							->all()
 							->combine('id', 'id')
 							->toArray();
 					}
@@ -235,13 +224,7 @@ class UserCache {
 
 				case 'Documents':
 					$self->data[$id][$key] = TableRegistry::getTableLocator()->get('Uploads')->find()
-						->contain([
-							'UploadTypes' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							]
-						])
+						->contain(['UploadTypes'])
 						->where([
 							'person_id' => $id,
 							'type_id IS NOT' => null,
@@ -259,15 +242,15 @@ class UserCache {
 					}
 					break;
 
-				case 'Groups':
+				case 'UserGroups':
 					if ($self->read('Person', $id, true)) {
-						$self->data[$id][$key] = $self->data[$id]['Person']->groups;
+						$self->data[$id][$key] = $self->data[$id]['Person']->user_groups;
 					}
 					break;
 
-				case 'GroupIDs':
-					if ($self->read('Groups', $id, true)) {
-						$self->data[$id][$key] = collection($self->data[$id]['Groups'])->extract('id')->toArray();
+				case 'UserGroupIDs':
+					if ($self->read('UserGroups', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['UserGroups'])->extract('id')->toArray();
 					}
 					break;
 
@@ -303,27 +286,17 @@ class UserCache {
 						$self->data[$id][$key] = TableRegistry::getTableLocator()->get('People')->get($id, [
 							'contain' => [
 								Configure::read('Security.authModel'),
-								'Groups' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
+								'UserGroups',
 							]
 						]);
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;
 
 				case 'Preregistrations':
 					$self->data[$id][$key] = TableRegistry::getTableLocator()->get('Preregistrations')->find()
-						->contain(['Events' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-						]])
+						->contain(['Events'])
 						->where(['person_id' => $id])
 						->toArray();
 					break;
@@ -332,25 +305,10 @@ class UserCache {
 					$self->data[$id][$key] = TableRegistry::getTableLocator()->get('Registrations')->find()
 						->contain([
 							'Events' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-								'EventTypes' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
-								'Prices' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
+								'EventTypes',
+								'Prices',
 							],
-							'Prices' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
+							'Prices',
 							'Payments',
 						])
 						->where(['person_id' => $id])
@@ -399,9 +357,7 @@ class UserCache {
 							'contain' => ['Related'],
 						]);
 						$self->data[$id][$key] = $person->related;
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;
@@ -418,9 +374,7 @@ class UserCache {
 							'contain' => ['Relatives'],
 						]);
 						$self->data[$id][$key] = $person->relatives;
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;
@@ -470,19 +424,17 @@ class UserCache {
 								'contain' => ['People']
 							]);
 						} else {
-							$user = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->newEntity();
+							$user = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->newEmptyEntity();
 							$user->person = TableRegistry::getTableLocator()->get('People')->get($id);
 							$self->data[$id][$key] = $user;
 						}
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;
 
 				case 'Waivers':
-					$self->data[$id][$key] = TableRegistry::getTableLocator()->get('Waivers')->find('translations')
+					$self->data[$id][$key] = TableRegistry::getTableLocator()->get('Waivers')->find()
 						->matching('People', function (Query $q) use ($id) {
 							return $q
 								->where(['People.id' => $id]);
@@ -507,7 +459,7 @@ class UserCache {
 			if (empty($self->data[$id][$key])) {
 				$self->data[$id][$key] = [];
 			}
-			Cache::write("person/$id", $self->data[$id], 'long_term');
+			Cache::write("person_$id", $self->data[$id], 'long_term');
 		}
 
 		if (!$self->data[$id][$key]) {
@@ -536,7 +488,7 @@ class UserCache {
 		}
 
 		if (empty($self->data[$id])) {
-			$self->data[$id] = Cache::read("person/$id", 'long_term');
+			$self->data[$id] = Cache::read("person_$id", 'long_term');
 			if (empty($self->data[$id])) {
 				$self->data[$id] = [];
 			}
@@ -558,11 +510,11 @@ class UserCache {
 			unset($self->data[$id][$key]);
 		}
 
-		Cache::write("person/$id", $self->data[$id], 'long_term');
+		Cache::write("person_$id", $self->data[$id], 'long_term');
 	}
 
 	public static function delete($id) {
-		Cache::delete("person/$id", 'long_term');
+		Cache::delete("person_$id", 'long_term');
 	}
 
 	public function allActAs($for_menu = false, $field = 'full_name') {

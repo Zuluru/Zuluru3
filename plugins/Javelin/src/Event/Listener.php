@@ -7,7 +7,6 @@ namespace Javelin\Event;
 
 use App\Authorization\ContextResource;
 use App\Core\UserCache;
-use App\Event\FlashTrait;
 use App\Model\Entity\Attendance;
 use App\Model\Entity\Division;
 use App\Model\Entity\Game;
@@ -29,11 +28,9 @@ use Cake\Routing\Router;
 
 class Listener implements EventListenerInterface {
 
-	use FlashTrait;
-
 	private $base_url = 'https://appjavelin.com/zuluru/';
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			// Listeners to deal with overall plugin management
 			'Javelin.register' => 'register',
@@ -823,12 +820,12 @@ class Listener implements EventListenerInterface {
 	public function team_action_links(Event $event, \ArrayObject $links, \ArrayObject $more, $authorize, $html, $team, $division) {
 		if ($authorize->can('join', new ContextResource($team, ['division' => $division], 'Javelin'))) {
 			$links[] = $html->iconLink('/javelin/img/javelin.png',
-				['plugin' => 'javelin', 'controller' => 'Teams', 'action' => 'join', 'team' => $team->id],
+				['plugin' => 'javelin', 'controller' => 'Teams', 'action' => 'join', '?' => ['team' => $team->id]],
 				['alt' => __('Join  {0}', 'Javelin'), 'title' => __('Join  {0}', 'Javelin')],
 				['confirm' => __('I am aware that this will send details of my team to a third-party application, and that there may be an additional charge to be paid to {0}.', 'Javelin')]);
 		} else if ($authorize->can('leave', new ContextResource($team, ['division' => $division], 'Javelin'))) {
 			$more[__('Leave  {0}', 'Javelin')] = [
-				'url' => ['plugin' => 'javelin', 'controller' => 'Teams', 'action' => 'leave', 'team' => $team->id],
+				'url' => ['plugin' => 'javelin', 'controller' => 'Teams', 'action' => 'leave', '?' => ['team' => $team->id]],
 				'confirm' => __('Are you sure? This will delete all of your team\'s history from {0}.', 'Javelin'),
 			];
 		}

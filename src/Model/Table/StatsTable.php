@@ -6,6 +6,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Rule\ExistsIn;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Stats Model
@@ -23,7 +24,7 @@ class StatsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('stats');
@@ -54,7 +55,7 @@ class StatsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -75,7 +76,7 @@ class StatsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['game_id'], 'Games'));
 		$rules->add($rules->existsIn(['team_id'], 'Teams'));
 		$rules->add($rules->existsIn(['stat_type_id'], 'StatTypes'));
@@ -129,7 +130,7 @@ class StatsTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->Games->division($this->field('game_id', ['Stats.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -137,7 +138,7 @@ class StatsTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('team_id', ['Stats.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

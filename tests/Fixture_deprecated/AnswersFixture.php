@@ -19,7 +19,7 @@ class AnswersFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'question_id' => QUESTION_ID_TEAM_NIGHT,

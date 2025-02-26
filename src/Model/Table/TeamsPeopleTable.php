@@ -12,6 +12,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Core\ModuleRegistry;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * TeamsPeople Model
@@ -27,7 +28,7 @@ class TeamsPeopleTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('teams_people');
@@ -52,7 +53,7 @@ class TeamsPeopleTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -83,7 +84,7 @@ class TeamsPeopleTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['team_id'], 'Teams'));
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 
@@ -116,7 +117,7 @@ class TeamsPeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($options->offsetExists('team')) {
 			$team = $options['team'];
 		} else {
@@ -153,7 +154,7 @@ class TeamsPeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return bool
 	 */
-	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($options->offsetExists('team')) {
 			$team = $options['team'];
 		} else {
@@ -198,7 +199,7 @@ class TeamsPeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		UserCache::getInstance()->_deleteTeamData($entity->person_id);
 	}
 
@@ -206,7 +207,7 @@ class TeamsPeopleTable extends AppTable {
 		// Teams may be unassigned
 		try {
 			return $this->Teams->affiliate($this->team($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -214,7 +215,7 @@ class TeamsPeopleTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->Teams->division($this->team($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -222,7 +223,7 @@ class TeamsPeopleTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('team_id', ['TeamsPeople.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

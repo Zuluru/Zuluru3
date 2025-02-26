@@ -16,6 +16,7 @@ use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
 use App\Model\Table\LeaguesTable;
+use InvalidArgumentException;
 
 /**
  * Teams Model
@@ -43,7 +44,7 @@ class TeamsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('teams');
@@ -136,7 +137,7 @@ class TeamsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -212,7 +213,7 @@ class TeamsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['division_id'], 'Divisions', __('You must select a valid division.')));
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
 		return $rules;
@@ -226,7 +227,7 @@ class TeamsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($entity->isDirty('division_id') && !empty($entity->getOriginal('division_id'))) {
 			$this->Divisions->clearCache($entity->getOriginal('division_id'));
 		}
@@ -256,7 +257,7 @@ class TeamsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($entity->division_id) {
 			$this->Divisions->clearCache($entity->division_id);
 		}
@@ -311,20 +312,10 @@ class TeamsTable extends AppTable {
 		$teams = $this->find()
 			->contain([
 				'Divisions' => [
-					'queryBuilder' => function (Query $q) {
-						return $q->find('translations');
-					},
 					'Leagues' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
 						'Affiliates',
 					],
-					'Days' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
+					'Days',
 				],
 				'Franchises',
 			])
@@ -395,7 +386,7 @@ class TeamsTable extends AppTable {
 			} else {
 				return $this->field('affiliate_id', [$this->aliasField('id') => $id]);
 			}
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -403,7 +394,7 @@ class TeamsTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->field('division_id', [$this->aliasField('id') => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -418,7 +409,7 @@ class TeamsTable extends AppTable {
 			} else {
 				return current(array_keys(Configure::read('options.sport')));
 			}
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

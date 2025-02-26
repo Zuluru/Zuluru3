@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Model\Entity\Person;
 use App\Model\Entity\User;
 use App\Test\Factory\AffiliateFactory;
 use App\Test\Factory\PersonFactory;
@@ -11,6 +12,7 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 /**
  * App\Controller\UsersController Test Case
@@ -26,7 +28,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.Countries',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Provinces',
 		'app.Settings',
 	];
@@ -35,7 +37,32 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test login method
 	 */
 	public function testLogin(): void {
-		$this->markTestIncomplete('Not implemented yet.');
+		/** @var Person $admin */
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'login']);
+		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'login'], [
+			'user_name' => $admin->user->user_name,
+			'password' => 'test123', // Hardcoded password for admin in the PersonFactory
+		],
+		'/');
+	}
+
+	/**
+	 * Test login method with remember me
+	 */
+	public function testLoginRememberMe(): void {
+		/** @var Person $admin */
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'login']);
+		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'login'], [
+			'user_name' => $admin->user->user_name,
+			'password' => 'test123', // Hardcoded password for admin in the PersonFactory
+			'remember_me' => true,
+		],
+		'/');
+		$this->assertHeaderContains('Set-Cookie', 'ZuluruAuth=');
 	}
 
 	/**
@@ -116,7 +143,6 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test creating a player account
 	 */
 	public function testCreateAccountForPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -127,9 +153,9 @@ class UsersControllerTest extends ControllerTestCase {
 				'email' => 'test@example.com',
 				'new_password' => 'password',
 				'confirm_password' => 'password',
-				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
+				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_PLAYER]],
+					'user_groups' => ['_ids' => [GROUP_PLAYER]],
 					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -170,15 +196,16 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'create',
 			],
-			'/', 'Flash/account_created', 'Flash.flash.0.element'
+			'/'
 		);
-		$this->assertNotNull($this->_requestSession->read('Auth.id'));
+		$this->assertFlashElement('flash/account_created');
+		$this->assertSession(1, 'Auth.id');
 
 		/** @var User $user */
-		$user = TableRegistry::getTableLocator()->get('Users')->get($this->_requestSession->read('Auth.id'), ['contain' => [
+		$user = TableRegistry::getTableLocator()->get('Users')->get(1, ['contain' => [
 			'People' => [
 				'Affiliates',
-				'Groups',
+				'UserGroups',
 				'Skills',
 			],
 		]]);
@@ -188,12 +215,12 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertNotNull($user->person);
 		$this->assertEquals('Test', $user->person->first_name);
 		$this->assertEquals('new', $user->person->status);
-		$this->assertEquals(true, $user->person->complete);
+		$this->assertTrue($user->person->complete);
 		$this->assertEquals(FrozenDate::now(), $user->person->modified);
 		$this->assertCount(1, $user->person->affiliates);
 		$this->assertEquals($affiliate->id, $user->person->affiliates[0]->id);
-		$this->assertCount(1, $user->person->groups);
-		$this->assertEquals(GROUP_PLAYER, $user->person->groups[0]->id);
+		$this->assertCount(1, $user->person->user_groups);
+		$this->assertEquals(GROUP_PLAYER, $user->person->user_groups[0]->id);
 		$this->assertCount(2, $user->person->skills);
 		$this->assertEquals('baseball', $user->person->skills[0]->sport);
 		$this->assertFalse($user->person->skills[0]->enabled);
@@ -207,7 +234,6 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test creating a parent account
 	 */
 	public function testCreateAccountForParent(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -218,9 +244,9 @@ class UsersControllerTest extends ControllerTestCase {
 				'email' => 'test@example.com',
 				'new_password' => 'password',
 				'confirm_password' => 'password',
-				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
+				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_PARENT]],
+					'user_groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -267,19 +293,20 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'create',
 			],
-			'/', 'Flash/account_created', 'Flash.flash.0.element'
+			'/'
 		);
-		$this->assertNotNull($this->_requestSession->read('Auth.id'));
+		$this->assertFlashElement('flash/account_created');
+		$this->assertSession(1, 'Auth.id');
 
 		/** @var User $user */
-		$user = TableRegistry::getTableLocator()->get('Users')->get($this->_requestSession->read('Auth.id'), ['contain' => [
+		$user = TableRegistry::getTableLocator()->get('Users')->get(1, ['contain' => [
 			'People' => [
 				'Affiliates',
-				'Groups',
+				'UserGroups',
 				'Skills',
 				'Relatives' => [
 					'Affiliates',
-					'Groups',
+					'UserGroups',
 					'Skills',
 				],
 			],
@@ -290,26 +317,26 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertNotNull($user->person);
 		$this->assertEquals('Test', $user->person->first_name);
 		$this->assertEquals('new', $user->person->status);
-		$this->assertEquals(true, $user->person->complete);
+		$this->assertTrue($user->person->complete);
 		$this->assertEquals(FrozenDate::now(), $user->person->modified);
-		$this->assertEquals(1, count($user->person->affiliates));
+		$this->assertCount(1, $user->person->affiliates);
 		$this->assertEquals($affiliate->id, $user->person->affiliates[0]->id);
-		$this->assertEquals(1, count($user->person->groups));
-		$this->assertEquals(GROUP_PARENT, $user->person->groups[0]->id);
+		$this->assertCount(1, $user->person->user_groups);
+		$this->assertEquals(GROUP_PARENT, $user->person->user_groups[0]->id);
 		$this->assertEmpty(count($user->person->skills));
 
-		$this->assertEquals(1, count($user->person->relatives));
+		$this->assertCount(1, $user->person->relatives);
 		$this->assertEquals($user->person->id + 1, $user->person->relatives[0]->id);
 		$this->assertTrue($user->person->relatives[0]->_joinData->approved);
 		$this->assertEquals('Young', $user->person->relatives[0]->first_name);
 		$this->assertEquals('new', $user->person->relatives[0]->status);
-		$this->assertEquals(true, $user->person->relatives[0]->complete);
+		$this->assertTrue($user->person->relatives[0]->complete);
 		$this->assertEquals(FrozenDate::now(), $user->person->relatives[0]->modified);
-		$this->assertEquals(1, count($user->person->relatives[0]->affiliates));
+		$this->assertCount(1, $user->person->relatives[0]->affiliates);
 		$this->assertEquals($affiliate->id, $user->person->relatives[0]->affiliates[0]->id);
-		$this->assertEquals(1, count($user->person->relatives[0]->groups));
-		$this->assertEquals(GROUP_PLAYER, $user->person->relatives[0]->groups[0]->id);
-		$this->assertEquals(2, count($user->person->relatives[0]->skills));
+		$this->assertCount(1, $user->person->relatives[0]->user_groups);
+		$this->assertEquals(GROUP_PLAYER, $user->person->relatives[0]->user_groups[0]->id);
+		$this->assertCount(2, $user->person->relatives[0]->skills);
 		$this->assertEquals('baseball', $user->person->relatives[0]->skills[0]->sport);
 		$this->assertFalse($user->person->relatives[0]->skills[0]->enabled);
 		$this->assertEquals('ultimate', $user->person->relatives[0]->skills[1]->sport);
@@ -322,7 +349,6 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test creating a parent account, with continuation to add another child
 	 */
 	public function testCreateAccountForParentWithSecondChild(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -333,9 +359,9 @@ class UsersControllerTest extends ControllerTestCase {
 				'email' => 'test@example.com',
 				'new_password' => 'password',
 				'confirm_password' => 'password',
-				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
+				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_PARENT]],
+					'user_groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -382,9 +408,10 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'continue',
 			],
-			['controller' => 'People', 'action' => 'add_relative'], 'Flash/account_created', 'Flash.flash.0.element'
+			['controller' => 'People', 'action' => 'add_relative']
 		);
-		$this->assertNotNull($this->_requestSession->read('Auth.id'));
+		$this->assertFlashElement('flash/account_created');
+		$this->assertSession(1, 'Auth.id');
 	}
 
 	/**
@@ -423,6 +450,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test JSON API token generation
 	 */
 	public function testToken(): void {
+
 		$affiliate = AffiliateFactory::make()->persist();
 		$admin = PersonFactory::make()
 			->withGroup(GROUP_ADMIN)
@@ -444,11 +472,11 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertTrue($response['success']);
 		$this->assertArrayHasKey('data', $response);
 		$this->assertArrayHasKey('token', $response['data']);
-		$token_data = JWT::decode($response['data']['token'], \Cake\Utility\Security::getSalt(), ['HS256']);
-		$this->assertObjectHasAttribute('sub', $token_data);
+		$token_data = JWT::decode($response['data']['token'], new Key(\Cake\Utility\Security::getSalt(), 'HS256'));
+		$this->assertObjectHasProperty('sub', $token_data);
 		$this->assertEquals($admin->user_id, $token_data->sub);
-		$this->assertObjectHasAttribute('exp', $token_data);
-		$this->assertEquals(FrozenTime::now()->addWeek()->toUnixString(), $token_data->exp);
+		$this->assertObjectHasProperty('exp', $token_data);
+		$this->assertEquals(FrozenTime::now()->addWeeks(1)->toUnixString(), $token_data->exp);
 	}
 
 	/**

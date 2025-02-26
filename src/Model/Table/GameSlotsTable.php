@@ -14,6 +14,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
+use InvalidArgumentException;
 
 /**
  * GameSlots Model
@@ -30,7 +31,7 @@ class GameSlotsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('game_slots');
@@ -68,7 +69,7 @@ class GameSlotsTable extends AppTable {
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
 
-			->date('game_date', __('You must provide a valid game date.'))
+			->date('game_date', ['ymd'], __('You must provide a valid game date.'))
 			->notEmptyDate('game_date', __('You must provide a valid game date.'))
 
 			->time('game_start', __('You must provide a valid game start time.'))
@@ -91,7 +92,7 @@ class GameSlotsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator = $this->validationCommon($validator);
 
 		$validator
@@ -120,7 +121,7 @@ class GameSlotsTable extends AppTable {
 				'rule' => function ($value, $context) {
 					$end = $context['data']['game_end'];
 					// If it's an edit or sunset time is not selected, it's okay.
-					if (!($context['newRecord'] && empty($end['hour']) && empty($end['minute']) && empty($end['meridian']))) {
+					if (!$context['newRecord'] || !empty($end)) {
 						return true;
 					}
 					// Otherwise, it's okay if the length is zero
@@ -143,7 +144,7 @@ class GameSlotsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['field_id'], 'Fields', __('You must select a valid field.')));
 
 		$rules->addCreate(new InDateConfigRule('gameslot'), 'rangeGameDate', [
@@ -204,6 +205,11 @@ class GameSlotsTable extends AppTable {
 		]);
 
 		$rules->add(function (EntityInterface $entity, array $options) {
+			if (empty($entity->field_id) || empty($entity->game_date) || empty($entity->game_start) || empty($entity->game_end)) {
+				// It's not a valid entity, but it will fail for other reasons. These things being empty will crash the query below.
+				return true;
+			}
+
 			$sunset = \App\Lib\local_sunset_for_date($entity->game_date);
 			if (empty($entity->game_end)) {
 				$game_end = $sunset;
@@ -303,10 +309,10 @@ class GameSlotsTable extends AppTable {
 							// TODO: Database-independent way of doing the interval?
 							$start = $query->func()->date_add([
 								"'{$options['date']}', INTERVAL -6 DAY" => 'literal',
-							]);
+							], ['date']);
 							$end = $query->func()->date_add([
 								"'{$options['date']}', INTERVAL 6 DAY" => 'literal',
-							]);
+							], ['date']);
 							return $exp->between('GameSlots.game_date', $start, $end, 'date');
 						},
 						'GameSlots.game_date !=' => $options['date'],
@@ -319,7 +325,7 @@ class GameSlotsTable extends AppTable {
 		} else if ($options['multi_day']) {
 			$query->where([
 				function ($exp) use ($options, $query) {
-					$end = (new FrozenDate($options['date']))->next(Configure::read('organization.first_day'))->subDay();
+					$end = (new FrozenDate($options['date']))->next(Configure::read('organization.first_day'))->subDays(1);
 					return $exp->between('GameSlots.game_date', $options['date'], $end, 'date');
 				},
 			]);
@@ -358,7 +364,7 @@ class GameSlotsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Fields->affiliate($this->field('field_id', ['GameSlots.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -366,7 +372,7 @@ class GameSlotsTable extends AppTable {
 	public function sport($id) {
 		try {
 			return $this->Fields->sport($this->field('field_id', ['GameSlots.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

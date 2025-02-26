@@ -4,12 +4,15 @@ namespace App\Model\Table;
 use App\Model\Entity\WaiversPerson;
 use ArrayObject;
 use Cake\Chronos\ChronosInterface;
+use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Waivers Model
@@ -25,7 +28,7 @@ class WaiversTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('waivers');
@@ -33,7 +36,10 @@ class WaiversTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'description', 'text']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description', 'text'],
+		]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',
@@ -54,7 +60,7 @@ class WaiversTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -102,7 +108,7 @@ class WaiversTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
 
 		$rules->add(new InConfigRule('options.waivers.expiry_type'), 'validExpiryType', [
@@ -110,22 +116,35 @@ class WaiversTable extends AppTable {
 			'message' => __('You must select a valid expiry type.'),
 		]);
 
-		return $rules;
-	}
-
-	/**
-	 * Deal with array structure of incoming data
-	 *
-	 * @param CakeEvent $cakeEvent Unused
-	 * @param ArrayObject $data The data record being patched in
-	 * @param ArrayObject $options The options passed to the new/patchEntity method
-	 */
-	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		foreach (['start_month' => 'month', 'start_day' => 'day', 'end_month' => 'month', 'end_day' => 'day'] as $field => $type) {
-			if ($data->offsetExists($field) && is_array($data[$field]) && array_key_exists($type, $data[$field])) {
-				$data[$field] = $data[$field][$type];
+		$rules->add(function (EntityInterface $entity, array $options) {
+			if (!$entity->start_month) {
+				return __('Invalid start day.');
 			}
-		}
+			$date = FrozenDate::create(2001, $entity->start_month);
+			if ($entity->start_day < 1 || $entity->start_day > $date->lastOfMonth()->day) {
+				return __('Invalid start day.');
+			}
+
+			return true;
+		}, 'valid', [
+			'errorField' => 'start_day',
+		]);
+
+		$rules->add(function (EntityInterface $entity, array $options) {
+			if (!$entity->end_month) {
+				return __('Invalid end day.');
+			}
+			$date = FrozenDate::create(2001, $entity->end_month);
+			if ($entity->end_day < 1 || $entity->end_day > $date->lastOfMonth()->day) {
+				return __('Invalid end day.');
+			}
+
+			return true;
+		}, 'valid', [
+			'errorField' => 'end_day',
+		]);
+
+		return $rules;
 	}
 
 	public function findActive(Query $query, array $options) {
@@ -148,7 +167,7 @@ class WaiversTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->field('affiliate_id', ['Waivers.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

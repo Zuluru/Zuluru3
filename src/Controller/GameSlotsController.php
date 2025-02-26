@@ -16,17 +16,17 @@ use Cake\ORM\TableRegistry;
 class GameSlotsController extends AppController {
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['add']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['add']);
 		}
 	}
 
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('slot');
@@ -44,10 +44,7 @@ class GameSlotsController extends AppController {
 					'Divisions' => ['Leagues'],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game slot.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
@@ -60,8 +57,10 @@ class GameSlotsController extends AppController {
 
 	/**
 	 * Add method
+	 * @todo: If the initial data fails validation, and there were multiple days selected, only one of the days stays
+	 * selected when the form re-renders.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$field = $this->getRequest()->getQuery('field');
@@ -76,7 +75,7 @@ class GameSlotsController extends AppController {
 		}
 
 		// The entity should allow the extra fields that are used for bulk creation
-		$game_slot = $this->GameSlots->newEntity();
+		$game_slot = $this->GameSlots->newEmptyEntity();
 		$game_slot->setAccess(['sport', 'length', 'buffer', 'weeks', 'fields', 'facilities', 'game_slots'], true);
 
 		if ($field) {
@@ -84,10 +83,7 @@ class GameSlotsController extends AppController {
 				$field = $this->GameSlots->Fields->get($field, [
 					'contain' => ['Facilities' => ['Regions']],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 				return $this->redirect('/');
 			}
@@ -147,9 +143,10 @@ class GameSlotsController extends AppController {
 				}
 			} else {
 				// Find the list of holidays to avoid
-				$this->loadModel('Holidays');
+				$this->Holidays = $this->fetchTable('Holidays');
 				$holidays = $this->Holidays->find()
 					->where(['affiliate_id' => $affiliate])
+					->all()
 					->combine('date_string', 'name')
 					->toArray();
 
@@ -187,7 +184,7 @@ class GameSlotsController extends AppController {
 					} else {
 						$skipped[$key] = $holidays[$key];
 					}
-					$date = $date->addWeek();
+					$date = $date->addWeeks(1);
 				}
 
 				$this->set(compact('times', 'weeks', 'skipped'));
@@ -276,6 +273,7 @@ class GameSlotsController extends AppController {
 			->where(['Leagues.affiliate_id' => $affiliate])
 			->where(['Leagues.sport' => ($field ? $field->sport : $game_slot->sport)])
 			->order(['Divisions.id'])
+			->all()
 			->combine('id', 'full_league_name')
 			->toArray();
 
@@ -286,7 +284,7 @@ class GameSlotsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('slot');
@@ -294,10 +292,7 @@ class GameSlotsController extends AppController {
 			$game_slot = $this->GameSlots->get($id, [
 				'contain' => ['Divisions', 'Fields']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game slot.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
@@ -322,7 +317,7 @@ class GameSlotsController extends AppController {
 				$this->Flash->success(__('The game slot has been saved.'));
 				$this->GameSlots->Divisions->clearLocationsCache($diff);
 
-				return $this->redirect(['action' => 'view', 'slot' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['slot' => $id]]);
 			} else {
 				$this->Flash->warning(__('The game slot could not be saved. Please correct the errors below and try again.'));
 			}
@@ -334,6 +329,7 @@ class GameSlotsController extends AppController {
 			->where(['Leagues.affiliate_id' => $affiliate])
 			->where(['Leagues.sport' => $this->GameSlots->sport($id)])
 			->order(['Divisions.id'])
+			->all()
 			->combine('id', 'full_league_name')
 			->toArray();
 
@@ -343,7 +339,7 @@ class GameSlotsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -352,10 +348,7 @@ class GameSlotsController extends AppController {
 			$game_slot = $this->GameSlots->get($this->getRequest()->getQuery('slot'), [
 				'contain' => ['Divisions']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game slot.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
@@ -405,7 +398,7 @@ class GameSlotsController extends AppController {
 			$this->Flash->info(__('Games in this slot have already been finalized.'));
 			return $this->redirect('/');
 		}
-		if ($game_slot->end_time->subHour()->isFuture()) {
+		if ($game_slot->end_time->subHours(1)->isFuture()) {
 			$this->Flash->info(__('That game has not yet occurred!'));
 			return $this->redirect('/');
 		}

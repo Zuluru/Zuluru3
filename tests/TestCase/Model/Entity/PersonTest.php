@@ -16,7 +16,7 @@ class PersonTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 	];
 
 	public $autoFixtures = false;
@@ -126,7 +126,7 @@ class PersonTest extends TestCase {
 	 * Test merge method for two users
 	 */
 	public function testMergeUserWithUser(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 
 		[$user1, $user2] = PersonFactory::make([
 			['gender' => 'Woman'],
@@ -145,10 +145,10 @@ class PersonTest extends TestCase {
 	 * Test merge method for a user and a profile
 	 */
 	public function testMergeUserWithProfile(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 
-		$user1 = PersonFactory::make(['gender' => 'Woman'])->player()->persist();
-		$user2 = PersonFactory::make(['gender' => 'Man'])->child()->persist();
+		$user1 = PersonFactory::make()->player(['gender' => 'Woman'])->persist();
+		$user2 = PersonFactory::make()->child(['gender' => 'Man'])->persist();
 		$user_id = $user1->user_id;
 		$address = $user1->addr_street;
 
@@ -163,7 +163,7 @@ class PersonTest extends TestCase {
 	 * Test merge method for a profile and a user
 	 */
 	public function testMergeProfileWithUser(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 
 		/** @var Person $user1 */
 		$user1 = PersonFactory::make(['gender' => 'Man'])->withGroup(GROUP_PLAYER)->persist();
@@ -182,7 +182,36 @@ class PersonTest extends TestCase {
 	 * Test merge method for two profiles
 	 */
 	public function testMergeProfileWithProfile(): void {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->setupFixtures();
+
+		/** @var Person $user1 */
+		$user1 = PersonFactory::make(['gender' => 'Man'])->withGroup(GROUP_PLAYER)->persist();
+		/** @var Person $user2 */
+		$user2 = PersonFactory::make(['gender' => 'Woman'])->withGroup(GROUP_PLAYER)->persist();
+
+		$user1->merge($user2);
+		$this->assertEquals($user2->first_name, $user1->first_name);
+		$this->assertEquals($user2->gender, $user1->gender);
+		$this->assertEquals($user2->addr_street, $user1->addr_street);
+	}
+
+	/**
+	 * Test merge method for a parent with a player
+	 */
+	public function testMergeParentWithPlayer(): void {
+		$this->setupFixtures();
+
+		/** @var Person $player */
+		$player = PersonFactory::make()->player(['gender' => 'Man', 'roster_designation' => 'Open', 'height' => 70, 'shirt_size' => 'Mens Large'])->persist();
+		/** @var Person $parent */
+		$parent = PersonFactory::make()->parent()->persist();
+
+		$player->merge($parent);
+		$this->assertEquals($parent->first_name, $player->first_name);
+		$this->assertEquals($parent->addr_street, $player->addr_street);
+		$this->assertEquals('Man', $player->gender);
+		$this->assertEquals(70, $player->height);
+		$this->assertEquals('Mens Large', $player->shirt_size);
 	}
 
 }

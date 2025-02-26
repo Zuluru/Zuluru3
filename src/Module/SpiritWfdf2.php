@@ -52,7 +52,7 @@ class SpiritWfdf2 extends Spirit {
 			'q2' => [
 				'name' => __('Fouls'),
 				'text' => __('Fouls and Body Contact'),
-				'desc' => __('Examples: They avoided fouling, contact, and dangerous plays.'),
+				'desc' => __('Examples: They avoided fouling, contact, and dangerous plays. They played safely. The game flowed smoothly.'),
 				'type' => 'radio',
 				'options' => [
 					'PoorFouls' => [
@@ -139,7 +139,7 @@ class SpiritWfdf2 extends Spirit {
 			'q5' => [
 				'name' => __('Communication'),
 				'text' => __('Communication'),
-				'desc' => __('Examples: They communicated respectfully. They listened. They kept to discussion time limits.'),
+				'desc' => __('Examples: They communicated respectfully. They listened. They kept kept discussion to reasonable limits. They got to know us. They used hand signals.'),
 				'type' => 'radio',
 				'options' => [
 					'PoorCommunication' => [

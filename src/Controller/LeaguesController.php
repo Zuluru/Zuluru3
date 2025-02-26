@@ -2,14 +2,13 @@
 namespace App\Controller;
 
 use App\Model\Entity\League;
+use App\Service\Games\ScheduleService;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
-use App\Exception\ScheduleException;
 use App\Model\Table\GamesTable;
 use App\Model\Table\LeaguesTable;
 
@@ -25,7 +24,7 @@ class LeaguesController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index', 'view', 'schedule', 'standings', 'tooltip'];
 	}
 
@@ -48,17 +47,17 @@ class LeaguesController extends AppController {
 	}
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$year = $this->getRequest()->getQuery('year');
@@ -97,6 +96,7 @@ class LeaguesController extends AppController {
 				],
 			])
 			->where($conditions)
+			->all()
 			->reject(function (League $league) {
 				return empty($league->divisions);
 			})
@@ -125,7 +125,7 @@ class LeaguesController extends AppController {
 			->toArray();
 		$years = array_unique(collection(array_merge($open, $close))->extract('year')->toArray());
 		$this->set(compact('years'));
-		$this->set('_serialize', ['league', 'years']);
+		$this->viewBuilder()->setOption('serialize', ['league', 'years']);
 	}
 
 	public function summary() {
@@ -155,7 +155,7 @@ class LeaguesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
@@ -167,10 +167,7 @@ class LeaguesController extends AppController {
 					'Categories',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -185,9 +182,10 @@ class LeaguesController extends AppController {
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
+		$can_edit = $this->Authorization->can($league, 'edit_schedule');
 
-		$this->set(compact('league', 'league_obj', 'affiliates'));
-		$this->set('_serialize', ['league']);
+		$this->set(compact('league', 'league_obj', 'affiliates', 'can_edit'));
+		$this->viewBuilder()->setOption('serialize', ['league']);
 	}
 
 	public function tooltip() {
@@ -208,10 +206,7 @@ class LeaguesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -232,7 +227,7 @@ class LeaguesController extends AppController {
 		if ($this->getRequest()->is('csv')) {
 			$contain['Divisions']['Teams']['People'] = [
 				Configure::read('Security.authModel'),
-				'Groups',
+				'UserGroups',
 				'Related' => [Configure::read('Security.authModel')],
 			];
 			try {
@@ -251,10 +246,7 @@ class LeaguesController extends AppController {
 			$league = $this->Leagues->get($id, [
 				'contain' => $contain,
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -271,11 +263,11 @@ class LeaguesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
-		$league = $this->Leagues->newEntity();
+		$league = $this->Leagues->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$league = $this->Leagues->patchEntity($league, $this->getRequest()->getData(), [
@@ -296,10 +288,7 @@ class LeaguesController extends AppController {
 					$league = $this->Leagues->get($id, [
 						'contain' => ['Categories', 'Divisions' => ['Days']]
 					]);
-				} catch (RecordNotFoundException $ex) {
-					$this->Flash->info(__('Invalid league.'));
-					return $this->redirect(['action' => 'index']);
-				} catch (InvalidPrimaryKeyException $ex) {
+				} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 					$this->Flash->info(__('Invalid league.'));
 					return $this->redirect(['action' => 'index']);
 				}
@@ -319,21 +308,28 @@ class LeaguesController extends AppController {
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
 		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->toArray());
-		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
+		if ($league->sport) {
+			$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
+		} else {
+			$this->set('stat_types', []);
+		}
 		$this->render('edit');
 	}
 
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
-			$league = $this->Leagues->get($id, [
-				'contain' => [
+			$league = $this->Leagues->find('translations')
+				->contain([
 					'Divisions' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
 						'People',
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
@@ -343,12 +339,10 @@ class LeaguesController extends AppController {
 					],
 					'Categories',
 					'StatTypes',
-				]
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+				])
+				->where(['Leagues.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -393,7 +387,7 @@ class LeaguesController extends AppController {
 	public function add_division() {
 		$this->getRequest()->allowMethod('ajax');
 		$this->Authorization->authorize($this, 'add_division_fields');
-		$league = $this->Leagues->newEntity();
+		$league = $this->Leagues->newEmptyEntity();
 		$this->set(compact('league'));
 		// TODO: Do we need to take the league ID, if there is one, as a parameter,
 		// and base this on the user's status in that league?
@@ -403,7 +397,7 @@ class LeaguesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -411,10 +405,7 @@ class LeaguesController extends AppController {
 		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -441,108 +432,70 @@ class LeaguesController extends AppController {
 	public function schedule() {
 		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
-		// Hopefully, everything we need is already cached
-		$league = Cache::remember("league/{$id}/schedule", function () use ($id) {
-			try {
-				$league = $this->Leagues->get($id, [
-					'finder' => 'translations',
-					'contain' => [
-						'Divisions' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-							'Days' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->order(['DivisionsDays.day_id']);
-								},
-							],
-							'Teams',
-						],
+		try {
+			/** @var League $league */
+			$league = $this->Leagues->get($id, [
+				'contain' => [
+					'Divisions' => [
+						'Days',
+						'Teams',
 					],
-				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid league.'));
-				return null;
-			} catch (InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid league.'));
-				return null;
-			}
-
-			$divisions = $this->Leagues->Divisions->find()
-				->contain([
-					'Games' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->where([
-								'OR' => [
-									'Games.home_dependency_type !=' => 'copy',
-									'Games.home_dependency_type IS' => null,
-								],
-							]);
-						},
-						'GameSlots' => [
-							'Fields' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-								'Facilities' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
-							],
-						],
-						'ScoreEntries',
-						'HomeTeam',
-						'HomePoolTeam' => [
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-						],
-						'AwayTeam',
-						'AwayPoolTeam' => [
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-						],
-						'Pools' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-						],
-					],
-				])
-				->where(['Divisions.id IN' => collection($league->divisions)->extract('id')->toArray()])
-				->toArray();
-
-			$league->games = [];
-			foreach ($divisions as $division) {
-				$raw_division = $division;
-				$games = $division->games;
-				unset($raw_division->games);
-				foreach ($games as $game) {
-					$game->division = $raw_division;
-					$game->setDirty('division', false);
-					$league->games[] = $game;
-				}
-			}
-			if (empty($league->games)) {
-				$this->Flash->info(__('This league has no games scheduled yet.'));
-				return null;
-			}
-
-			// Sort games by date, time and field
-			usort($league->games, [GamesTable::class, 'compareDateAndField']);
-
-			return $league;
-		}, 'long_term');
-
-		if (!$league) {
+				],
+			]);
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$divisions = $this->Leagues->Divisions->find()
+			->contain([
+				'Games' => [
+					'queryBuilder' => function (Query $q) {
+						return $q->where([
+							'OR' => [
+								'Games.home_dependency_type !=' => 'copy',
+								'Games.home_dependency_type IS' => null,
+							],
+						]);
+					},
+					'GameSlots' => [
+						'Fields' => [
+							'Facilities',
+						],
+					],
+					'ScoreEntries',
+					'HomeTeam',
+					'HomePoolTeam' => [
+						'DependencyPool',
+					],
+					'AwayTeam',
+					'AwayPoolTeam' => [
+						'DependencyPool',
+					],
+					'Pools',
+				],
+			])
+			->where(['Divisions.id IN' => collection($league->divisions)->extract('id')->toArray()])
+			->toArray();
+
+		$league->games = [];
+		foreach ($divisions as $division) {
+			$raw_division = $division;
+			$games = $division->games;
+			unset($raw_division->games);
+			foreach ($games as $game) {
+				$game->division = $raw_division;
+				$game->setDirty('division', false);
+				$league->games[] = $game;
+			}
+		}
+		if (empty($league->games)) {
+			$this->Flash->info(__('This league has no games scheduled yet.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		// Sort games by date, time and field
+		usort($league->games, [GamesTable::class, 'compareDateAndField']);
 
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
@@ -586,172 +539,99 @@ class LeaguesController extends AppController {
 		// Save posted data
 		if ($this->getRequest()->is(['patch', 'post', 'put']) && $can_edit) {
 			$this->loadComponent('Lock');
-
-			if ($this->Lock->lock('scheduling', $this->Leagues->affiliate($league->id), 'schedule creation or edit')) {
-				try {
-					$edit_games = $this->Leagues->Divisions->Games->patchEntities($league->games, $this->getRequest()->getData('games'),
-						array_merge($this->getRequest()->getData('options'), ['validate' => 'scheduleEdit'])
-					);
-
-					$edit_ids = collection($edit_games)->extract('id')->toArray();
-					$other_games = collection($league->games)->reject(function ($game) use ($edit_ids) {
-						return in_array($game->id, $edit_ids);
-					})->toArray();
-					$league->games = array_merge($edit_games, $other_games);
-					usort($league->games, [GamesTable::class, 'compareDateAndField']);
-
-					if ($this->Leagues->Divisions->Games->getConnection()->transactional(function () use ($edit_games, $game_slots) {
-						$success = true;
-						$options = array_merge($this->getRequest()->getData('options'), [
-							'games' => $edit_games,
-							'game_slots' => $game_slots,
-							'validate' => 'scheduleEdit',
-						]);
-						// We intentionally do not use saveMany here; it returns immediately when one save fails,
-						// whereas this method will generate error messages for everything applicable.
-						foreach ($edit_games as $game) {
-							if (!$this->Leagues->Divisions->Games->save($game, $options)) {
-								$success = false;
-							}
-						}
-						return $success;
-					})) {
-						$this->Flash->success(__('Schedule changes saved!'));
-
-						// With the saves being inside a transaction, afterSaveCommit is not called.
-						$event = new Event('Model.afterSaveCommit', $this, [null]);
-						$this->getEventManager()->dispatch($event);
-
-						return $this->redirect (['action' => 'schedule', 'league' => $id]);
-					}
-
-					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				} catch (ScheduleException $ex) {
-					$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				}
+			$schedule = new ScheduleService($this->Leagues->Divisions->Games->getTarget(), $this->Flash, $this->Lock);
+			if ($schedule->update($league, $league->games, $game_slots, $this->getRequest()->getData())) {
+				return $this->redirect (['action' => 'schedule', '?' => ['league' => $id]]);
 			}
 		}
 
 		$league->games = collection($league->games)->indexBy('id')->toArray();
 		$this->set(compact('id', 'league', 'edit_date', 'game_slots', 'is_tournament', 'multi_day'));
-		$this->set('_serialize', ['league']);
+		$this->viewBuilder()->setOption('serialize', ['league']);
 	}
 
 	public function standings() {
 		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
 		// Hopefully, everything we need is already cached
-		$league = Cache::remember("league/{$id}/standings", function () use ($id) {
-			try {
+		try {
+			$league = Cache::remember("league_{$id}_standings", function () use ($id) {
 				$league = $this->Leagues->get($id, [
-					'finder' => 'translations',
 					'contain' => [
 						'Divisions' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-							'Days' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->order(['DivisionsDays.day_id']);
-								},
-							],
+							'Days',
 							'Teams',
 						],
 					],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid league.'));
-				return null;
-			} catch (InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid league.'));
-				return null;
-			}
 
-			$this->Configuration->loadAffiliate($league->affiliate_id);
-			$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
+				$this->Configuration->loadAffiliate($league->affiliate_id);
+				$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
 
-			foreach ($league->divisions as $key => $division) {
-				// Find all games played by teams that are currently in this division,
-				// or tournament games for this division
-				$teams = collection($division->teams)->extract('id')->toArray();
-				$conditions = [
-					'Games.division_id' => $division->id,
-					'Games.type !=' => SEASON_GAME,
-				];
-				if (!empty($teams)) {
+				foreach ($league->divisions as $key => $division) {
+					// Find all games played by teams that are currently in this division,
+					// or tournament games for this division
+					$teams = collection($division->teams)->extract('id')->toArray();
 					$conditions = [
-						'OR' => [
-							'Games.home_team_id IN' => $teams,
-							'Games.away_team_id IN' => $teams,
-							'AND' => $conditions,
-						],
+						'Games.division_id' => $division->id,
+						'Games.type !=' => SEASON_GAME,
 					];
-				}
-
-				$division->games = $this->Leagues->Divisions->Games->find('played')
-					->contain([
-						'GameSlots',
-						'HomePoolTeam' => [
-							'Pools' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
+					if (!empty($teams)) {
+						$conditions = [
+							'OR' => [
+								'Games.home_team_id IN' => $teams,
+								'Games.away_team_id IN' => $teams,
+								'AND' => $conditions,
 							],
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-						],
-						'AwayPoolTeam' => [
-							'Pools' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-						],
-						'ScoreEntries',
-						'SpiritEntries',
-					])
-					->where($conditions)
-					->toArray();
-
-				if (!empty($division->games)) {
-					// Sort games by date, time and field
-					usort($division->games, [GamesTable::class, 'compareDateAndField']);
-					GamesTable::adjustEntryIndices($division->games);
-					$division->setDirty('games', false);
-				}
-
-				$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
-				$league_obj->sort($division, $league, $division->games, $spirit_obj, false);
-				$division->render_element = $league_obj->render_element;
-
-				// If there's anyone without seed information, save the seeds
-				if (collection($division->teams)->some(function ($team) { return $team->seed == 0; })) {
-					$seed = 0;
-					foreach ($division->teams as $tkey => $team) {
-						$team->seed = ++$seed;
+						];
 					}
-					$division->setDirty('teams', true);
-					$league->setDirty('divisions', true);
-				}
-			}
-			$this->Leagues->save($league);
 
-			return $league;
-		}, 'long_term');
+					$division->games = $this->Leagues->Divisions->Games->find('played')
+						->contain([
+							'GameSlots',
+							'HomePoolTeam' => [
+								'Pools',
+								'DependencyPool',
+							],
+							'AwayPoolTeam' => [
+								'Pools',
+								'DependencyPool',
+							],
+							'ScoreEntries',
+							'SpiritEntries',
+						])
+						->where($conditions)
+						->toArray();
+
+					if (!empty($division->games)) {
+						// Sort games by date, time and field
+						usort($division->games, [GamesTable::class, 'compareDateAndField']);
+						GamesTable::adjustEntryIndices($division->games);
+						$division->setDirty('games', false);
+					}
+
+					$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
+					$league_obj->sort($division, $league, $division->games, $spirit_obj, false);
+					$division->render_element = $league_obj->render_element;
+
+					// If there's anyone without seed information, save the seeds
+					if (collection($division->teams)->some(function ($team) { return $team->seed == 0; })) {
+						$seed = 0;
+						foreach ($division->teams as $tkey => $team) {
+							$team->seed = ++$seed;
+						}
+						$division->setDirty('teams', true);
+						$league->setDirty('divisions', true);
+					}
+				}
+				$this->Leagues->save($league);
+
+				return $league;
+			}, 'long_term');
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid league.'));
+			return $this->redirect(['action' => 'index']);
+		}
 
 		if (!$league) {
 			return $this->redirect(['action' => 'index']);
@@ -761,7 +641,7 @@ class LeaguesController extends AppController {
 		$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
 
 		$this->set(compact('league', 'spirit_obj'));
-		$this->set('_serialize', ['league']);
+		$this->viewBuilder()->setOption('serialize', ['league']);
 	}
 
 	public function slots() {
@@ -772,10 +652,7 @@ class LeaguesController extends AppController {
 					'Divisions',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -793,6 +670,7 @@ class LeaguesController extends AppController {
 				return $q->where(['Divisions.id IN' => $divisions]);
 			})
 			->order(['GameSlots.game_date'])
+			->all()
 			->extract('game_date')
 			->toArray();
 

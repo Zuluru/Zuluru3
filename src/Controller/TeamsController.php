@@ -3,11 +3,13 @@ namespace App\Controller;
 
 use App\Authorization\ContextResource;
 use App\Exception\ForbiddenRedirectException;
+use App\Model\Entity\Division;
 use App\Model\Entity\Registration;
+use App\Model\Entity\Team;
 use App\View\Helper\ZuluruHtmlHelper;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\Core\Exception\Exception;
+use Cake\Core\Exception\CakeException;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -33,9 +35,7 @@ class TeamsController extends AppController {
 	use HasherTrait;
 
 	public $paginate = [
-		'order' => [
-			'Teams.name' => 'asc',
-		]
+		'order' => ['Teams.name' => 'ASC']
 	];
 
 	/**
@@ -43,7 +43,7 @@ class TeamsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		$actions = ['index', 'letter', 'view', 'tooltip', 'schedule', 'ical',
 			// Roster updates may come from emailed links; people might not be logged in
 			'roster_accept', 'roster_decline',
@@ -65,17 +65,17 @@ class TeamsController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing of team management
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['edit', 'add_from_team']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['edit', 'add_from_team']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$affiliate = $this->getRequest()->getQuery('affiliate');
@@ -106,6 +106,8 @@ class TeamsController extends AppController {
 				'Affiliates.id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 
 		$leagues = $this->Teams->Divisions->Leagues->find()
@@ -150,6 +152,8 @@ class TeamsController extends AppController {
 				'Affiliates.id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 
 		$this->set(compact('affiliates', 'affiliate', 'teams', 'letters', 'letter'));
@@ -218,6 +222,7 @@ class TeamsController extends AppController {
 			->where($conditions)
 			->group(['Divisions.id'])
 			->enableAutoFields(true)
+			->all()
 			->indexBy('id')
 			->toArray();
 
@@ -249,8 +254,8 @@ class TeamsController extends AppController {
 				$short->sub_count = $this->Teams->TeamsPeople->find()
 					->where([
 						'TeamsPeople.team_id' => $short->id,
-						// TODO: Use the configuration settings for non-player roles
-						'TeamsPeople.role' => 'substitute',
+						'TeamsPeople.role NOT IN' => Configure::read('regular_roster_roles'),
+						'TeamsPeople.status' => ROSTER_APPROVED,
 					])
 					->count();
 
@@ -413,9 +418,12 @@ class TeamsController extends AppController {
 		}
 
 		$years = $this->Teams->Divisions->find()
+			->enableHydration(false)
 			->select(['year' => 'DISTINCT YEAR(open)'])
 			->where(['YEAR(open) !=' => 0])
 			->order(['year'])
+			->all()
+			->extract('year')
 			->toArray();
 
 		$this->set(compact('year', 'years', 'divisions'));
@@ -444,7 +452,7 @@ class TeamsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('team');
@@ -456,7 +464,7 @@ class TeamsController extends AppController {
 						return $q->where(['TeamsPeople.status' => ROSTER_APPROVED]);
 					},
 					Configure::read('Security.authModel'),
-					'Groups',
+					'UserGroups',
 					'Related' => [Configure::read('Security.authModel')],
 				],
 				'Divisions' => ['Leagues'],
@@ -472,13 +480,11 @@ class TeamsController extends AppController {
 		}
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => $contain
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -614,7 +620,7 @@ class TeamsController extends AppController {
 							],
 							'Waivers',
 							'Uploads',
-							'Groups',
+							'UserGroups',
 						]
 					]);
 
@@ -681,9 +687,7 @@ class TeamsController extends AppController {
 							}
 						}
 					}
-				} catch (RecordNotFoundException $ex) {
-					// Shouldn't ever happen, but the stuff above will fail badly if it ever does.
-				} catch (InvalidPrimaryKeyException $ex) {
+				} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 					// Shouldn't ever happen, but the stuff above will fail badly if it ever does.
 				}
 			}
@@ -701,7 +705,7 @@ class TeamsController extends AppController {
 		}
 
 		$this->set('team', $team);
-		$this->set('_serialize', ['team']);
+		$this->viewBuilder()->setOption('serialize', ['team']);
 	}
 
 	public function numbers() {
@@ -716,16 +720,14 @@ class TeamsController extends AppController {
 
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => ['Leagues'],
 					'People' => $people_query,
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -733,7 +735,7 @@ class TeamsController extends AppController {
 		if ($person_id) {
 			if (empty($team->people)) {
 				$this->Flash->info(__('That player is not on this team.'));
-				return $this->redirect(['action' => 'view', 'team' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 			}
 			$person = current($team->people);
 			$roster = $person->_joinData;
@@ -754,6 +756,7 @@ class TeamsController extends AppController {
 				$data['people'][0]['id'] = $person_id;
 			}
 
+			/** @var Team $team */
 			$team = $this->Teams->patchEntity($team, $data, [
 				'associated' => ['People._joinData']
 			]);
@@ -765,7 +768,7 @@ class TeamsController extends AppController {
 				foreach ($team->people as $key => $player) {
 					if ($player->isNew() || $player->_joinData->isNew()) {
 						unset($team->people[$key]);
-						throw new Exception(__('You cannot set shirt numbers for someone not on this team.'));
+						throw new CakeException(__('You cannot set shirt numbers for someone not on this team.'));
 					}
 				}
 
@@ -776,12 +779,12 @@ class TeamsController extends AppController {
 						$this->Flash->success(__('The numbers have been saved.'));
 					}
 					if (!$this->getRequest()->is('ajax')) {
-						return $this->redirect(['action' => 'view', 'team' => $id]);
+						return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 					}
 				} else {
 					$this->Flash->warning(__('The {0} could not be saved. Please correct the errors below and try again.', __n('number', 'numbers', ($person_id ? 1 : 2))));
 				}
-			} catch (Exception $ex) {
+			} catch (CakeException $ex) {
 				$this->Flash->info($ex->getMessage());
 			}
 		}
@@ -820,11 +823,9 @@ class TeamsController extends AppController {
 		}
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, compact('contain'));
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -835,11 +836,12 @@ class TeamsController extends AppController {
 		$sport_obj = $this->moduleRegistry->load("Sport:{$team->division->league->sport}");
 
 		// Hopefully, everything we need is already cached
-		$stats = Cache::remember("team/{$id}/stats", function () use ($team, $sport_obj) {
+		$stats = Cache::remember("team_{$id}_stats", function () use ($team, $sport_obj) {
 			// Calculate some stats. We need to get stats from any team in this
 			// division, so that it properly handles subs and people who move teams.
 			$teams = $this->Teams->find()
 				->where(['division_id' => $team->division_id])
+				->all()
 				->combine('id', 'name')
 				->toArray();
 			if (empty($teams) || empty($team->people)) {
@@ -874,6 +876,7 @@ class TeamsController extends AppController {
 	public function stat_sheet() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => [
@@ -888,10 +891,7 @@ class TeamsController extends AppController {
 					'People',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -907,6 +907,7 @@ class TeamsController extends AppController {
 		$id = $this->getRequest()->getQuery('team');
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					// Get the list of captains
@@ -923,10 +924,7 @@ class TeamsController extends AppController {
 					'Divisions' => ['Leagues'],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -950,11 +948,12 @@ class TeamsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
-		$team = $this->Teams->newEntity();
+		/** @var Team $team */
+		$team = $this->Teams->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$data = $this->getRequest()->getData();
@@ -1038,11 +1037,12 @@ class TeamsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Facilities',
@@ -1052,10 +1052,7 @@ class TeamsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1152,27 +1149,22 @@ class TeamsController extends AppController {
 				]);
 
 				$this->Authorization->authorize($note, 'edit_team');
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid note.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid note.'));
 				return $this->redirect('/');
 			}
 			$team = $note->team;
 		} else {
 			try {
+				/** @var Team $team */
 				$team = $this->Teams->get($this->getRequest()->getQuery('team'), [
 					'contain' => ['Divisions' => ['Leagues']]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid team.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid team.'));
 				return $this->redirect('/');
 			}
-			$note = $this->Teams->Notes->newEntity();
+			$note = $this->Teams->Notes->newEmptyEntity();
 			$note->team_id = $team->id;
 		}
 
@@ -1189,11 +1181,11 @@ class TeamsController extends AppController {
 			if (empty($note->note)) {
 				if ($note->isNew()) {
 					$this->Flash->warning(__('You entered no text, so no note was added.'));
-					return $this->redirect(['action' => 'view', 'team' => $team->id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 				} else {
 					if ($this->Teams->Notes->delete($note)) {
 						$this->Flash->success(__('The note has been deleted.'));
-						return $this->redirect(['action' => 'view', 'team' => $team->id]);
+						return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 					} else if ($note->getError('delete')) {
 						$this->Flash->warning(current($note->getError('delete')));
 					} else {
@@ -1202,7 +1194,7 @@ class TeamsController extends AppController {
 				}
 			} else if ($this->Teams->Notes->save($note)) {
 				$this->Flash->success(__('The note has been saved.'));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 			} else {
 				$this->Flash->warning(__('The note could not be saved. Please correct the errors below and try again.'));
 			}
@@ -1220,10 +1212,7 @@ class TeamsController extends AppController {
 			$note = $this->Teams->Notes->get($note_id,
 				['contain' => ['Teams' => ['Divisions']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid note.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid note.'));
 			return $this->redirect('/');
 		}
@@ -1238,26 +1227,24 @@ class TeamsController extends AppController {
 			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'team' => $note->team_id]);
+		return $this->redirect(['action' => 'view', '?' => ['team' => $note->team_id]]);
 	}
 
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
 
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1287,14 +1274,13 @@ class TeamsController extends AppController {
 	// TODO: Method for moving multiple teams at once; jQuery "left and right" boxes?
 	public function move() {
 		$id = $this->getRequest()->getQuery('team');
+		$loose = $this->getRequest()->getQuery('loose');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues', 'People']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1309,25 +1295,29 @@ class TeamsController extends AppController {
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			try {
+				/** @var Division $division */
 				$division = $this->Teams->Divisions->get($this->getRequest()->getData('to'), [
 					'contain' => ['Leagues']
 				]);
-			} catch (RecordNotFoundException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid division.'));
-				return $this->redirect(['action' => 'view', 'team' => $id]);
-			} catch (InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid division.'));
-				return $this->redirect(['action' => 'view', 'team' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 			}
 			// Don't do division comparisons when the team being moved is not in a division
 			if ($team->division_id) {
-				if ($team->division->league_id != $division->league_id) {
-					$this->Flash->info(__('Cannot move a team to a different league.'));
-					return $this->redirect(['action' => 'view', 'team' => $id]);
+				if ($team->division->league->sport !== $division->league->sport) {
+					$this->Flash->info(__('Cannot move a team to a different sport.'));
+					return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 				}
-				if ($division->ratio_rule != $team->division->ratio_rule) {
-					$this->Flash->info(__('Destination division must have the same ratio rule.'));
-					return $this->redirect(['action' => 'view', 'team' => $id]);
+				if (!$loose) {
+					if ($team->division->league_id !== $division->league_id) {
+						$this->Flash->info(__('Cannot move a team to a different league.'));
+						return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
+					}
+					if ($team->division->ratio_rule !== $division->ratio_rule) {
+						$this->Flash->info(__('Destination division must have the same ratio rule.'));
+						return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
+					}
 				}
 			}
 			$team->division_id = $this->getRequest()->getData('to');
@@ -1336,7 +1326,7 @@ class TeamsController extends AppController {
 			} else {
 				$this->Flash->warning(__('Failed to move the team!'));
 			}
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		$conditions = [
@@ -1349,9 +1339,12 @@ class TeamsController extends AppController {
 		if ($team->division_id) {
 			$conditions += [
 				'Divisions.id !=' => $team->division_id,
-				'Divisions.league_id' => $team->division->league_id,
+				'Leagues.sport' => $team->division->league->sport,
 				'Divisions.ratio_rule' => $team->division->ratio_rule,
 			];
+			if (!$loose) {
+				$conditions['Divisions.league_id'] = $team->division->league_id;
+			}
 		}
 		$divisions = $this->Teams->Divisions->find()
 			->contain(['Leagues'])
@@ -1361,25 +1354,23 @@ class TeamsController extends AppController {
 		// Make sure there's somewhere to move it to
 		if (empty($divisions)) {
 			$this->Flash->info(__('No similar division found to move this team to!'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
-		$this->set(compact('team', 'divisions'));
+		$this->set(compact('team', 'divisions', 'loose'));
 	}
 
 	public function schedule() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People',
 					'Divisions' => ['Leagues']
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1409,7 +1400,7 @@ class TeamsController extends AppController {
 
 		if (empty($team->games)) {
 			$this->Flash->info(__('This team has no games scheduled yet.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		// Sort games by date, time and field
@@ -1427,7 +1418,7 @@ class TeamsController extends AppController {
 
 		$this->set(compact('team'));
 		$this->set('spirit_obj', $team->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$team->division->league->sotg_questions}") : null);
-		$this->set('_serialize', ['team']);
+		$this->viewBuilder()->setOption('serialize', ['team']);
 	}
 
 	/**
@@ -1440,15 +1431,13 @@ class TeamsController extends AppController {
 	 * @throws \Cake\Http\Exception\GoneException When record not found.
 	 */
 	public function ical($id) {
-		$this->viewBuilder()->setLayout('ical');
 		$id = intval($id);
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			throw new GoneException();
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			throw new GoneException();
 		}
 
@@ -1490,19 +1479,17 @@ class TeamsController extends AppController {
 		$this->set('team_id', $id);
 		$this->set('games', $games);
 		$this->set('events', $events);
-		$this->RequestHandler->ext = 'ics';
+		$this->viewBuilder()->setLayoutPath('ics')->setClassName('Ical');
 	}
 
 	public function spirit() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1533,7 +1520,7 @@ class TeamsController extends AppController {
 			->toArray();
 		if (empty($team['games'])) {
 			$this->Flash->info(__('This team has no games scheduled yet.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		// Sort games by date, time and field
@@ -1546,6 +1533,7 @@ class TeamsController extends AppController {
 	public function attendance() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => ['Days', 'Leagues'],
@@ -1556,10 +1544,7 @@ class TeamsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect('/');
 		}
@@ -1616,22 +1601,46 @@ class TeamsController extends AppController {
 
 			$days = array_unique(collection($team->division->days)->extract('id')->toArray());
 			if (!empty($days) && $team->division->schedule_type !== 'none') {
-				$play_day = min($days);
-				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDay()) {
-					$day = $date->format('N');
-					// TODO: If it is a holiday, and the division plays on multiple days,
-					// try the other days to see if one is valid
-					if ($day == $play_day && (
-						// It's not a holiday, or it's a date that has a game explicitly scheduled
-						!in_array($date, $holidays) || in_array($date, $game_dates)
-					)) {
-						$dates[] = $date;
-					}
+				// Back the start date up to whatever this organization considers the first day of the week
+				$start = $team->division->open;
+				$first_weekday = Configure::read('organization.first_day');
+				while ($start->format('N') != $first_weekday) {
+					$start = $start->subDays(1);
 				}
 
-				// Daylight savings time can result in dates being duplicated
-				// TODOLATER: Still true?
-				$dates = array_unique($dates);
+				// Now move it forward to whatever is the first day that this division plays on
+				$first_playday = min($days);
+				while ($start->format('N') != $first_playday) {
+					$start = $start->addDays(1);
+				}
+
+				for ($week_start = $start; $week_start <= $team->division->close; $week_start = $week_start->addWeeks(1)) {
+					$week_end = $week_start->addDays(6);
+					$week_game_scheduled = $week_non_holiday = false;
+					for ($date = $week_start; $date <= $week_end; $date = $date->addDays(1)) {
+						// If the league doesn't play on this day, skip it
+						if (!in_array($date->format('N'), $days)) {
+							continue;
+						}
+
+						// If there is a game scheduled, show it
+						if (in_array($date, $game_dates)) {
+							$dates[] = $date;
+							$week_game_scheduled = true;
+							continue;
+						}
+
+						// If it's not a holiday, this week is a week that might have a game in it
+						if (!in_array($date, $holidays)) {
+							$week_non_holiday = true;
+						}
+					}
+
+					// If we don't already have a game scheduled this week, but it's not all holidays, include the starting date
+					if (!$week_game_scheduled && $week_non_holiday) {
+						$dates[] = $week_start;
+					}
+				}
 			}
 
 			$attendance = $this->Teams->Divisions->Games->readAttendance($team, $days, null, $dates);
@@ -1645,6 +1654,7 @@ class TeamsController extends AppController {
 	public function emails() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People' => [
@@ -1663,10 +1673,7 @@ class TeamsController extends AppController {
 					'Divisions' => ['Leagues'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1684,15 +1691,13 @@ class TeamsController extends AppController {
 	public function add_player() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => ['Leagues'],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1747,6 +1752,7 @@ class TeamsController extends AppController {
 
 		// Read the current team roster
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People',
@@ -1757,10 +1763,7 @@ class TeamsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1789,10 +1792,7 @@ class TeamsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1804,7 +1804,7 @@ class TeamsController extends AppController {
 				if (!empty($data['role']) && $data['role'] != 'none') {
 					$person = collection($old_team->people)->firstMatch(['id' => $player]);
 					if ($person) {
-						$person->unsetProperty('_joinData');
+						$person->unset('_joinData');
 						// TODO: If the team has numbers, take care of that here too
 						$result[$this->_setRosterRole($person, $team, ROSTER_INVITED, $data['role'], $data['position'])][] = $person;
 					}
@@ -1841,7 +1841,7 @@ class TeamsController extends AppController {
 				}
 			}
 			$this->Flash->{$class}(implode(' ', $msg));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		foreach ($old_team->people as $person) {
@@ -1859,6 +1859,7 @@ class TeamsController extends AppController {
 		$id = $this->getRequest()->getQuery('team');
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People',
@@ -1869,10 +1870,7 @@ class TeamsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1892,6 +1890,7 @@ class TeamsController extends AppController {
 				->where([
 					'league_id' => $team->division->league_id,
 				])
+				->all()
 				->extract('teams.{*}.people.{*}.id')
 				->toList();
 		} else {
@@ -1900,7 +1899,7 @@ class TeamsController extends AppController {
 
 		// Read the event
 		try {
-			$this->loadModel('Events');
+			$this->Events = $this->fetchTable('Events');
 			$event = $this->Events->get($this->getRequest()->getData('event'), [
 				'contain' => [
 					'Registrations' => [
@@ -1923,10 +1922,7 @@ class TeamsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -1942,7 +1938,7 @@ class TeamsController extends AppController {
 				if (!empty($data['role']) && $data['role'] != 'none') {
 					$registration = collection($event->registrations)->firstMatch(['person_id' => $player]);
 					if ($registration) {
-						$registration->person->unsetProperty('_joinData');
+						$registration->person->unset('_joinData');
 						// TODO: If the team has numbers, take care of that here too
 						$result[$this->_setRosterRole($registration->person, $team, ROSTER_APPROVED, $data['role'], $data['position'])][] = $registration->person;
 					}
@@ -1979,7 +1975,7 @@ class TeamsController extends AppController {
 				}
 			}
 			$this->Flash->{$class}(implode(' ', $msg));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		foreach ($event->registrations as $registration) {
@@ -1996,14 +1992,14 @@ class TeamsController extends AppController {
 
 		try {
 			[$team, $person] = $this->_initTeamForRosterChange($person_id);
-		} catch (Exception $ex) {
+		} catch (CakeException $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
 
 		if (empty($person)) {
 			$this->Flash->info(__('This person is not on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $person->_joinData]));
@@ -2014,7 +2010,7 @@ class TeamsController extends AppController {
 
 		if ($person->_joinData->status != ROSTER_APPROVED) {
 			$this->Flash->info(__('A player\'s role on a team cannot be changed until they have been approved on the roster.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		// Check if this user is the only approved captain on the team
@@ -2029,7 +2025,7 @@ class TeamsController extends AppController {
 				})->toArray();
 				if (count($captains) == 1) {
 					$this->Flash->info(__('All teams must have at least one player as coach or captain.'));
-					return $this->redirect(['action' => 'view', 'team' => $team->id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 				}
 			}
 		}
@@ -2045,7 +2041,7 @@ class TeamsController extends AppController {
 					}
 				}
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 	}
 
@@ -2054,14 +2050,14 @@ class TeamsController extends AppController {
 
 		try {
 			[$team, $person] = $this->_initTeamForRosterChange($person_id);
-		} catch (Exception $ex) {
+		} catch (CakeException $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
 
 		if (empty($person)) {
 			$this->Flash->info(__('This person is not on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $person->_joinData]));
@@ -2073,7 +2069,7 @@ class TeamsController extends AppController {
 			$sport = current(Configure::read('options.sport'));
 		} else {
 			$this->Flash->info(__('A position cannot be assigned until this team is placed in a division.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 		$roster_position_options = Configure::read("sports.$sport.positions");
 		$this->set(compact('person', 'team', 'position', 'roster_position_options'));
@@ -2093,7 +2089,7 @@ class TeamsController extends AppController {
 					$this->Flash->warning(__('Failed to change the player\'s position.'));
 				}
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 	}
 
@@ -2102,7 +2098,7 @@ class TeamsController extends AppController {
 
 		try {
 			[$team, $person] = $this->_initTeamForRosterChange($person_id);
-		} catch (Exception $ex) {
+		} catch (CakeException $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
@@ -2111,7 +2107,7 @@ class TeamsController extends AppController {
 
 		if (!empty($person)) {
 			$this->Flash->info(__('This person is already on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		// Read the bare player record
@@ -2119,10 +2115,7 @@ class TeamsController extends AppController {
 			$person = $this->Teams->People->get($person_id, [
 				'contain' => [Configure::read('Security.authModel')]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid player.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid player.'));
 			return $this->redirect('/');
 		}
@@ -2134,7 +2127,7 @@ class TeamsController extends AppController {
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			if (!empty($this->getRequest()->getData('role'))) {
 				$this->_setRosterRole($person, $team, ROSTER_INVITED, $this->getRequest()->getData('role'), $this->getRequest()->getData('position'));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 			}
 			$this->Flash->info(__('You must select a role for this person.'));
 		}
@@ -2146,7 +2139,7 @@ class TeamsController extends AppController {
 			$can_invite = $this->_canInvite($person, $team);
 			if ($can_invite !== true) {
 				$this->Flash->warning($can_invite);
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 			}
 		}
 
@@ -2160,7 +2153,7 @@ class TeamsController extends AppController {
 	public function roster_request() {
 		try {
 			[$team, $person] = $this->_initTeamForRosterChange($this->UserCache->currentId());
-		} catch (Exception $ex) {
+		} catch (CakeException $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
@@ -2169,7 +2162,7 @@ class TeamsController extends AppController {
 
 		if (!empty($person)) {
 			$this->Flash->info(__('You are already on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		// Read the bare player record
@@ -2177,10 +2170,7 @@ class TeamsController extends AppController {
 			$person = $this->Teams->People->get($this->UserCache->currentId(), [
 				'contain' => [Configure::read('Security.authModel')]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid player.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid player.'));
 			return $this->redirect('/');
 		}
@@ -2189,7 +2179,7 @@ class TeamsController extends AppController {
 		$can_add = $this->_canAdd($person, $team);
 		if ($can_add !== true) {
 			$this->Flash->html('{0}', ['params' => ['class' => 'warning', 'replacements' => [$can_add]]]);
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$roster_role_options = $this->_rosterRoleOptions('none', $team, $this->UserCache->currentId(), false);
@@ -2202,7 +2192,7 @@ class TeamsController extends AppController {
 			)) {
 				$this->UserCache->_deleteTeamData();
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$this->set(compact('person', 'team', 'roster_role_options'));
@@ -2213,7 +2203,7 @@ class TeamsController extends AppController {
 
 		try {
 			[$team, $person] = $this->_initTeamForRosterChange($person_id);
-		} catch (Exception $ex) {
+		} catch (CakeException $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
@@ -2236,7 +2226,7 @@ class TeamsController extends AppController {
 			} else {
 				$this->Flash->html('{0}', ['params' => ['class' => 'warning', 'replacements' => [$can_add]]]);
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$oldStatus = $person->_joinData->status;
@@ -2263,7 +2253,7 @@ class TeamsController extends AppController {
 			$this->Flash->warning(__('The database failed to save the acceptance of this roster {0}.',
 				($oldStatus == ROSTER_INVITED) ? __('invitation') : __('request')));
 		}
-		return $this->redirect(['action' => 'view', 'team' => $team->id]);
+		return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 	}
 
 	public function roster_decline() {
@@ -2271,7 +2261,7 @@ class TeamsController extends AppController {
 
 		try {
 			[$team, $person] = $this->_initTeamForRosterChange($person_id);
-		} catch (Exception $ex) {
+		} catch (CakeException $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
@@ -2297,12 +2287,13 @@ class TeamsController extends AppController {
 		if ($identity && $identity->isMe($person)) {
 			return $this->redirect('/');
 		}
-		return $this->redirect(['action' => 'view', 'team' => $team->id]);
+		return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 	}
 
 	protected function _initTeamForRosterChange($person_id) {
 		$team_id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($team_id, [
 				'contain' => [
 					'People' => [Configure::read('Security.authModel')],
@@ -2313,10 +2304,8 @@ class TeamsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			throw new Exception(__('Invalid team.'));
-		} catch (InvalidPrimaryKeyException $ex) {
-			throw new Exception(__('Invalid team.'));
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			throw new CakeException(__('Invalid team.'));
 		}
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
@@ -2344,7 +2333,7 @@ class TeamsController extends AppController {
 		}
 
 		// Check for some group membership
-		$groups = $this->UserCache->read('GroupIDs', $person_id);
+		$groups = $this->UserCache->read('UserGroupIDs', $person_id);
 		if (!in_array(GROUP_PLAYER, $groups)) {
 			foreach (Configure::read('extended_playing_roster_roles') as $playing_role) {
 				unset($roster_role_options[$playing_role]);
@@ -2367,7 +2356,7 @@ class TeamsController extends AppController {
 			case 'none':
 				if (!$team->open_roster) {
 					$this->Flash->info(__('Sorry, this team is not open for new players to join.'));
-					return $this->redirect(['action' => 'view', 'team' => $team->id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 				}
 				// The "none" role means they're not on the team, so either they are being added
 				// by a captain or admin, or they are requesting to join and need to be confirmed
@@ -2554,8 +2543,8 @@ class TeamsController extends AppController {
 			} else {
 				$has_waivers = true;
 			}
-			if (!$person->has('groups')) {
-				$person->groups = $this->UserCache->read('Groups', $person->id);
+			if (!$person->has('user_groups')) {
+				$person->uset_groups = $this->UserCache->read('UserGroups', $person->id);
 				$has_groups = false;
 			} else {
 				$has_groups = true;
@@ -2584,7 +2573,7 @@ class TeamsController extends AppController {
 				unset($person->waivers);
 			}
 			if (!$has_groups) {
-				unset($person->groups);
+				unset($person->user_groups);
 			}
 			if (!$has_uploads) {
 				unset($person->uploads);

@@ -1,5 +1,4 @@
 <?php
-
 namespace StripePayment\Http;
 
 use App\Model\Entity\Payment;
@@ -14,12 +13,9 @@ use Stripe\Webhook;
 
 class Client
 {
-	/**
-	 * @var StripeClient
-	 */
-	private $client = null;
-	private $key;
-	private $endpoint_secret;
+	private ?StripeClient $client = null;
+	private string $key;
+	private string $endpoint_secret;
 
 	public function __construct(bool $test) {
 		if ($test) {

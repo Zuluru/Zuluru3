@@ -35,7 +35,7 @@ class TaskSlotPolicy extends AppPolicy {
 		$task_slot = $resource->resource();
 		if ($task_slot->person_id && !$identity->isManagerOf($task)) {
 			throw new ForbiddenRedirectException(__('This task slot has already been assigned.'),
-				['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id]);
+				['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]]);
 		}
 
 		return $identity->isManagerOf($task_slot) || $identity->isVolunteer();

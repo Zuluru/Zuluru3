@@ -26,7 +26,7 @@ class DivisionFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'open' => new FrozenDate('first Monday of June'),
 				'close' => new FrozenDate('first Monday of September'),
 				'ratio_rule' => 'open',

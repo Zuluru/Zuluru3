@@ -18,7 +18,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -75,22 +75,22 @@ class RegionsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to view regions
-		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'view', 'region' => $regions[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $regions[0]->id]], $admin->id);
 		$this->assertResponseContains('/regions/edit?region=' . $regions[0]->id);
 		$this->assertResponseContains('/regions/delete?region=' . $regions[0]->id);
 
 		// Managers are allowed to view regions
-		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'view', 'region' => $regions[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $regions[0]->id]], $manager->id);
 		$this->assertResponseContains('/regions/edit?region=' . $regions[0]->id);
 		$this->assertResponseContains('/regions/delete?region=' . $regions[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => $regions[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $regions[1]->id]], $manager->id);
 
 		// Others are not allowed to view regions
-		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => $regions[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => $regions[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => $regions[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $regions[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $regions[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $regions[0]->id]]);
 	}
 
 	/**
@@ -142,8 +142,8 @@ class RegionsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to edit regions
-		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => $regions[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => $regions[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', '?' => ['region' => $regions[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', '?' => ['region' => $regions[1]->id]], $admin->id);
 	}
 
 	/**
@@ -163,10 +163,10 @@ class RegionsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to edit regions
-		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => $regions[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', '?' => ['region' => $regions[0]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => $regions[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', '?' => ['region' => $regions[1]->id]], $manager->id);
 	}
 
 	/**
@@ -180,16 +180,15 @@ class RegionsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to edit regions
-		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => $region->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => $region->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => $region->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', '?' => ['region' => $region->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', '?' => ['region' => $region->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'edit', '?' => ['region' => $region->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -206,12 +205,12 @@ class RegionsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete regions
-		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => $region->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', '?' => ['region' => $region->id]],
 			$admin->id, [], ['controller' => 'Regions', 'action' => 'index'],
 			'The region has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => $dependent_region->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', '?' => ['region' => $dependent_region->id]],
 			$admin->id, [], ['controller' => 'Regions', 'action' => 'index'],
 			'#The following records reference this region, so it cannot be deleted#');
 	}
@@ -220,7 +219,6 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -236,12 +234,12 @@ class RegionsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to delete regions in their own affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => $regions[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', '?' => ['region' => $regions[0]->id]],
 			$manager->id, [], ['controller' => 'Regions', 'action' => 'index'],
 			'The region has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => $regions[1]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', '?' => ['region' => $regions[1]->id]],
 			$manager->id);
 	}
 
@@ -249,7 +247,6 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -259,11 +256,11 @@ class RegionsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to delete regions
-		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => $region->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', '?' => ['region' => $region->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => $region->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', '?' => ['region' => $region->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => $region->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'delete', '?' => ['region' => $region->id]]);
 	}
 
 }

@@ -1,11 +1,16 @@
 <?php
 namespace App\Controller;
 
+use App\Exception\ForbiddenRedirectException;
 use Cake\ORM\TableRegistry;
 
 trait PaymentsTrait {
 
 	private function _processPayment($result, $audit, $registration_ids, $debit_ids) {
+		if (empty($registration_ids) && empty($debit_ids)) {
+			throw new ForbiddenRedirectException('Invalid data');
+		}
+
 		$credits_table = TableRegistry::getTableLocator()->get('Credits');
 
 		$errors = [];
@@ -54,7 +59,7 @@ trait PaymentsTrait {
 			$audit = $this->Registrations->Payments->RegistrationAudits->newEntity($audit);
 			if (!$this->Registrations->Payments->RegistrationAudits->save($audit)) {
 				$errors[] = __('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc.', $audit->order_id);
-				$this->log($audit->getErrors());
+				$this->log(print_r($audit->getErrors(), true));
 			}
 
 			foreach ($registrations as $registration) {

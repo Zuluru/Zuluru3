@@ -9,13 +9,6 @@ class CountriesFixture extends TestFixture {
 	use SeedFixtureTrait;
 
 	/**
-	 * Import
-	 *
-	 * @var array
-	 */
-	public $import = ['table' => 'countries'];
-
-	/**
 	 * Seed name to use
 	 */
 	public $seed = CountriesSeed::class;

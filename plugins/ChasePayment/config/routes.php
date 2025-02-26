@@ -1,7 +1,9 @@
 <?php
-use Cake\Routing\Router;
+/**
+ * @var \Cake\Routing\RouteBuilder $routes
+ */
 
-Router::plugin(
+$routes->plugin(
     'ChasePayment',
     ['path' => '/chase'],
     function ($routes) {

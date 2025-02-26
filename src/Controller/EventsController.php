@@ -27,7 +27,7 @@ class EventsController extends AppController {
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 * @throws \Cake\Http\Exception\MethodNotAllowedException if registration is not enabled
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		if (!Configure::read('feature.registration')) {
 			return [];
 		}
@@ -36,17 +36,17 @@ class EventsController extends AppController {
 	}
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index(?string $slug = null) {
 		$conditions = [
@@ -126,7 +126,7 @@ class EventsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function admin() {
 		$this->Authorization->authorize($this);
@@ -134,12 +134,12 @@ class EventsController extends AppController {
 		if ($year) {
 			$conditions = ['OR' => [
 				[
-					'Events.open >' => $year,
-					'Events.open <' => (string) ($year + 1),
+					'Events.open >' => $year . '-01-01',
+					'Events.open <' => (string) ($year + 1) . '-01-01',
 				],
 				[
-					'Events.close >' => $year,
-					'Events.close <' => (string) ($year + 1),
+					'Events.close >' => $year . '-01-01',
+					'Events.close <' => (string) ($year + 1) . '-01-01',
 				],
 			]];
 		} else {
@@ -176,13 +176,11 @@ class EventsController extends AppController {
 				'Events.affiliate_id IN' => $affiliates,
 			])
 			->order(['year'])
+			->all()
+			->extract('year')
 			->toArray();
 
 		$events = $events->toArray();
-		if (empty($events)) {
-			$this->Flash->info(__('No matching events.'));
-			return $this->redirect('/');
-		}
 
 		$this->set(compact('affiliates', 'events', 'year', 'years'));
 	}
@@ -297,7 +295,7 @@ class EventsController extends AppController {
 	private function populateLocations(array $events) {
 		foreach ($events as $event) {
 			if ($event->division) {
-				$locations = Cache::remember("division/{$event->division_id}/locations", function() use ($event) {
+				$locations = Cache::remember("division_{$event->division_id}_locations", function() use ($event) {
 					$availability_table = TableRegistry::getTableLocator()->get('DivisionsGameslots');
 					$facilities = $availability_table->find()
 						->contain(['GameSlots' => ['Fields' => ['Facilities']]])
@@ -317,7 +315,7 @@ class EventsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$this->Events->Registrations->expireReservations();
@@ -364,10 +362,7 @@ class EventsController extends AppController {
 					'Affiliates',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'wizard']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'wizard']);
 		}
@@ -404,11 +399,11 @@ class EventsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
-		$event = $this->Events->newEntity();
+		$event = $this->Events->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			// Validation requires this information
@@ -442,10 +437,7 @@ class EventsController extends AppController {
 
 				$this->Authorization->authorize($event, 'edit');
 				$event = $this->Events->cloneWithoutIds($event);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid event.'));
-				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 			}
@@ -474,26 +466,24 @@ class EventsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('event');
 		try {
-			$event = $this->Events->get($id, [
-				'contain' => [
+			$event = $this->Events->find('translations')
+				->contain([
 					'EventTypes',
 					'Prices' => [
 						'queryBuilder' => function ($q) {
-							return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
+							return $q->find('translations')->order(['Prices.open', 'Prices.close', 'Prices.id']);
 						},
 					],
 					'Divisions',
-				],
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+				])
+				->where(['Events.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -549,14 +539,14 @@ class EventsController extends AppController {
 		$this->Authorization->authorize($this);
 
 		$this->getRequest()->allowMethod('ajax');
-		$event = $this->Events->newEntity();
+		$event = $this->Events->newEmptyEntity();
 		$this->set(compact('event'));
 	}
 
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -564,10 +554,7 @@ class EventsController extends AppController {
 		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Events->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -604,10 +591,7 @@ class EventsController extends AppController {
 					'Divisions',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -636,7 +620,7 @@ class EventsController extends AppController {
 
 			if ($this->Events->save($event)) {
 				$this->Flash->success(__('The connections have been saved.'));
-				return $this->redirect(['action' => 'view', 'event' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['event' => $id]]);
 			} else {
 				$this->Flash->warning(__('The connections could not be saved. Please correct the errors below and try again.'));
 			}
@@ -654,6 +638,7 @@ class EventsController extends AppController {
 				'Events.affiliate_id IN' => $event->affiliate_id,
 			])
 			->order(['Events.event_type_id', 'Events.open', 'Events.close', 'Events.id'])
+			->all()
 			->indexBy('id')
 			->toArray();
 
@@ -680,7 +665,7 @@ class EventsController extends AppController {
 	/**
 	 * Refund method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function refund() {
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
@@ -703,10 +688,7 @@ class EventsController extends AppController {
 					'Divisions',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -715,7 +697,7 @@ class EventsController extends AppController {
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 		$event->prices = collection($event->prices)->indexBy('id')->toArray();
 
-		$refund = $this->Events->Registrations->Payments->newEntity();
+		$refund = $this->Events->Registrations->Payments->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$data = $this->getRequest()->getData();
@@ -743,7 +725,8 @@ class EventsController extends AppController {
 					$failed = [];
 					foreach ($registrations as $registration) {
 						try {
-							$this->Events->Registrations->refund($event, $registration, $data);
+							// @todo: A service class would be cleaner
+							$this->Events->Registrations->refund($this->getRequest(), $event, $registration, $data);
 						} catch (PaymentException $ex) {
 							$failed[$registration->id] = $registration->person->full_name;
 						}

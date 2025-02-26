@@ -2,22 +2,29 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Core\UserCache;
+use App\TestSuite\Constraint\Session\SessionRegExp;
+use App\TestSuite\ZuluruIntegrationTestTrait;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
-use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 use Cake\TestSuite\TestEmailTransport;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 
 class ControllerTestCase extends TestCase {
 
-	use IntegrationTestTrait;
+	use IntegrationTestTrait {
+		_sendRequest as _parentSendRequest;
+	}
+	use ZuluruIntegrationTestTrait;
+	use TruncateDirtyTables;
 
-	protected $_jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
+	protected int $jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
+	protected string $flashKey = 'Flash.flash.0.message';
 
 	/**
 	 * setUp method
@@ -33,10 +40,22 @@ class ControllerTestCase extends TestCase {
 	}
 
 	public function tearDown(): void {
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		FrozenTime::setTestNow();
-		FrozenDate::setTestNow();
+		$this->clearPlugins();
 		parent::tearDown();
+	}
+
+	/**
+	 * Clear the CSRF token flag after each request.
+	 *
+	 * @inheritDoc
+	 * @throws \PHPUnit\Exception
+	 * @throws \Throwable
+	 */
+	protected function _sendRequest($url, $method, $data = []): void {
+		$this->_parentSendRequest($url, $method, $data);
+		$this->_csrfToken = false;
 	}
 
 	/**
@@ -44,9 +63,6 @@ class ControllerTestCase extends TestCase {
 	 * @return void
 	 */
 	protected function login($personId) {
-		// Clear the request stack: they pile up when running multiple requests from a single test
-		while (Router::popRequest()) {};
-
 		if (is_array($personId)) {
 			[$personId, $actAs] = $personId;
 			$actAs = TableRegistry::getTableLocator()->get('People')->get($actAs);
@@ -73,9 +89,6 @@ class ControllerTestCase extends TestCase {
 	}
 
 	protected function logout() {
-		// Clear the request stack: they pile up when running multiple requests from a single test
-		while (Router::popRequest()) {};
-
 		// Clear session info, so that unauthenticated requests aren't mistakenly processed as the last logged-in user
 		$this->_session = [];
 		$this->_cookie = [];
@@ -153,6 +166,7 @@ class ControllerTestCase extends TestCase {
 	 */
 	protected function assertPostAsAccessOk($url, $user, $data) {
 		$this->login($user);
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseOk();
@@ -169,6 +183,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAsAccessOk($url, $user, $data = []) {
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -185,6 +200,7 @@ class ControllerTestCase extends TestCase {
 	 */
 	protected function assertPostAnonymousAccessOk($url, $data) {
 		$this->logout();
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		$this->assertResponseOk();
 	}
@@ -199,6 +215,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAnonymousAccessOk($url, $data) {
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 		$this->assertResponseOk();
@@ -212,10 +229,9 @@ class ControllerTestCase extends TestCase {
 	 * @param $user int|int[] User ID
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->login($user);
@@ -226,12 +242,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -258,7 +276,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -276,7 +294,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -285,10 +303,9 @@ class ControllerTestCase extends TestCase {
 	 * @param $url array
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->logout();
@@ -299,12 +316,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -329,7 +348,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -347,7 +366,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -358,13 +377,13 @@ class ControllerTestCase extends TestCase {
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->login($user);
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
@@ -372,12 +391,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -396,6 +417,7 @@ class ControllerTestCase extends TestCase {
 
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -404,7 +426,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -422,7 +444,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -432,13 +454,13 @@ class ControllerTestCase extends TestCase {
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->logout();
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
@@ -446,12 +468,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -469,6 +493,7 @@ class ControllerTestCase extends TestCase {
 
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -477,7 +502,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -495,7 +520,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -511,8 +536,8 @@ class ControllerTestCase extends TestCase {
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals('/');
-		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertFlashMessage('You do not have permission to access that page.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**
@@ -535,7 +560,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You do not have permission to access that page.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
@@ -545,7 +570,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -559,9 +584,9 @@ class ControllerTestCase extends TestCase {
 		$this->get($url);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
-		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]);
+		$this->assertFlashMessage('You must login to access full site functionality.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**
@@ -583,17 +608,17 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You must login to access full site functionality.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]),
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]),
 				'status' => 302,
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -606,12 +631,13 @@ class ControllerTestCase extends TestCase {
 	 */
 	protected function assertPostAsAccessDenied($url, $user, $data = []) {
 		$this->login($user);
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals('/');
-		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertFlashMessage('You do not have permission to access that page.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**
@@ -625,6 +651,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAsAccessDenied($url, $user, $data = []) {
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -635,7 +662,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You do not have permission to access that page.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
@@ -645,7 +672,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -657,12 +684,13 @@ class ControllerTestCase extends TestCase {
 	 */
 	protected function assertPostAnonymousAccessDenied($url, $data = []) {
 		$this->logout();
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
-		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]);
+		$this->assertFlashMessage('You must login to access full site functionality.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**
@@ -675,6 +703,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAnonymousAccessDenied($url, $data = []) {
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -685,17 +714,17 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You must login to access full site functionality.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]),
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]),
 				'status' => 302,
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	protected function debugResponse(): void {

@@ -6,7 +6,9 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Newsletters Model
@@ -22,7 +24,7 @@ class NewslettersTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('newsletters');
@@ -31,7 +33,10 @@ class NewslettersTable extends AppTable {
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Timestamp');
-		$this->addBehavior('Translate', ['fields' => ['name', 'subject', 'text']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'subject', 'text'],
+		]);
 
 		$this->belongsTo('MailingLists', [
 			'foreignKey' => 'mailing_list_id',
@@ -52,7 +57,7 @@ class NewslettersTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -90,6 +95,9 @@ class NewslettersTable extends AppTable {
 			->requirePresence('personalize', 'create', __('Indicate whether this newsletter will be personalized.'))
 			->notEmptyString('personalize', __('Indicate whether this newsletter will be personalized.'))
 
+			->requirePresence('mailing_list_id', 'create')
+			->notEmptyString('mailing_list_id', __('You must select a valid mailing list.'))
+
 			;
 
 		return $validator;
@@ -102,7 +110,7 @@ class NewslettersTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['mailing_list_id'], 'MailingLists', __('You must select a valid mailing list.')));
 
 		return $rules;
@@ -116,17 +124,19 @@ class NewslettersTable extends AppTable {
 	 * @param ArrayObject $options Unused
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		$server = Configure::read('App.fullBaseUrl');
-		$data['text'] = strtr($data['text'], [
-			'src="/' => "src=\"{$server}/",
-			'href="/' => "href=\"{$server}/",
-		]);
+		if ($options->offsetExists('text')) {
+			$server = Router::fullBaseUrl();
+			$data['text'] = strtr($data['text'], [
+				'src="/' => "src=\"{$server}/",
+				'href="/' => "href=\"{$server}/",
+			]);
+		}
 	}
 
 	public function affiliate($id) {
 		try {
 			return $this->MailingLists->affiliate($this->field('mailing_list_id', ['Newsletters.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

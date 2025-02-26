@@ -21,7 +21,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -135,26 +135,26 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to view newsletters
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => $list->newsletters[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', '?' => ['newsletter' => $list->newsletters[0]->id]], $admin->id);
 		$this->assertResponseContains('/newsletters/edit?newsletter=' . $list->newsletters[0]->id);
 		$this->assertResponseContains('/newsletters/delete?newsletter=' . $list->newsletters[0]->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => $affiliate_list->newsletters[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', '?' => ['newsletter' => $affiliate_list->newsletters[0]->id]], $admin->id);
 		$this->assertResponseContains('/newsletters/edit?newsletter=' . $affiliate_list->newsletters[0]->id);
 		$this->assertResponseContains('/newsletters/delete?newsletter=' . $affiliate_list->newsletters[0]->id);
 
 		// Managers are allowed to view newsletters
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => $list->newsletters[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', '?' => ['newsletter' => $list->newsletters[0]->id]], $manager->id);
 		$this->assertResponseContains('/newsletters/edit?newsletter=' . $list->newsletters[0]->id);
 		$this->assertResponseContains('/newsletters/delete?newsletter=' . $list->newsletters[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => $affiliate_list->newsletters[0]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', '?' => ['newsletter' => $affiliate_list->newsletters[0]->id]], $manager->id);
 
 		// Others are not allowed to view newsletters
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => $list->newsletters[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => $list->newsletters[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => $list->newsletters[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', '?' => ['newsletter' => $list->newsletters[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', '?' => ['newsletter' => $list->newsletters[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'view', '?' => ['newsletter' => $list->newsletters[0]->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -231,8 +231,8 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to edit newsletters
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => $list->newsletters[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => $affiliate_list->newsletters[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', '?' => ['newsletter' => $list->newsletters[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', '?' => ['newsletter' => $affiliate_list->newsletters[0]->id]], $admin->id);
 	}
 
 	/**
@@ -253,10 +253,10 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to edit newsletters
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => $list->newsletters[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', '?' => ['newsletter' => $list->newsletters[0]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => $affiliate_list->newsletters[0]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', '?' => ['newsletter' => $affiliate_list->newsletters[0]->id]], $manager->id);
 	}
 
 	/**
@@ -272,16 +272,15 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to edit newsletters
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => $list->newsletters[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => $list->newsletters[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => $list->newsletters[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', '?' => ['newsletter' => $list->newsletters[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', '?' => ['newsletter' => $list->newsletters[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', '?' => ['newsletter' => $list->newsletters[0]->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -296,13 +295,13 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete newsletters
-		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => $list->newsletters[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', '?' => ['newsletter' => $list->newsletters[0]->id]],
 			$admin->id, [], ['controller' => 'Newsletters', 'action' => 'index'],
 			'The newsletter has been deleted.');
 
 		// But not ones with dependencies
 		ActivityLogFactory::make(['type' => 'newsletter', 'newsletter_id' => $list->newsletters[1]->id, 'person_id' => $admin->id])->persist();
-		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => $list->newsletters[1]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', '?' => ['newsletter' => $list->newsletters[1]->id]],
 			$admin->id, [], ['controller' => 'Newsletters', 'action' => 'index'],
 			'#The following records reference this newsletter, so it cannot be deleted#');
 	}
@@ -311,7 +310,6 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -328,12 +326,12 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete newsletters in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => $list->newsletters[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', '?' => ['newsletter' => $list->newsletters[0]->id]],
 			$manager->id, [], ['controller' => 'Newsletters', 'action' => 'index'],
 			'The newsletter has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => $affiliate_list->newsletters[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', '?' => ['newsletter' => $affiliate_list->newsletters[0]->id]],
 			$manager->id);
 	}
 
@@ -341,7 +339,6 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -353,11 +350,11 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete newsletters
-		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => $list->newsletters[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', '?' => ['newsletter' => $list->newsletters[0]->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => $list->newsletters[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', '?' => ['newsletter' => $list->newsletters[0]->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => $list->newsletters[0]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', '?' => ['newsletter' => $list->newsletters[0]->id]]);
 	}
 
 	/**
@@ -373,15 +370,15 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to see the delivery report
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => $list->newsletters[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'delivery', '?' => ['newsletter' => $list->newsletters[0]->id]], $admin->id);
 
 		// Managers are allowed to see the delivery report
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => $list->newsletters[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'delivery', '?' => ['newsletter' => $list->newsletters[0]->id]], $manager->id);
 
 		// Others are not allowed to see the delivery report
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => $list->newsletters[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => $list->newsletters[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => $list->newsletters[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', '?' => ['newsletter' => $list->newsletters[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', '?' => ['newsletter' => $list->newsletters[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', '?' => ['newsletter' => $list->newsletters[0]->id]]);
 	}
 
 	/**
@@ -397,8 +394,8 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to send
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id, 'execute' => true, 'test' => true], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', '?' => ['newsletter' => $list->newsletters[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', '?' => ['newsletter' => $list->newsletters[0]->id, 'execute' => true, 'test' => true]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -416,7 +413,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to send
-		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', '?' => ['newsletter' => $list->newsletters[0]->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -434,9 +431,9 @@ class NewslettersControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to send
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', '?' => ['newsletter' => $list->newsletters[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', '?' => ['newsletter' => $list->newsletters[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'send', '?' => ['newsletter' => $list->newsletters[0]->id]]);
 	}
 
 }

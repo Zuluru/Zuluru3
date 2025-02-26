@@ -25,8 +25,8 @@ class EventTypeFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
-				'type' => $faker->word,
+				'name' => $faker->word(),
+				'type' => $faker->word(),
 			];
 		});
 	}

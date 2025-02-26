@@ -3,11 +3,12 @@ namespace App\Authenticator;
 
 use App\Core\UserCache;
 use Authentication\Authenticator\Result;
+use Authentication\Authenticator\ResultInterface;
 use Authentication\Identifier\IdentifierInterface;
 use Cake\Core\Configure;
+use Cake\Http\Response;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -45,15 +46,15 @@ class DrupalSessionAuthenticator extends CMSSessionAuthenticator {
 		parent::__construct($identifiers, $config);
 	}
 
-	public function authenticate(ServerRequestInterface $request, ResponseInterface $response) {
+	public function authenticate(ServerRequestInterface $request): ResultInterface {
 		Configure::write('feature.control_account_creation', $this->getConfig('zuluruDrupalModule'));
 		Configure::write('feature.authenticate_through', 'Drupal');
 
 		// Check if we're running under Drupal
-		$drupal_session_id = $request->cookie(Configure::read('Security.drupalSessionName'));
+		$drupal_session_id = $request->getCookie(Configure::read('Security.drupalSessionName'));
 
 		// Check if there's already a Zuluru session
-		$result = $this->_sessionAuth->authenticate($request, $response);
+		$result = $this->_sessionAuth->authenticate($request);
 		if ($result->isValid()) {
 			$user = $result->getData();
 
@@ -62,35 +63,47 @@ class DrupalSessionAuthenticator extends CMSSessionAuthenticator {
 			// this will happen when a logged-in user is merged or deleted, for example.
 			if ($user->has('_matchingData') &&
 				array_key_exists('DrupalSessions', $user->_matchingData) &&
-				$user->_matchingData['DrupalSessions']->sid == $drupal_session_id &&
+				$drupal_session_id &&
+				$user->_matchingData['DrupalSessions']->sid == $this->drupal_hash_base64($drupal_session_id) &&
 				$user->has('person') &&
 				!empty(UserCache::getInstance()->read('Person', $user->person->id))
 			) {
 				return new Result($user, Result::SUCCESS);
 			}
 
+			$response = new Response();
 			$this->clearIdentity($request, $response);
 		}
 
 		if ($drupal_session_id) {
 			$user = TableRegistry::getTableLocator()->get('UserDrupal')->find()
 				->matching('DrupalSessions', function (Query $q) use ($drupal_session_id) {
-					return $q->where(['DrupalSessions.sid' => $drupal_session_id]);
+					return $q->where(['DrupalSessions.sid' => $this->drupal_hash_base64($drupal_session_id)]);
 				})
 				->contain([
-					'People' => ['Groups'],
+					'People' => ['UserGroups'],
 				])
 				->first();
 
 			if (!$user || empty($user->uid)) {
+				$response = new Response();
 				$this->clearIdentity($request, $response);
-				return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+				return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 			}
 
-			return new Result($user, Result::SUCCESS);
+			return new Result($user, ResultInterface::SUCCESS);
 		}
 
-		return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+		return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 	}
 
+	private function drupal_hash_base64(string $data): string {
+		$hash = base64_encode(hash('sha256', $data, TRUE));
+		// Modify the hash so it's safe to use in URLs.
+		return strtr($hash, array(
+			'+' => '-',
+			'/' => '_',
+			'=' => '',
+		));
+	}
 }

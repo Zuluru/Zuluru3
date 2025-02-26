@@ -13,7 +13,7 @@ class ForbiddenRedirectException extends ForbiddenException {
 	private $_options;
 
 	public function __construct($message, $url = [], $class = 'info', $options = []) {
-		parent::__construct($message);
+		parent::__construct(null, $message);
 		$this->_url = $url;
 		$this->_class = $class;
 		$this->_options = $options;

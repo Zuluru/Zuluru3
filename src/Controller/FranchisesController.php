@@ -21,7 +21,7 @@ class FranchisesController extends AppController {
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 * @throws \Cake\Http\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		if (!Configure::read('feature.franchises')) {
 			return [];
 		}
@@ -32,7 +32,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$affiliate = $this->getRequest()->getQuery('affiliate');
@@ -42,7 +42,7 @@ class FranchisesController extends AppController {
 		$this->paginate = [
 			'conditions' => ['Franchises.affiliate_id IN' => $affiliates],
 			'contain' => ['People', 'Affiliates'],
-			'order' => ['Franchises.name'],
+			'order' => ['Franchises.name' => 'ASC'],
 			'limit' => Configure::read('feature.items_per_page'),
 		];
 
@@ -57,6 +57,8 @@ class FranchisesController extends AppController {
 				'Franchises.affiliate_id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 		$this->set(compact('letters'));
 	}
@@ -88,6 +90,8 @@ class FranchisesController extends AppController {
 				'Franchises.affiliate_id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 
 		$this->set(compact('franchises', 'letters', 'letter'));
@@ -96,7 +100,7 @@ class FranchisesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -108,10 +112,7 @@ class FranchisesController extends AppController {
 					'Affiliates',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -124,12 +125,12 @@ class FranchisesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
 
-		$franchise = $this->Franchises->newEntity();
+		$franchise = $this->Franchises->newEmptyEntity();
 		if ($this->getRequest()->is('post')) {
 			$data = $this->getRequest()->getData();
 			$data['people'] = ['_ids' => [$this->UserCache->currentId()]];
@@ -150,7 +151,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -158,10 +159,7 @@ class FranchisesController extends AppController {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -186,7 +184,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -196,10 +194,7 @@ class FranchisesController extends AppController {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People'],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -226,7 +221,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Add team to franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_team() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -236,10 +231,7 @@ class FranchisesController extends AppController {
 					'Teams',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -259,7 +251,7 @@ class FranchisesController extends AppController {
 				else {
 					if ($this->Franchises->Teams->link($franchise, [$team])) {
 						$this->Flash->success(__('The selected team has been added to this franchise.'));
-						return $this->redirect(['action' => 'view', 'franchise' => $id]);
+						return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 					} else {
 						$this->Flash->warning(__('Failed to add the selected team to this franchise.'));
 					}
@@ -274,7 +266,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Remove team from franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to view.
+	 * @return void|\Cake\Http\Response Redirects to view.
 	 */
 	public function remove_team() {
 		$this->getRequest()->allowMethod(['post']);
@@ -287,10 +279,7 @@ class FranchisesController extends AppController {
 					'People',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -301,12 +290,12 @@ class FranchisesController extends AppController {
 		$team_id = $this->getRequest()->getQuery('team');
 		if (!$team_id) {
 			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		if (!collection($franchise->teams)->match(['id' => $team_id])) {
 			$this->Flash->info(__('That team is not part of this franchise.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		try {
@@ -315,17 +304,14 @@ class FranchisesController extends AppController {
 					'Franchises',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
-		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		if (count($team->franchises) == 1) {
 			$this->Flash->info(__('All teams must be members of at least one franchise. Before you can remove this team from this franchise, you must first add it to another one.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		$this->Franchises->Teams->unlink($franchise, [$team], false);
@@ -344,13 +330,13 @@ class FranchisesController extends AppController {
 			$this->Flash->success(__('The selected team has been removed from this franchise.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'franchise' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 	}
 
 	/**
 	 * Add owner to franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_owner() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -360,10 +346,7 @@ class FranchisesController extends AppController {
 					'People',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -385,24 +368,21 @@ class FranchisesController extends AppController {
 						],
 					],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect(['action' => 'index']);
 			}
 
 			if (!empty($person->franchises)) {
 				$this->Flash->info(__('{0} is already an owner of this franchise.', $person->full_name));
-				return $this->redirect(['action' => 'add_owner', 'franchise' => $id]);
+				return $this->redirect(['action' => 'add_owner', '?' => ['franchise' => $id]]);
 			} else {
 				if ($this->Franchises->People->link($franchise, [$person])) {
 					$this->Flash->success(__('Added {0} as owner.', $person->full_name));
-					return $this->redirect(['action' => 'view', 'franchise' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 				} else {
 					$this->Flash->warning(__('Failed to add {0} as owner.', $person->full_name));
-					return $this->redirect(['action' => 'add_owner', 'franchise' => $id]);
+					return $this->redirect(['action' => 'add_owner', '?' => ['franchise' => $id]]);
 				}
 			}
 		}
@@ -413,7 +393,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Remove owner from franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to view.
+	 * @return void|\Cake\Http\Response Redirects to view.
 	 */
 	public function remove_owner() {
 		$this->getRequest()->allowMethod(['post']);
@@ -426,10 +406,7 @@ class FranchisesController extends AppController {
 					'People',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -440,13 +417,13 @@ class FranchisesController extends AppController {
 		$franchise->people = collection($franchise->people)->match(['id' => $person_id])->toList();
 		if (empty($franchise->people)) {
 			$this->Flash->warning(__('That person is not an owner of this franchise!'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		$this->Franchises->People->unlink($franchise, $franchise->people, false);
 		$this->Flash->success(__('Successfully removed owner.'));
 
-		return $this->redirect(['action' => 'view', 'franchise' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 	}
 
 }

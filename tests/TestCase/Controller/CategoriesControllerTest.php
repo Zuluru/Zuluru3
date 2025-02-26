@@ -22,7 +22,7 @@ class CategoriesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -69,26 +69,26 @@ class CategoriesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to view categories
-		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'view', 'category' => $categories[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $categories[0]->id]], $admin->id);
 		$this->assertResponseContains('/categories/edit?category=' . $categories[0]->id);
 		$this->assertResponseContains('/categories/delete?category=' . $categories[0]->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'view', 'category' => $categories[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $categories[1]->id]], $admin->id);
 		$this->assertResponseContains('/categories/edit?category=' . $categories[1]->id);
 		$this->assertResponseContains('/categories/delete?category=' . $categories[1]->id);
 
 		// Managers are allowed to view categories
-		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'view', 'category' => $categories[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $categories[0]->id]], $manager->id);
 		$this->assertResponseContains('/categories/edit?category=' . $categories[0]->id);
 		$this->assertResponseContains('/categories/delete?category=' . $categories[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'view', 'category' => $categories[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $categories[1]->id]], $manager->id);
 
 		// Others are not allowed to view categories
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'view', 'category' => $categories[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'view', 'category' => $categories[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'view', 'category' => $categories[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $categories[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $categories[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $categories[0]->id]]);
 	}
 
 	/**
@@ -121,29 +121,28 @@ class CategoriesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to edit categories
-		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[1]->id]], $admin->id);
 
 		// Managers are allowed to edit categories
-		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[0]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[1]->id]], $manager->id);
 
 		// Others are not allowed to edit categories
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[1]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[0]->id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[1]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[0]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'edit', 'category' => $categories[1]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[1]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[0]->id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[1]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[0]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'edit', '?' => ['category' => $categories[1]->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -155,12 +154,12 @@ class CategoriesControllerTest extends ControllerTestCase {
 		TaskFactory::make()->with('Categories', $categories[1])->persist();
 
 		// Admins are allowed to delete categories
-		$this->assertPostAsAccessRedirect(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[0]->id]],
 			$admin->id, [], ['controller' => 'Categories', 'action' => 'index'],
 			'The category has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[1]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[1]->id]],
 			$admin->id, [], ['controller' => 'Categories', 'action' => 'index'],
 			'#The following records reference this category, so it cannot be deleted#');
 	}
@@ -169,7 +168,6 @@ class CategoriesControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -182,19 +180,18 @@ class CategoriesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to delete categories in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[0]->id]],
 			$manager->id, [], ['controller' => 'Categories', 'action' => 'index'],
 			'The category has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[1]->id], $manager->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[1]->id]], $manager->id);
 	}
 
 	/**
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -205,12 +202,12 @@ class CategoriesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to delete categories
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[0]->id], $volunteer->id);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[1]->id], $volunteer->id);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[0]->id], $player->id);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[1]->id], $player->id);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[0]->id]);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'delete', 'category' => $categories[1]->id]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[0]->id]], $volunteer->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[1]->id]], $volunteer->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[0]->id]], $player->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[1]->id]], $player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[0]->id]]);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Categories', 'action' => 'delete', '?' => ['category' => $categories[1]->id]]);
 	}
 
 }

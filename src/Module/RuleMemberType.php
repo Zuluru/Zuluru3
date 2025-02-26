@@ -13,31 +13,31 @@ use Cake\ORM\TableRegistry;
 
 class RuleMemberType extends Rule {
 
-	public $desc = 'have a membership type';
+	public string $desc = 'have a membership type';
 
 	/**
 	 * Date range to look at
 	 *
 	 * @var FrozenDate[]
 	 */
-	protected $range;
+	protected array $range;
 
 	public function parse($config) {
 		$config = trim($config, '"\'');
 		if ($config[0] == '<') {
 			$to = substr($config, 1);
 			try {
-				$to = (new FrozenDate($to))->subDay();
+				$to = (new FrozenDate($to))->subDays(1);
 			} catch (\Exception $ex) {
 				$this->parse_error = __('Invalid date: {0}', $to);
 				return false;
 			}
-			$this->range = [new FrozenDate('0000-00-00'), $to];
+			$this->range = [new FrozenDate('0001-01-01'), $to];
 			$this->desc = 'have a past membership type';
 		} else if ($config[0] == '>') {
 			$from = substr($config, 1);
 			try {
-				$from = (new FrozenDate($from))->addDay();
+				$from = (new FrozenDate($from))->addDays(1);
 			} catch (\Exception $ex) {
 				$this->parse_error = __('Invalid date: {0}', $from);
 				return false;
@@ -113,8 +113,13 @@ class RuleMemberType extends Rule {
 			$events = $model->find()
 				->where([
 					'Events.event_type_id IN' => array_keys($types),
+				]);
+			if ($affiliate) {
+				$events = $events->where([
 					'Events.affiliate_id IN' => $affiliate,
-				])->toArray();
+				]);
+			}
+			$events = $events->toArray();
 
 			foreach ($events as $key => $event) {
 				if ($event->membership_begins > $this->range[1] || $event->membership_ends < $this->range[0]) {

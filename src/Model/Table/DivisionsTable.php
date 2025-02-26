@@ -5,7 +5,7 @@ use App\Authorization\ContextResource;
 use ArrayObject;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\Core\Exception\Exception;
+use Cake\Core\Exception\CakeException;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
@@ -22,6 +22,7 @@ use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
 use App\Model\Rule\LesserDateRule;
 use App\Model\Rule\RuleSyntaxRule;
+use InvalidArgumentException;
 
 /**
  * Divisions Model
@@ -43,7 +44,7 @@ class DivisionsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('divisions');
@@ -51,7 +52,10 @@ class DivisionsTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'header', 'footer']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'header', 'footer'],
+		]);
 
 		$this->belongsTo('Leagues', [
 			'foreignKey' => 'league_id',
@@ -102,7 +106,7 @@ class DivisionsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -110,18 +114,18 @@ class DivisionsTable extends AppTable {
 			// validation will allow empty names; rules will limit this
 			->allowEmptyString('name')
 
-			->date('open', __('You must provide a valid date for the first game.'))
+			->date('open', ['ymd'], __('You must provide a valid date for the first game.'))
 			->requirePresence('open', 'create', __('You must provide a valid date for the first game.'))
 			->notEmptyDate('open', __('You must provide a valid date for the first game.'))
 
-			->date('close', __('You must provide a valid date for the last game.'))
+			->date('close', ['ymd'], __('You must provide a valid date for the last game.'))
 			->requirePresence('close', 'create', __('You must provide a valid date for the last game.'))
 			->notEmptyDate('close', __('You must provide a valid date for the last game.'))
 
 			->requirePresence('ratio_rule', 'create', __('You must select a valid ratio rule.'))
 			->notEmptyString('ratio_rule', __('You must select a valid ratio rule.'))
 
-			->date('roster_deadline', __('You must provide a valid roster deadline.'))
+			->date('roster_deadline', ['ymd'], __('You must provide a valid roster deadline.'))
 			->allowEmptyDate('roster_deadline')
 
 			->allowEmptyString('roster_rule')
@@ -187,7 +191,7 @@ class DivisionsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['league_id'], 'Leagues', __('You must select a valid league.')));
 
 		$rules->add(function (EntityInterface $entity, array $options) {
@@ -310,7 +314,7 @@ class DivisionsTable extends AppTable {
 				try {
 					$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$entity->schedule_type}");
 					return $league_obj->schedulingFieldsRules($entity);
-				} catch (Exception $ex) {
+				} catch (CakeException $ex) {
 				}
 				return true;
 			}
@@ -359,10 +363,10 @@ class DivisionsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function beforeSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Does the division need to be opened immediately?
 		$entity->is_open = ($entity->open < FrozenDate::now()->addWeeks(3) &&
-			$entity->close > FrozenDate::now()->subWeek());
+			$entity->close > FrozenDate::now()->subWeeks(1));
 	}
 
 	/**
@@ -373,7 +377,7 @@ class DivisionsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Update this division's league open and close dates, if required
 		$league = $this->Leagues->get($entity->league_id, [
 			'contain' => ['Divisions']
@@ -401,7 +405,7 @@ class DivisionsTable extends AppTable {
 					'Badges.active' => true,
 				]);
 
-			if (!$badges->isEmpty()) {
+			if (!$badges->all()->isEmpty()) {
 				$badge_obj = ModuleRegistry::getInstance()->load('Badge');
 
 				$this->loadInto($entity, ['Teams']);
@@ -440,7 +444,7 @@ class DivisionsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		Cache::delete('tournaments', 'today');
 	}
 
@@ -485,18 +489,12 @@ class DivisionsTable extends AppTable {
 			];
 		}
 
-		$contain = [
-			'Leagues' => [
-				'queryBuilder' => function (Query $q) {
-					return $q->find('translations');
-				},
-			]
-		];
+		$contain = ['Leagues'];
 		if ($teams) {
 			$contain[] = 'Teams';
 		}
 
-		$divisions = $this->find('translations')
+		$divisions = $this->find()
 			->contain($contain)
 			->where($conditions)
 			->matching('People', function (Query $q) use ($id) {
@@ -515,7 +513,7 @@ class DivisionsTable extends AppTable {
 	public function league($id) {
 		try {
 			return $this->field('league_id', ['Divisions.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -530,17 +528,17 @@ class DivisionsTable extends AppTable {
 			$league_id = $this->league($division_id);
 		}
 		foreach ($keys as $key) {
-			Cache::delete("division/{$division_id}/{$key}", 'long_term');
-			Cache::delete("league/{$league_id}/{$key}", 'long_term');
+			Cache::delete("division_{$division_id}_{$key}", 'long_term');
+			Cache::delete("league_{$league_id}_{$key}", 'long_term');
 		}
 	}
 
 	public static function clearLocationsCache(array $divisions) {
 		foreach ($divisions as $division) {
 			if (is_int($division)) {
-				Cache::delete("division/{$division}/locations", 'long_term');
+				Cache::delete("division_{$division}_locations", 'long_term');
 			} else {
-				Cache::delete("division/{$division->id}/locations", 'long_term');
+				Cache::delete("division_{$division->id}_locations", 'long_term');
 			}
 		}
 	}

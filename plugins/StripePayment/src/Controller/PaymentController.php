@@ -2,8 +2,6 @@
 namespace StripePayment\Controller;
 
 use App\Controller\PaymentsTrait;
-use App\Controller\RegistrationsController;
-use Cake\Core\Configure;
 use StripePayment\Http\API;
 
 /**
@@ -37,7 +35,7 @@ class PaymentController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index'];
 	}
 
@@ -49,21 +47,21 @@ class PaymentController extends AppController {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->loadModel('Registrations');
+		$this->Registrations = $this->fetchTable('Registrations');
 	}
 
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['index']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['index']);
 		}
 	}
 
 	public function index() {
 		// Stripe sends data back through an event
-		$data = $this->getRequest()->input();
+		$data = (string)$this->getRequest()->getBody();
 		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
 
 		// Stripe payments processed outside of Zuluru are still sent to us. Just accept them.

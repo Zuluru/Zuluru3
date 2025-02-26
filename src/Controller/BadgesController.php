@@ -14,15 +14,13 @@ use Cake\ORM\Query;
 class BadgesController extends AppController {
 
 	public $paginate = [
-		'order' => [
-			'Badges.affiliate_id', 'Badges.name',
-		]
+		'order' => ['Badges.affiliate_id' => 'ASC', 'Badges.name' => 'ASC']
 	];
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -77,16 +75,13 @@ class BadgesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -96,8 +91,8 @@ class BadgesController extends AppController {
 
 		// TODO: Multiple default sort fields break pagination links.
 		// https://github.com/cakephp/cakephp/issues/7324 has related info.
-		//$this->paginate['order'] = ['People.first_name', 'People.last_name'];
-		$this->paginate['order'] = ['People.last_name'];
+		//$this->paginate['order'] = ['People.first_name' => 'ASC', 'People.last_name' => 'ASC'];
+		$this->paginate['order'] = ['People.last_name' => 'ASC'];
 		$query = $this->Badges->People->find()
 			->distinct(['People.id'])
 			->contain([
@@ -124,10 +119,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -146,10 +138,10 @@ class BadgesController extends AppController {
 		$badge->refresh_from = 1;
 		if ($this->Badges->save($badge)) {
 			$this->Flash->info(__('This badge has been scheduled for re-initialization.'));
-			return $this->redirect(['action' => 'view', 'badge' => $badge->id]);
+			return $this->redirect(['action' => 'view', '?' => ['badge' => $badge->id]]);
 		} else {
 			$this->Flash->warning(__('Failed to schedule the badge for re-initialization.'));
-			return $this->redirect(['action' => 'view', 'badge' => $badge->id]);
+			return $this->redirect(['action' => 'view', '?' => ['badge' => $badge->id]]);
 		}
 	}
 
@@ -165,10 +157,7 @@ class BadgesController extends AppController {
 					},
 				]],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -181,10 +170,10 @@ class BadgesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$badge = $this->Badges->newEntity();
+		$badge = $this->Badges->newEmptyEntity();
 		$this->Authorization->authorize($this);
 
 		if ($this->getRequest()->is('post')) {
@@ -205,16 +194,15 @@ class BadgesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
-			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$badge = $this->Badges->find('translations')
+				->where(['Badges.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -238,7 +226,7 @@ class BadgesController extends AppController {
 	/**
 	 * Activate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -246,10 +234,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -267,7 +252,7 @@ class BadgesController extends AppController {
 	/**
 	 * Deactivate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -275,10 +260,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -296,7 +278,7 @@ class BadgesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -305,10 +287,7 @@ class BadgesController extends AppController {
 
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}

@@ -1,10 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -16,17 +14,17 @@ use Cake\ORM\TableRegistry;
 class QuestionnairesController extends AppController {
 
 	// TODO: Proper fix for black-holing when we add questions to a questionnaire
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['edit']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -66,7 +64,7 @@ class QuestionnairesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('questionnaire');
@@ -87,10 +85,7 @@ class QuestionnairesController extends AppController {
 					'Events',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -105,16 +100,16 @@ class QuestionnairesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$questionnaire = $this->Questionnaires->newEntity();
+		$questionnaire = $this->Questionnaires->newEmptyEntity();
 		$this->Authorization->authorize($questionnaire);
 		if ($this->getRequest()->is('post')) {
 			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->getRequest()->getData());
 			if ($this->Questionnaires->save($questionnaire)) {
 				$this->Flash->success(__('The questionnaire has been saved.'));
-				return $this->redirect(['action' => 'edit', 'questionnaire' => $questionnaire->id]);
+				return $this->redirect(['action' => 'edit', '?' => ['questionnaire' => $questionnaire->id]]);
 			} else {
 				$this->Flash->warning(__('The questionnaire could not be saved. Please correct the errors below and try again.'));
 				$this->Configuration->loadAffiliate($questionnaire->affiliate_id);
@@ -129,18 +124,16 @@ class QuestionnairesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
-			$questionnaire = $this->Questionnaires->get($id, [
-				'contain' => ['Questions']
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$questionnaire = $this->Questionnaires->find('translations')
+				->contain(['Questions'])
+				->where(['Questionnaires.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -167,7 +160,7 @@ class QuestionnairesController extends AppController {
 	/**
 	 * Activate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -175,10 +168,7 @@ class QuestionnairesController extends AppController {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['controller' => 'Questionnaires']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
@@ -197,7 +187,7 @@ class QuestionnairesController extends AppController {
 	/**
 	 * Deactivate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -205,10 +195,7 @@ class QuestionnairesController extends AppController {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['controller' => 'Questionnaires']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
@@ -227,7 +214,7 @@ class QuestionnairesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -235,10 +222,7 @@ class QuestionnairesController extends AppController {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -268,10 +252,7 @@ class QuestionnairesController extends AppController {
 		$question_id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -289,10 +270,7 @@ class QuestionnairesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -301,7 +279,7 @@ class QuestionnairesController extends AppController {
 
 		if (!empty($questionnaire->questions)) {
 			$this->Flash->info(__('This question is already part of this questionnaire.'));
-			return $this->redirect(['action' => 'view', 'questionnaire' => $questionnaire_id]);
+			return $this->redirect(['action' => 'view', '?' => ['questionnaire' => $questionnaire_id]]);
 		}
 
 		$this->set(compact('question', 'questionnaire'));
@@ -314,10 +292,7 @@ class QuestionnairesController extends AppController {
 		$question_id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -336,10 +311,7 @@ class QuestionnairesController extends AppController {
 					'Events',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -348,7 +320,7 @@ class QuestionnairesController extends AppController {
 
 		if (empty($questionnaire->questions)) {
 			$this->Flash->info(__('This question is not part of this questionnaire.'));
-			return $this->redirect(['action' => 'view', 'questionnaire' => $questionnaire_id]);
+			return $this->redirect(['action' => 'view', '?' => ['questionnaire' => $questionnaire_id]]);
 		}
 
 		if (!empty($questionnaire->events)) {
@@ -370,7 +342,7 @@ class QuestionnairesController extends AppController {
 			$this->Questionnaires->Questions->unlink($questionnaire, [$question], false);
 		} else {
 			$this->Flash->info(__('This question has responses saved, and cannot be removed for historical purposes. You can deactivate it instead, so it will no longer be shown for new registrations.'));
-			return $this->redirect(['action' => 'view', 'questionnaire' => $questionnaire_id]);
+			return $this->redirect(['action' => 'view', '?' => ['questionnaire' => $questionnaire_id]]);
 		}
 	}
 

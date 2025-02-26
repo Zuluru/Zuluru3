@@ -1,13 +1,13 @@
 <?php
-
 namespace StripePayment\Test\Mocks;
+
+use Stripe\Checkout\Session;
 
 class MockCheckoutSession {
 
 	public $id = 12345;
 
 	public function getLastResponse() {
-		return json_decode(json_encode(['code' => 200]));
+		return Session::constructFrom(['code' => 200]);
 	}
-
 }

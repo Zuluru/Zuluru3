@@ -2,7 +2,6 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
@@ -17,7 +16,7 @@ class PreregistrationsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -44,10 +43,7 @@ class PreregistrationsController extends AppController {
 				$event = $this->Preregistrations->Events->get($event_id, [
 					'contain' => ['Affiliates'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid event.'));
-				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 			}
@@ -64,7 +60,7 @@ class PreregistrationsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$event_id = $this->getRequest()->getQuery('event');
@@ -76,10 +72,7 @@ class PreregistrationsController extends AppController {
 				$event = $this->Preregistrations->Events->get($event_id, [
 					'contain' => ['EventTypes', 'Prices', 'Affiliates', 'Divisions'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid event.'));
-				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 			}
@@ -103,12 +96,12 @@ class PreregistrationsController extends AppController {
 				->count();
 			if ($found) {
 				$this->Flash->info(__('This person already has a preregistration for this event.'));
-				return $this->redirect(['action' => 'add', 'event' => $event_id]);
+				return $this->redirect(['action' => 'add', '?' => ['event' => $event_id]]);
 			}
 			$context = new ContextResource($event, ['person_id' => $person_id, 'ignore_date' => true, 'strict' => false]);
 			if (!$this->Authorization->can($context, 'register')) {
 				$this->Flash->html('{0}', ['params' => ['replacements' => $context->notices, 'class' => 'warning']]);
-				return $this->redirect(['action' => 'add', 'event' => $event_id]);
+				return $this->redirect(['action' => 'add', '?' => ['event' => $event_id]]);
 			}
 
 			$preregistration = $this->Preregistrations->newEntity($data);
@@ -163,7 +156,7 @@ class PreregistrationsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -171,10 +164,7 @@ class PreregistrationsController extends AppController {
 		$id = $this->getRequest()->getQuery('preregistration');
 		try {
 			$preregistration = $this->Preregistrations->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid preregistration.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid preregistration.'));
 			return $this->redirect(['action' => 'index']);
 		}

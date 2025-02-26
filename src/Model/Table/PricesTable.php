@@ -13,6 +13,7 @@ use App\Model\Rule\GreaterDateRule;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
 use App\Model\Rule\RuleSyntaxRule;
+use InvalidArgumentException;
 
 /**
  * Prices Model
@@ -28,7 +29,7 @@ class PricesTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('prices');
@@ -36,7 +37,10 @@ class PricesTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description'],
+		]);
 
 		$this->belongsTo('Events', [
 			'foreignKey' => 'event_id',
@@ -54,7 +58,7 @@ class PricesTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -73,11 +77,11 @@ class PricesTable extends AppTable {
 			->numeric('tax2', __('You must enter a valid tax amount.'))
 			->allowEmptyString('tax2', null, function () { return !Configure::read('payment.tax2_enable'); })
 
-			->dateTime('open', __('You must select a valid opening date.'))
+			->dateTime('open', ['ymd'], __('You must select a valid opening date.'))
 			->requirePresence('open', 'create', __('You must select a valid opening date.'))
 			->notEmptyDateTime('open', __('You must select a valid opening date.'))
 
-			->dateTime('close', __('You must select a valid closing date.'))
+			->dateTime('close', ['ymd'], __('You must select a valid closing date.'))
 			->requirePresence('close', 'create', __('You must select a valid closing date.'))
 			->notEmptyDateTime('close', __('You must select a valid closing date.'))
 
@@ -113,7 +117,7 @@ class PricesTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['event_id'], 'Events', __('You must select a valid event.')));
 
 		$rules->add(function (EntityInterface $entity, array $options) {
@@ -192,35 +196,10 @@ class PricesTable extends AppTable {
 		}
 	}
 
-	/**
-	 * Perform additional operations after it is saved.
-	 *
-	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
-	 * @param \ArrayObject $options The options passed to the save method
-	 * @return void
-	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		// Update this price's event open and close dates, if required
-		$event = $this->Events->get($entity->event_id, [
-			'contain' => ['Prices']
-		]);
-
-		$open = min(collection($event->prices)->extract('open')->toArray());
-		if ($open != $event->open) {
-			$event->open = $open;
-		}
-		$close = max(collection($event->prices)->extract('close')->toArray());
-		if ($close != $event->close) {
-			$event->close = $close;
-		}
-		$this->Events->save($event);
-	}
-
 	public function event($id) {
 		try {
 			return $this->field('event_id', ['Prices.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -228,7 +207,7 @@ class PricesTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Events->affiliate($this->event($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

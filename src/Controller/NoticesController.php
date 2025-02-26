@@ -13,7 +13,7 @@ class NoticesController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['viewed'];
 	}
 
@@ -30,7 +30,7 @@ class NoticesController extends AppController {
 			return;
 		}
 
-		$this->loadModel('NoticesPeople');
+		$this->NoticesPeople = $this->fetchTable('NoticesPeople');
 		$this->NoticesPeople->save($this->NoticesPeople->newEntity([
 			'notice_id' => $id,
 			'person_id' => $this->UserCache->currentId(),

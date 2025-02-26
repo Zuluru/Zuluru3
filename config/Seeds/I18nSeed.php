@@ -25,7 +25,7 @@ class I18nSeed extends AbstractSeed {
 				'Affiliates', 'Countries', 'EventTypes', 'Provinces', 'Regions',
 				'Badges' => ['name', 'description'],
 				'Days' => ['name', 'short_name'],
-				'Groups' => ['name', 'description'],
+				'UserGroups' => ['name', 'description'],
 				'MembershipTypes' => ['description'],
 				'Notices' => ['notice'],
 				'RosterRoles' => ['description'],
@@ -108,7 +108,11 @@ class I18nSeed extends AbstractSeed {
 			}
 
 			// Get the data from the tables
-			$records = TableRegistry::getTableLocator()->get($model)->find();
+			$table = TableRegistry::getTableLocator()->get($model);
+			if ($table->hasBehavior('Translate')) {
+				$table->removeBehavior('Translate');
+			}
+			$records = $table->find();
 			$data = [];
 			foreach ($records as $record) {
 				foreach ($fields as $field) {

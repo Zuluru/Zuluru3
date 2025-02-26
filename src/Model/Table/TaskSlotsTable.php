@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InDateConfigRule;
+use InvalidArgumentException;
 
 /**
  * TaskSlots Model
@@ -23,7 +24,7 @@ class TaskSlotsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('task_slots');
@@ -50,12 +51,12 @@ class TaskSlotsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
 
-			->date('task_date', __('You must provide a valid task date.'))
+			->date('task_date', ['ymd'], __('You must provide a valid task date.'))
 			->allowEmptyDate('task_date')
 
 			->time('task_start', __('You must select a valid start time.'))
@@ -83,7 +84,7 @@ class TaskSlotsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['task_id'], 'Tasks'));
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['approved_by_id'], 'People'));
@@ -100,14 +101,7 @@ class TaskSlotsTable extends AppTable {
 		return $query
 			->contain([
 				'Tasks' => [
-					'queryBuilder' => function (Query $q) {
-						return $q->find('translations');
-					},
-					'Categories' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
+					'Categories',
 					'People',
 				],
 				'People',
@@ -124,7 +118,7 @@ class TaskSlotsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Tasks->affiliate($this->field('task_id', ['TaskSlots.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

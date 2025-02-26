@@ -13,6 +13,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Leagues Model
@@ -30,7 +31,7 @@ class LeaguesTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('leagues');
@@ -38,7 +39,10 @@ class LeaguesTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name'],
+		]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',
@@ -72,7 +76,7 @@ class LeaguesTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -129,7 +133,7 @@ class LeaguesTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
 
 		$rules->add(new InConfigRule('options.sport'), 'validSport', [
@@ -193,7 +197,7 @@ class LeaguesTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		Cache::delete('tournaments', 'today');
 	}
 
@@ -205,7 +209,7 @@ class LeaguesTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		Cache::delete('tournaments', 'today');
 	}
 
@@ -367,7 +371,7 @@ class LeaguesTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->field('affiliate_id', ['Leagues.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -376,6 +380,7 @@ class LeaguesTable extends AppTable {
 		return $this->Divisions->find()
 			->enableHydration(false)
 			->where(compact('league_id'))
+			->all()
 			->combine('id', 'id')
 			->toArray();
 	}

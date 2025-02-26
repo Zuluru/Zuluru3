@@ -13,18 +13,18 @@ use Cake\Http\Exception\MethodNotAllowedException;
  */
 class CategoriesController extends AppController {
 
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			// All the fields for sorting in the index page are hidden and hence by default locked
-			$this->Security->setConfig('unlockedActions', ['index']);
+		if (isset($this->FormProtection)) {
+			// TODO: All the fields for sorting in the index page are hidden and hence by default locked
+			$this->FormProtection->setConfig('unlockedActions', ['index']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -53,7 +53,7 @@ class CategoriesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('category');
@@ -61,10 +61,7 @@ class CategoriesController extends AppController {
 			$category = $this->Categories->get($id, [
 				'contain' => ['Affiliates', 'Leagues', 'Tasks' => ['People']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid category.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -79,10 +76,10 @@ class CategoriesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$category = $this->Categories->newEntity();
+		$category = $this->Categories->newEmptyEntity();
 		$this->Authorization->authorize($this);
 
 		if ($this->getRequest()->is('post')) {
@@ -103,16 +100,15 @@ class CategoriesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('category');
 		try {
-			$category = $this->Categories->get($id);
-		} catch (RecordNotFoundException  $ex) {
-			$this->Flash->info(__('Invalid category.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$category = $this->Categories->find('translations')
+				->where(['Categories.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException  $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -135,7 +131,7 @@ class CategoriesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -143,10 +139,7 @@ class CategoriesController extends AppController {
 		$id = $this->getRequest()->getQuery('category');
 		try {
 			$category = $this->Categories->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid category.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);
 		}

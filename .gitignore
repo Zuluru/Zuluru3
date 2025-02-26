@@ -1,67 +1,64 @@
-config/.env
-config/.env_test
-config/app_local.php
-config/Migrations/schema-dump-default.lock
-.idea/
-logs/
-tmp/
-vendor/admad/
-vendor/aura/
-vendor/autoload.php
-vendor/aws/
-vendor/bin/
-vendor/cakephp/
-vendor/cakephp-app-installer
-vendor/cakephp-plugins.php
-vendor/commerceguys/
-vendor/composer/
-vendor/dereuromark/
-vendor/dnoegel/
-vendor/doctrine/
-vendor/elboletaire/
-vendor/empty
-vendor/fakerphp
-vendor/firebase/
-vendor/friendsofcake/
-vendor/giggsey/
-vendor/guzzlehttp/
-vendor/jakub-onderka/
-vendor/jdorn/
-vendor/josegonzalez/
-vendor/justinrainbow/
-vendor/laminas/
-vendor/league/
-vendor/m1/
-vendor/mobiledetect/
-vendor/mtdowling/
-vendor/muffin/
-vendor/myclabs/
-vendor/nikic/
-vendor/oyejorge/
-vendor/ozee31/
-vendor/paragonie/
-vendor/phpdocumentor/
-vendor/phpspec/
-vendor/phpunit/
-vendor/psr/
-vendor/psy/
-vendor/ralouphie/
-vendor/react/
-vendor/robmorgan/
-vendor/sebastian/
-vendor/seld/
-vendor/soundasleep/
-vendor/stripe/
-vendor/symfony/
-vendor/trentrichardson/
-vendor/vierge-noire/
-vendor/webmozart/
-vendor/zendframework/
-vendor/zuluru/cakephp-bootstrap/
-vendor/zuluru/cakephp-jquery/
-webroot/bootstrap
-webroot/bootstrap_u_i
-webroot/debug_kit
-webroot/files
-webroot/less
-plugins/
+# CakePHP specific files #
+##########################
+/config/app_local.php
+/config/.env
+/config/.env_test
+/config/Migrations/schema-dump-default.lock
+/logs/*
+/tmp/*
+/plugins/*
+/vendor/*
+
+/webroot/bootstrap/*
+/webroot/bootstrap_u_i/*
+/webroot/debug_kit/*
+/webroot/files/*
+/webroot/less/*
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+# Icon must end with two \r
+Icon
+ehthumbs.db
+Thumbs.db
+.directory
+
+# Tool specific files #
+#######################
+# PHPUnit
+.phpunit.cache
+.phpunit.result.cache
+tests.sqlite
+# vim
+*~
+*.swp
+*.swo
+# sublime text & textmate
+*.sublime-*
+*.stTheme.cache
+*.tmlanguage.cache
+*.tmPreferences.cache
+# Eclipse
+.settings/*
+# JetBrains, aka PHPStorm, IntelliJ IDEA
+.idea/*
+.ea-php-cli.cache
+bin/.ea-php-cli.cache
+# NetBeans
+nbproject/*
+# Visual Studio Code
+.vscode
+# nova
+.nova
+# Sass preprocessor
+.sass-cache/
+# node
+/node_modules/*
+# yarn
+yarn-debug.log
+yarn-error.log

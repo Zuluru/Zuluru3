@@ -18,24 +18,18 @@ class RuleHasDocument extends Rule {
 
 	/**
 	 * Document id to look for
-	 *
-	 * @var int
 	 */
-	protected $document_id;
+	protected int $document_id;
 
 	/**
 	 * Document name
-	 *
-	 * @var string
 	 */
-	protected $document;
+	protected string $document;
 
 	/**
 	 * Date to look at
-	 *
-	 * @var FrozenDate
 	 */
-	protected $date;
+	protected FrozenDate $date;
 
 	public function parse($config) {
 		$config = array_map('trim', explode(',', $config));
@@ -76,11 +70,11 @@ class RuleHasDocument extends Rule {
 			if ($text_reason) {
 				$this->reason = __('have uploaded the {0}', $this->document);
 			} else {
-				$url = ['controller' => 'People', 'action' => 'document_upload', 'type' => $this->document_id];
+				$url = ['controller' => 'People', 'action' => 'document_upload', '?' => ['type' => $this->document_id]];
 				if ($absolute_url) {
 					$url = Router::url($url, true);
 				} else {
-					$url['return'] = AppController::_return();
+					$url['?']['return'] = AppController::_return();
 				}
 				$this->reason = [
 					'format' => 'have {0}',

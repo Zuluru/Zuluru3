@@ -8,6 +8,7 @@ use App\Model\Entity\Registration;
 use App\Test\Factory\EventFactory;
 use App\Test\Factory\PaymentFactory;
 use App\Test\Factory\RegistrationFactory;
+use Cake\I18n\FrozenTime;
 use Cake\TestSuite\TestCase;
 use PayPalPayment\Http\API;
 use PayPalPayment\Http\Client;
@@ -93,6 +94,7 @@ class ApiTest extends TestCase
 			'REFUNDTRANSACTIONID' => '73S7057568258952G',
 			'GROSSREFUNDAMT' => $this->amount,
 			'REFUNDSTATUS' => 'instant',
+			'TIMESTAMP' => FrozenTime::now()->format('Y-m-d\TH:i:s\Z'),
 		];
 	}
 }

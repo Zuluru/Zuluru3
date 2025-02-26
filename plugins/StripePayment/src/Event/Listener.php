@@ -16,7 +16,7 @@ class Listener implements EventListenerInterface {
 	 */
 	public $api = null;
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			// Listeners for events that collect elements to be displayed
 			'Plugin.checkout' => 'checkout',

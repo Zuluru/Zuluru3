@@ -24,7 +24,7 @@ class SkillsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('skills');
@@ -43,7 +43,7 @@ class SkillsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -73,7 +73,7 @@ class SkillsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 
 		// We are happy if the field is disabled or the record is not enabled or the skill level is valid
@@ -116,7 +116,7 @@ class SkillsTable extends AppTable {
 		foreach ($new as $skill) {
 			unset($skill->id);
 			unset($skill->person_id);
-			$skill->isNew(true);
+			$skill->setNew(true);
 		}
 
 		// Find any non-empty old skills that aren't present in the new list and copy them over
@@ -130,7 +130,7 @@ class SkillsTable extends AppTable {
 					// Here, we have to clear the id, but the person_id can stay
 					unset($skill->id);
 					$skill->enabled = false;
-					$skill->isNew(true);
+					$skill->setNew(true);
 					$new[] = $skill;
 				}
 			}

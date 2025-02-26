@@ -25,7 +25,7 @@ class QuestionFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'question' => $faker->text,
 				'type' => 'text',
 			];

@@ -25,7 +25,7 @@ class FranchisesPeopleTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('franchises_people');
@@ -49,7 +49,7 @@ class FranchisesPeopleTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['franchise_id'], 'Franchises'));
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		return $rules;
@@ -63,7 +63,7 @@ class FranchisesPeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Delete the cached data, so it's reloaded next time it's needed
 		UserCache::getInstance()->_deleteFranchiseData($entity->person_id);
 	}
@@ -76,7 +76,7 @@ class FranchisesPeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Delete the cached data, so it's reloaded next time it's needed
 		UserCache::getInstance()->_deleteFranchiseData($entity->person_id);
 	}

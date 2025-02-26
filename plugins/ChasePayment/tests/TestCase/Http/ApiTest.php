@@ -78,7 +78,7 @@ class ApiTest extends TestCase
 		$this->assertEquals($this->amount, $data['charge_total']);
 		$this->assertEquals(902010341, $data['transaction_id']);
 		$this->assertEquals('RETURN', $data['approval_code']);
-		$this->assertEquals('0', $data['response_code']);
+		$this->assertEquals('000', $data['response_code']);
 	}
 
 	public function returnJson(string $endpoint, string $data): string {
@@ -87,7 +87,7 @@ class ApiTest extends TestCase
 		$this->assertEquals("{\"transaction_type\":\"34\",\"transaction_tag\":\"{$this->transaction_id}\",\"authorization_num\":\"AB1234\",\"amount\":{$this->amount}}", $data);
 
 		$time = FrozenTime::now()->format('d M y h:i:s');
-		$exp = FrozenDate::now()->addMonth()->format('mY');
+		$exp = FrozenDate::now()->addMonths(1)->format('mY');
 		$string_amount = sprintf('%0.2f', $this->amount);
 
 		return json_encode([

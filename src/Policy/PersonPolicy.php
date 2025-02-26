@@ -75,7 +75,7 @@ class PersonPolicy extends AppPolicy {
 	public function canAdd_account(IdentityInterface $identity, Person $person) {
 		if (!empty($person->user_id)) {
 			throw new ForbiddenRedirectException(__('This profile already has a login.'),
-				['action' => 'view', 'person' => $person->id]);
+				['action' => 'view', '?' => ['person' => $person->id]]);
 		}
 
 		return $identity->isManagerOf($person) || $identity->isMe($person) || $identity->isRelative($person);
@@ -118,7 +118,7 @@ class PersonPolicy extends AppPolicy {
 
 		if (!$resource->has('relation')) {
 			throw new ForbiddenRedirectException(__('This person does not have an outstanding relative request for you.'),
-				['action' => 'view', 'person' => $person->id]);
+				['action' => 'view', '?' => ['person' => $person->id]]);
 		}
 
 		// Authenticate the hash code
@@ -127,7 +127,7 @@ class PersonPolicy extends AppPolicy {
 			$code = $resource->code;
 			if (!$this->_checkHash([$relation->_joinData->id, $relation->_joinData->person_id, $relation->_joinData->relative_id, $relation->_joinData->created], $code)) {
 				throw new ForbiddenRedirectException(__('The authorization code is invalid.'),
-					['action' => 'view', 'person' => $person->id]);
+					['action' => 'view', '?' => ['person' => $person->id]]);
 			}
 
 			return true;
@@ -147,7 +147,7 @@ class PersonPolicy extends AppPolicy {
 		if (!$resource->has('relation')) {
 			// Use the authorization code error here, so as not to leak any information about who is related to whom
 			throw new ForbiddenRedirectException(__('The authorization code is invalid.'),
-				['action' => 'view', 'person' => $person->id]);
+				['action' => 'view', '?' => ['person' => $person->id]]);
 		}
 
 		// Authenticate the hash code
@@ -156,7 +156,7 @@ class PersonPolicy extends AppPolicy {
 			$code = $resource->code;
 			if (!$this->_checkHash([$relation->_joinData->id, $relation->_joinData->person_id, $relation->_joinData->relative_id, $relation->_joinData->created], $code)) {
 				throw new ForbiddenRedirectException(__('The authorization code is invalid.'),
-					['action' => 'view', 'person' => $person->id]);
+					['action' => 'view', '?' => ['person' => $person->id]]);
 			}
 
 			return true;
@@ -278,12 +278,12 @@ class PersonPolicy extends AppPolicy {
 		}
 
 		if ($identity->isAdmin()) {
-			if (in_array(GROUP_ADMIN, UserCache::getInstance()->read('GroupIDs', $person->id))) {
+			if (in_array(GROUP_ADMIN, UserCache::getInstance()->read('UserGroupIDs', $person->id))) {
 				throw new ForbiddenRedirectException(__('Administrators cannot act as other administrators.'));
 			}
 			return true;
 		} else if ($identity->isManager()) {
-			$intersect = array_intersect([GROUP_ADMIN, GROUP_MANAGER], UserCache::getInstance()->read('GroupIDs', $person->id));
+			$intersect = array_intersect([GROUP_ADMIN, GROUP_MANAGER], UserCache::getInstance()->read('UserGroupIDs', $person->id));
 			if (!empty($intersect)) {
 				throw new ForbiddenRedirectException(__('Managers cannot act as other managers.'));
 			}

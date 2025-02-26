@@ -21,7 +21,7 @@ class WaiversPeopleFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'person_id' => PERSON_ID_ADMIN,

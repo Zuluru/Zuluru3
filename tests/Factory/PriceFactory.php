@@ -28,7 +28,7 @@ class PriceFactory extends BaseFactory
 			$cost = $faker->randomFloat(2, 10, 100);
 
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'open' => FrozenTime::now()->startOfYear(),
 				'close' => FrozenTime::now()->endOfYear(),
 				'online_payment_option' => ONLINE_MINIMUM_DEPOSIT,

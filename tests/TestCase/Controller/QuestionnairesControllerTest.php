@@ -20,7 +20,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -124,34 +124,34 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to view questionnaires
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[0]->id]], $admin->id);
 		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . $questionnaires[0]->id);
 		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . $questionnaires[0]->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[1]->id]], $admin->id);
 		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . $questionnaires[1]->id);
 		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . $questionnaires[1]->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[2]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[2]->id]], $admin->id);
 		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . $questionnaires[2]->id);
 		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . $questionnaires[2]->id);
 
 		// Managers are allowed to view questionnaires
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[0]->id]], $manager->id);
 		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . $questionnaires[0]->id);
 		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . $questionnaires[0]->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[2]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[2]->id]], $admin->id);
 		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . $questionnaires[2]->id);
 		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . $questionnaires[2]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[1]->id]], $manager->id);
 
 		// Others are not allowed to view questionnaires
-		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  $questionnaires[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', '?' => ['questionnaire' =>  $questionnaires[0]->id]]);
 	}
 
 	/**
@@ -217,9 +217,9 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to edit questionnaires
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaires[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaires[1]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaires[2]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaires[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaires[1]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaires[2]->id]], $admin->id);
 	}
 
 	/**
@@ -243,11 +243,11 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to edit questionnaires
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaires[0]->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaires[2]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaires[0]->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaires[2]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaires[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaires[1]->id]], $manager->id);
 	}
 
 	/**
@@ -261,9 +261,9 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to edit questionnaires
-		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaire->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaire->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  $questionnaire->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaire->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaire->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' =>  $questionnaire->id]]);
 	}
 
 	/**
@@ -278,7 +278,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to activate questionnaires
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => $questionnaire->id], $admin->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', '?' => ['questionnaire' => $questionnaire->id]], $admin->id);
 		$this->assertResponseContains('/questionnaires\\/deactivate?questionnaire=' . $questionnaire->id);
 	}
 
@@ -301,12 +301,12 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to activate questionnaires
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => $questionnaires[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', '?' => ['questionnaire' => $questionnaires[0]->id]],
 			$manager->id);
 		$this->assertResponseContains('/questionnaires\\/deactivate?questionnaire=' . $questionnaires[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => $questionnaires[1]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', '?' => ['questionnaire' => $questionnaires[1]->id]],
 			$manager->id);
 	}
 
@@ -322,11 +322,11 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to activate questionnaires
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => $questionnaire->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', '?' => ['questionnaire' => $questionnaire->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => $questionnaire->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', '?' => ['questionnaire' => $questionnaire->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => $questionnaire->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', '?' => ['questionnaire' => $questionnaire->id]]);
 	}
 
 	/**
@@ -340,7 +340,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to deactivate questionnaires
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => $questionnaire->id], $admin->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', '?' => ['questionnaire' => $questionnaire->id]], $admin->id);
 		$this->assertResponseContains('/questionnaires\\/activate?questionnaire=' . $questionnaire->id);
 	}
 
@@ -361,11 +361,11 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to deactivate questionnaires
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => $questionnaires[0]->id], $manager->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', '?' => ['questionnaire' => $questionnaires[0]->id]], $manager->id);
 		$this->assertResponseContains('/questionnaires\\/activate?questionnaire=' . $questionnaires[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => $questionnaires[1]->id], $manager->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', '?' => ['questionnaire' => $questionnaires[1]->id]], $manager->id);
 	}
 
 	/**
@@ -379,18 +379,17 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to deactivate questionnaires
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => $questionnaire->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', '?' => ['questionnaire' => $questionnaire->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => $questionnaire->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', '?' => ['questionnaire' => $questionnaire->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => $questionnaire->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', '?' => ['questionnaire' => $questionnaire->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -409,12 +408,12 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		EventFactory::make(['questionnaire_id' => $questionnaires[1]->id])->persist();
 
 		// Admins are allowed to delete questionnaires
-		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaires[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', '?' => ['questionnaire' => $questionnaires[0]->id]],
 			$admin->id, [], ['controller' => 'Questionnaires', 'action' => 'index'],
 			'The questionnaire has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaires[1]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', '?' => ['questionnaire' => $questionnaires[1]->id]],
 			$admin->id, [], ['controller' => 'Questionnaires', 'action' => 'index'],
 			'#The following records reference this questionnaire, so it cannot be deleted#');
 	}
@@ -423,7 +422,6 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -439,12 +437,12 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to delete questionnaires in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaires[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', '?' => ['questionnaire' => $questionnaires[0]->id]],
 			$manager->id, [], ['controller' => 'Questionnaires', 'action' => 'index'],
 			'The questionnaire has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaires[1]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', '?' => ['questionnaire' => $questionnaires[1]->id]],
 			$manager->id);
 	}
 
@@ -452,7 +450,6 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -462,11 +459,11 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to delete questionnaires
-		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaire->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', '?' => ['questionnaire' => $questionnaire->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaire->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', '?' => ['questionnaire' => $questionnaire->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => $questionnaire->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', '?' => ['questionnaire' => $questionnaire->id]]);
 	}
 
 	/**
@@ -485,7 +482,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to add question
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -507,7 +504,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to add question
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -529,11 +526,11 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to add questions
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]]);
 	}
 
 	/**
@@ -550,7 +547,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		$question = $questionnaire->questions[0];
 
 		// Admins are allowed to remove question
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'remove_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -570,7 +567,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		$question = $questionnaire->questions[0];
 
 		// Managers are allowed to remove question
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'remove_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -590,11 +587,11 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		$question = $questionnaire->questions[0];
 
 		// Others are not allowed to remove questions
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  $questionnaire->id, 'question' => $question->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', '?' => ['questionnaire' =>  $questionnaire->id, 'question' => $question->id]]);
 	}
 
 	/**

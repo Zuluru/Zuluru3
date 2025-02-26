@@ -10,14 +10,12 @@ use Cake\ORM\Query;
 
 class RuleConstant extends Rule {
 	// Constants can never change, by definition
-	public $invariant = true;
+	public bool $invariant = true;
 
 	/**
 	 * Constant to return
-	 *
-	 * @var string
 	 */
-	protected $constant;
+	protected string $constant;
 
 	public function parse($config) {
 		$this->constant = trim($config, '"\'');

@@ -24,7 +24,7 @@ class AffiliatesTableTest extends TableTestCase {
 	public function testReadByPlayerId(): void {
         $player = PersonFactory::make()->with('Affiliates')->persist();
 		$affiliates = TableRegistry::getTableLocator()->get('Affiliates')->readByPlayerId($player->id);
-		$this->assertEquals(1, count($affiliates));
+		$this->assertCount(1, $affiliates);
 		$this->assertArrayHasKey(0, $affiliates);
 		$this->assertTrue($affiliates[0]->has('id'));
 		$this->assertArrayHasKey('People', $affiliates[0]->_matchingData);
@@ -43,7 +43,7 @@ class AffiliatesTableTest extends TableTestCase {
 
 		$affiliates = TableRegistry::getTableLocator()->get('AffiliatesPeople')->mergeList($original->affiliates_people, [$new]);
 
-		$this->assertEquals(2, count($affiliates));
+		$this->assertCount(2, $affiliates);
 
 		$this->assertArrayHasKey(0, $affiliates);
 		$this->assertEquals($new_affiliate, $affiliates[0]->affiliate_id);

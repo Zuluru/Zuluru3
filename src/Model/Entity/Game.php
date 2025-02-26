@@ -1,6 +1,9 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Core\ModuleRegistry;
+use App\Model\Table\GamesTable;
+use App\Module\Spirit;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -10,8 +13,7 @@ use Cake\I18n\FrozenTime;
 use Cake\I18n\Number;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
-use App\Core\ModuleRegistry;
-use App\Module\Spirit;
+use InvalidArgumentException;
 
 /**
  * Game Entity.
@@ -94,9 +96,7 @@ class Game extends Entity {
 			$teams_table = TableRegistry::getTableLocator()->get('Teams');
 			try {
 				$team = $this->home_team = $teams_table->get($this->home_team_id);
-			} catch (RecordNotFoundException $ex) {
-				return null;
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				return null;
 			}
 		}
@@ -150,7 +150,7 @@ class Game extends Entity {
 		$away_score_entry = $this->getScoreEntry($this->away_team_id);
 		$penalty = Configure::read('scoring.missing_score_spirit_penalty');
 
-		if ($home_score_entry->person_id && $away_score_entry->person_id) {
+		if ($home_score_entry && $home_score_entry->person_id && $away_score_entry && $away_score_entry->person_id) {
 			if ($this->scoreEntriesAgree($home_score_entry, $away_score_entry)) {
 				$this->status = $home_score_entry->status;
 
@@ -173,7 +173,7 @@ class Game extends Entity {
 				EventManager::instance()->dispatch($event);
 				return false;
 			}
-		} else if ($home_score_entry->person_id && !$away_score_entry->person_id ) {
+		} else if ($home_score_entry && $home_score_entry->person_id && (!$away_score_entry || !$away_score_entry->person_id)) {
 			$this->status = $home_score_entry->status;
 
 			switch ($home_score_entry->status) {
@@ -205,7 +205,7 @@ class Game extends Entity {
 			$this->approved_by_id = APPROVAL_AUTOMATIC_HOME;
 			$event = new CakeEvent('Model.Game.scoreApproval', $this, [$this, $this->away_team, $this->home_team]);
 			EventManager::instance()->dispatch($event);
-		} else if (!$home_score_entry->person_id && $away_score_entry->person_id) {
+		} else if ((!$home_score_entry || !$home_score_entry->person_id) && $away_score_entry && $away_score_entry->person_id) {
 			$this->status = $away_score_entry->status;
 
 			switch ($away_score_entry->status) {
@@ -335,10 +335,10 @@ class Game extends Entity {
 					}
 
 					if ($this->home_team_id) {
-						Cache::delete("team/{$this->home_team_id}/stats", 'long_term');
+						Cache::delete("team_{$this->home_team_id}_stats", 'long_term');
 					}
 					if ($this->away_team_id) {
-						Cache::delete("team/{$this->away_team_id}/stats", 'long_term');
+						Cache::delete("team_{$this->away_team_id}_stats", 'long_term');
 					}
 					TableRegistry::getTableLocator()->get('Divisions')->clearCache($this->division, ['stats']);
 				}
@@ -436,6 +436,10 @@ class Game extends Entity {
 	 * @return ScoreEntry Entity with the requested score entry, or false if the team hasn't entered a final score yet.
 	 */
 	public function getScoreEntry($team_id) {
+		if (!$team_id) {
+			return null;
+		}
+
 		if (!empty($this->score_entries)) {
 			foreach ($this->score_entries as $entry) {
 				if ($entry->team_id == $team_id) {
@@ -516,7 +520,7 @@ class Game extends Entity {
 						'created_team_id' => $team_id,
 					])
 					->firstOrFail();
-			} catch (RecordNotFoundException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 				if (!$force) {
 					return false;
 				}
@@ -705,4 +709,19 @@ class Game extends Entity {
 		$this->spirit_entries = $spirit_entries;
 	}
 
+	public function getAttendance(array $attendances, array $days): ?Attendance {
+		if ($this->id) {
+			return collection($attendances)->firstMatch(['game_id' => $this->id]);
+		}
+
+		$game_dates = GamesTable::matchDates($this->game_slot->game_date, $days);
+		foreach ($game_dates as $date) {
+			$record = collection($attendances)->firstMatch(['game_date' => $date]);
+			if ($record) {
+				return $record;
+			}
+		}
+
+		return null;
+	}
 }

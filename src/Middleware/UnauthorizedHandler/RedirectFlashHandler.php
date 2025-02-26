@@ -1,9 +1,9 @@
 <?php
 namespace App\Middleware\UnauthorizedHandler;
 
-use App\Event\FlashTrait;
 use Authorization\Exception\Exception;
 use Authorization\Middleware\UnauthorizedHandler\RedirectHandler;
+use Cake\Http\Response;
 use Cake\Routing\Router;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -13,16 +13,12 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class RedirectFlashHandler extends RedirectHandler {
 
-	// This isn't called anywhere in here, but the exception handlers registered in the
-	// handler setup use it.
-	use FlashTrait;
-
 	/**
 	 * Return a response with a location header set if an exception matches.
 	 *
 	 * {@inheritDoc}
 	 */
-	public function handle(Exception $exception, ServerRequestInterface $request, ResponseInterface $response, array $options = []) {
+	public function handle(Exception $exception, ServerRequestInterface $request, array $options = []): ResponseInterface {
 		$options += $this->defaultOptions;
 
 		foreach ($options['exceptions'] as $class => $handler) {
@@ -32,9 +28,11 @@ class RedirectFlashHandler extends RedirectHandler {
 			}
 			if ($exception instanceof $class) {
 				if ($handler !== null) {
-					return call_user_func($handler, $this, $request, $response, $exception, $options);
+					return call_user_func($handler, $this, $request, $exception, $options);
 				} else {
 					$url = $this->getUrl($request, $options);
+
+					$response = new Response();
 
 					return $response
 						->withHeader('Location', $url)
@@ -54,7 +52,7 @@ class RedirectFlashHandler extends RedirectHandler {
 	 * @param boolean $unauthenticated Indicates whether the requested URL is for unauthenticated or unauthorized access
 	 * @return string
 	 */
-	public function getUrl(ServerRequestInterface $request, array $options) {
+	public function getUrl(ServerRequestInterface $request, array $options): string {
 		if (isset($options['unauthenticated'])) {
 			$url = $options['unauthenticatedUrl'];
 		} else {
@@ -73,5 +71,4 @@ class RedirectFlashHandler extends RedirectHandler {
 
 		return $url;
 	}
-
 }

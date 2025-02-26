@@ -17,22 +17,22 @@ class FacilitiesController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index', 'view'];
 	}
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
@@ -92,7 +92,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('facility');
@@ -107,10 +107,7 @@ class FacilitiesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -122,10 +119,10 @@ class FacilitiesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$facility = $this->Facilities->newEntity();
+		$facility = $this->Facilities->newEmptyEntity();
 		$this->Authorization->authorize($this);
 
 		if ($this->getRequest()->is('post')) {
@@ -149,11 +146,11 @@ class FacilitiesController extends AppController {
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliates(true);
-		$regions = $this->Facilities->Regions->find('all', [
-			'conditions' => ['Regions.affiliate_id IN' => array_keys($affiliates)],
-			'contain' => ['Affiliates'],
-			'order' => ['Affiliates.name', 'Regions.name'],
-		]);
+		$regions = $this->Facilities->Regions->find()
+			->contain(['Affiliates'])
+			->where(['Regions.affiliate_id IN' => array_keys($affiliates)])
+			->order(['Affiliates.name', 'Regions.name'])
+			->all();
 		if ($regions->isEmpty()) {
 			$this->Flash->info(__('You must first create at least one region for facilities to be located in.'));
 			return $this->redirect('/');
@@ -171,25 +168,23 @@ class FacilitiesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('facility');
 		try {
-			$facility = $this->Facilities->get($id, [
-				'contain' => [
+			$facility = $this->Facilities->find('translations')
+				->contain([
 					'Regions',
 					'Fields' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['Fields.num']);
+							return $q->find('translations')->order(['Fields.num']);
 						},
 					],
-				],
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+				])
+				->where(['Facilities.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -232,14 +227,14 @@ class FacilitiesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		$this->getRequest()->allowMethod('ajax');
-		$facility = $this->Facilities->newEntity();
+		$facility = $this->Facilities->newEmptyEntity();
 		$this->set(compact('facility'));
 	}
 
 	/**
 	 * Open facility method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function open() {
 		$this->getRequest()->allowMethod('ajax');
@@ -247,10 +242,7 @@ class FacilitiesController extends AppController {
 		$id = $this->getRequest()->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -268,7 +260,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * Close facility method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function close() {
 		$this->getRequest()->allowMethod('ajax');
@@ -278,10 +270,7 @@ class FacilitiesController extends AppController {
 			$facility = $this->Facilities->get($id, [
 				'contain' => ['Fields'],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -304,7 +293,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -313,10 +302,7 @@ class FacilitiesController extends AppController {
 
 		try {
 			$facility = $this->Facilities->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}

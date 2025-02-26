@@ -8,7 +8,7 @@ use Cake\TestSuite\Constraint\Email\MailSentFrom;
 use Cake\TestSuite\Constraint\Email\MailSentTo;
 use Cake\TestSuite\Constraint\Email\MailSentWith;
 use Cake\TestSuite\EmailTrait;
-use PHPUnit_Framework_Constraint_Not;
+use PHPUnit\Framework\Constraint\LogicalNot;
 
 trait ZuluruEmailTrait {
 	use EmailTrait;
@@ -21,9 +21,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotSentToAt($at, $address, $message = null)
+	public function assertMailNotSentToAt($at, $address, string $message = '')
 	{
-		$this->assertThat($address, new PHPUnit_Framework_Constraint_Not(new MailSentTo($at)), $message);
+		$this->assertThat($address, new LogicalNot(new MailSentTo($at)), $message);
 	}
 
 	/**
@@ -34,9 +34,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotSentFromAt($at, $address, $message = null)
+	public function assertMailNotSentFromAt($at, $address, string $message = '')
 	{
-		$this->assertThat($address, new PHPUnit_Framework_Constraint_Not(new MailSentFrom($at)), $message);
+		$this->assertThat($address, new LogicalNot(new MailSentFrom($at)), $message);
 	}
 
 	/**
@@ -47,9 +47,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotContainsAt($at, $contents, $message = null)
+	public function assertMailNotContainsAt($at, $contents, string $message = '')
 	{
-		$this->assertThat($contents, new PHPUnit_Framework_Constraint_Not(new MailContains($at)), $message);
+		$this->assertThat($contents, new LogicalNot(new MailContains($at)), $message);
 	}
 
 	/**
@@ -60,9 +60,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotContainsHtmlAt($at, $contents, $message = null)
+	public function assertMailNotContainsHtmlAt($at, $contents, string $message = '')
 	{
-		$this->assertThat($contents, new PHPUnit_Framework_Constraint_Not(new MailContainsHtml($at)), $message);
+		$this->assertThat($contents, new LogicalNot(new MailContainsHtml($at)), $message);
 	}
 
 	/**
@@ -73,9 +73,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotContainsTextAt($at, $contents, $message = null)
+	public function assertMailNotContainsTextAt($at, $contents, string $message = '')
 	{
-		$this->assertThat($contents, new PHPUnit_Framework_Constraint_Not(new MailContainsText($at)), $message);
+		$this->assertThat($contents, new LogicalNot(new MailContainsText($at)), $message);
 	}
 
 	/**
@@ -87,9 +87,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotSentWithAt($at, $expected, $parameter, $message = null)
+	public function assertMailNotSentWithAt($at, $expected, $parameter, string $message = '')
 	{
-		$this->assertThat($expected, new PHPUnit_Framework_Constraint_Not(new MailSentWith($at, $parameter)), $message);
+		$this->assertThat($expected, new LogicalNot(new MailSentWith($at, $parameter)), $message);
 	}
 
 	/**
@@ -99,9 +99,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotSentTo($address, $message = null)
+	public function assertMailNotSentTo($address, string $message = '')
 	{
-		$this->assertThat($address, new PHPUnit_Framework_Constraint_Not(new MailSentTo()), $message);
+		$this->assertThat($address, new LogicalNot(new MailSentTo()), $message);
 	}
 
 	/**
@@ -111,9 +111,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotSentFrom($address, $message = null)
+	public function assertMailNotSentFrom($address, string $message = '')
 	{
-		$this->assertThat($address, new PHPUnit_Framework_Constraint_Not(new MailSentFrom()), $message);
+		$this->assertThat($address, new LogicalNot(new MailSentFrom()), $message);
 	}
 
 	/**
@@ -123,9 +123,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotContains($contents, $message = null)
+	public function assertMailNotContains($contents, string $message = '')
 	{
-		$this->assertThat($contents, new PHPUnit_Framework_Constraint_Not(new MailContains()), $message);
+		$this->assertThat($contents, new LogicalNot(new MailContains()), $message);
 	}
 
 	/**
@@ -135,9 +135,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotContainsHtml($contents, $message = null)
+	public function assertMailNotContainsHtml($contents, string $message = '')
 	{
-		$this->assertThat($contents, new PHPUnit_Framework_Constraint_Not(new MailContainsHtml()), $message);
+		$this->assertThat($contents, new LogicalNot(new MailContainsHtml()), $message);
 	}
 
 	/**
@@ -147,9 +147,9 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message to display if assertion fails.
 	 * @return void
 	 */
-	public function assertMailNotContainsText($expectedText, $message = null)
+	public function assertMailNotContainsText($expectedText, string $message = '')
 	{
-		$this->assertThat($expectedText, new PHPUnit_Framework_Constraint_Not(new MailContainsText()), $message);
+		$this->assertThat($expectedText, new LogicalNot(new MailContainsText()), $message);
 	}
 
 	/**
@@ -160,8 +160,35 @@ trait ZuluruEmailTrait {
 	 * @param string $message Message
 	 * @return void
 	 */
-	public function assertMailNotSentWith($expected, $parameter, $message = null)
+	public function assertMailNotSentWith($expected, $parameter, string $message = '')
 	{
-		$this->assertThat($expected, new PHPUnit_Framework_Constraint_Not(new MailSentWith(null, $parameter)), $message);
+		$this->assertThat($expected, new LogicalNot(new MailSentWith(null, $parameter)), $message);
+	}
+
+	/**
+	 * Asserts an email contains the expected value within an Email getter
+	 *
+	 * @param array $expected Contents
+	 * @param string $parameter Email getter parameter (e.g. "cc", "subject")
+	 * @param string $message Message
+	 * @return void
+	 */
+	public function assertMailSentWithArray(array $expected, string $parameter, string $message = ''): void
+	{
+		$this->assertThat($expected, new MailSentWith(null, $parameter), $message);
+	}
+
+	/**
+	 * Asserts an email at a specific index contains the expected value within an Email getter
+	 *
+	 * @param int $at Email index
+	 * @param string $expected Contents
+	 * @param string $parameter Email getter parameter (e.g. "cc", "bcc")
+	 * @param string $message Message
+	 * @return void
+	 */
+	public function assertMailSentWithArrayAt(int $at, array $expected, string $parameter, string $message = ''): void
+	{
+		$this->assertThat($expected, new MailSentWith($at, $parameter), $message);
 	}
 }

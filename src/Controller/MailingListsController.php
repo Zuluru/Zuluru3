@@ -21,14 +21,14 @@ class MailingListsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['unsubscribe'];
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -48,7 +48,7 @@ class MailingListsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('mailing_list');
@@ -56,10 +56,7 @@ class MailingListsController extends AppController {
 			$mailing_list = $this->MailingLists->get($id, [
 				'contain' => ['Affiliates', 'Newsletters']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -84,10 +81,7 @@ class MailingListsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -102,7 +96,7 @@ class MailingListsController extends AppController {
 		$rule_obj = $this->moduleRegistry->load('RuleEngine');
 		if (!$rule_obj->init($mailing_list->rule)) {
 			$this->Flash->warning(__('Failed to parse the rule: {0}', $rule_obj->parse_error));
-			return $this->redirect(['action' => 'view', 'mailing_list' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['mailing_list' => $id]]);
 		}
 
 		$user_model = Configure::read('Security.authModel');
@@ -131,7 +125,7 @@ class MailingListsController extends AppController {
 			]);
 		} catch (RuleException $ex) {
 			$this->Flash->info($ex->getMessage());
-			return $this->redirect(['action' => 'view', 'mailing_list' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['mailing_list' => $id]]);
 		}
 
 		if (!empty($people)) {
@@ -144,8 +138,8 @@ class MailingListsController extends AppController {
 				],
 				// TODO: Multiple default sort fields break pagination links.
 				// https://github.com/cakephp/cakephp/issues/7324 has related info.
-				//'order' => ['People.first_name', 'People.last_name'],
-				'order' => ['People.first_name'],
+				//'order' => ['People.first_name' => 'ASC', 'People.last_name' => 'ASC'],
+				'order' => ['People.first_name' => 'ASC'],
 				'limit' => 100,
 			];
 			$this->set('people', $this->paginate('People'));
@@ -155,10 +149,10 @@ class MailingListsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$mailing_list = $this->MailingLists->newEntity();
+		$mailing_list = $this->MailingLists->newEmptyEntity();
 		$this->Authorization->authorize($this);
 
 		if ($this->getRequest()->is('post')) {
@@ -179,16 +173,15 @@ class MailingListsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
-			$mailing_list = $this->MailingLists->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$mailing_list = $this->MailingLists->find('translations')
+				->where(['MailingLists.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -213,7 +206,7 @@ class MailingListsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -221,10 +214,7 @@ class MailingListsController extends AppController {
 		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -252,10 +242,7 @@ class MailingListsController extends AppController {
 		$id = $this->getRequest()->getQuery('list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}

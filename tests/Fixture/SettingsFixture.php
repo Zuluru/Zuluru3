@@ -10,16 +10,9 @@ use Cake\TestSuite\Fixture\TestFixture;
 class SettingsFixture extends TestFixture {
 
 	/**
-	 * Import
-	 *
-	 * @var array
-	 */
-	public $import = ['table' => 'settings'];
-
-	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'person_id' => null,
@@ -47,6 +40,13 @@ class SettingsFixture extends TestFixture {
 				'category' => 'organization',
 				'name' => 'longitude',
 				'value' => 90,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'organization',
+				'name' => 'first_day',
+				'value' => 1,
 				'affiliate_id' => null,
 			],
 			[
@@ -339,6 +339,13 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'scoring',
+				'name' => 'incident_reports',
+				'value' => 1,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'scoring',
 				'name' => 'stat_tracking',
 				'value' => 1,
 				'affiliate_id' => null,
@@ -355,6 +362,13 @@ class SettingsFixture extends TestFixture {
 				'category' => 'email',
 				'name' => 'admin_email',
 				'value' => 'admin@zuluru.org',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'email',
+				'name' => 'incident_report_email',
+				'value' => 'incidents@zuluru.org',
 				'affiliate_id' => null,
 			],
 			[
@@ -462,6 +476,20 @@ class SettingsFixture extends TestFixture {
 				'category' => 'payment',
 				'name' => 'elavon_test_hash_key',
 				'value' => '',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'stripe_test_secret_key',
+				'value' => '12345',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'stripe_test_webhook_signing',
+				'value' => 'ABCDE',
 				'affiliate_id' => null,
 			],
 		];

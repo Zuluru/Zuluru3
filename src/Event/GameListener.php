@@ -13,12 +13,11 @@ use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventListenerInterface;
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use Cake\Routing\Router;
 
 class GameListener implements EventListenerInterface {
 
-	use FlashTrait;
-
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			'Model.Game.incidentReport' => 'incidentReport',
 			'Model.Game.scoreSubmission' => 'scoreSubmission',
@@ -49,9 +48,9 @@ class GameListener implements EventListenerInterface {
 		{
 			// TODO: Maybe send the incident report before saving data, and add in a column for
 			// whether it was sent, thus allowing the cron to attempt to re-send it?
-			$this->Flash('success', __('Your incident report details have been sent for handling.'));
+			Router::getRequest()->getFlash()->success(__('Your incident report details have been sent for handling.'));
 		} else {
-			$this->Flash('warning', __('There was an error sending your incident report details. Please send them to {0} to ensure proper handling.', [
+			Router::getRequest()->getFlash()->warning(__('There was an error sending your incident report details. Please send them to {0} to ensure proper handling.', [
 				'params' => [
 					'link' => $addr,
 					'target' => "mailto:$addr",
@@ -63,7 +62,7 @@ class GameListener implements EventListenerInterface {
 	public function scoreSubmission(CakeEvent $cakeEvent, Game $game) {
 		if ($game->isFinalized()) {
 			// The afterSave function must have finalized it
-			$this->Flash('success', __('This score agrees with the score submitted by your opponent. It will now be posted as an official game result.'));
+			Router::getRequest()->getFlash()->success(__('This score agrees with the score submitted by your opponent. It will now be posted as an official game result.'));
 			return;
 		}
 
@@ -97,10 +96,11 @@ class GameListener implements EventListenerInterface {
 			}
 
 			// We need to swap the for and against scores to reflect the opponent's view in the email below
-			list($score_against, $score_for) = [$score_for, $score_against];
+			[$score_against, $score_for] = [$score_for, $score_against];
 		}
 
-		$this->Flash('html', __('This score has been saved. Once your opponent has entered their score, it will be officially posted. The score you have submitted indicates that this game was {0}. If this is incorrect, you can {1} to correct it.'), [
+		Router::getRequest()->getFlash()->set(__('This score has been saved. Once your opponent has entered their score, it will be officially posted. The score you have submitted indicates that this game was {0}. If this is incorrect, you can {1} to correct it.'), [
+			'element' => 'html',
 			'params' => [
 				'class' => 'success',
 				'replacements' => [
@@ -110,7 +110,7 @@ class GameListener implements EventListenerInterface {
 					[
 						'type' => 'link',
 						'link' => __('edit the score'),
-						'target' => ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->score_entries[0]->team_id],
+						'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
 					],
 				],
 			],
@@ -125,6 +125,7 @@ class GameListener implements EventListenerInterface {
 		}
 
 		// Email opposing captains with this score and an easy link
+		// TODO: This isn't really the right condition to test on. Goal is to not email captains about anything when officials are involved.
 		if ($game->division->email_after) {
 			$captains = collection($opponent->people)->filter(function ($player) {
 				return in_array($player->_joinData->role, Configure::read('privileged_roster_roles')) && $player->_joinData->status == ROSTER_APPROVED;
@@ -161,18 +162,21 @@ class GameListener implements EventListenerInterface {
 			}
 		}
 
-		$this->Flash('html', __('This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever coach or captain made an error can {0}.'), [
-			'params' => [
-				'class' => 'warning',
-				'replacements' => [
-					[
-						'type' => 'link',
-						'link' => __('edit their submission'),
-						'target' => ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->score_entries[0]->team_id],
+		if (Router::getRequest()) {
+			Router::getRequest()->getFlash()->set(__('This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever coach or captain made an error can {0}.'), [
+				'element' => 'html',
+				'params' => [
+					'class' => 'warning',
+					'replacements' => [
+						[
+							'type' => 'link',
+							'link' => __('edit their submission'),
+							'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
+						],
 					],
 				],
-			],
-		]);
+			]);
+		}
 	}
 
 	public function scoreApproval(CakeEvent $cakeEvent, Game $game, Team $team, Team $opponent) {

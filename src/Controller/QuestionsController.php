@@ -1,7 +1,6 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Query;
@@ -15,17 +14,17 @@ use Cake\ORM\TableRegistry;
 class QuestionsController extends AppController {
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['edit']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -36,7 +35,7 @@ class QuestionsController extends AppController {
 				'Questions.affiliate_id IN' => $affiliates,
 			],
 			'contain' => ['Affiliates'],
-			'order' => ['Questions.question'],
+			'order' => ['Questions.question' => 'ASC'],
 		];
 		$query = $this->Questions->find()
 			->order(['Affiliates.name']);
@@ -67,7 +66,7 @@ class QuestionsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('question');
@@ -75,10 +74,7 @@ class QuestionsController extends AppController {
 			$question = $this->Questions->get($id, [
 				'contain' => ['Affiliates', 'Questionnaires', 'Answers']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -93,16 +89,16 @@ class QuestionsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$question = $this->Questions->newEntity();
+		$question = $this->Questions->newEmptyEntity();
 		$this->Authorization->authorize($this);
 		if ($this->getRequest()->is('post')) {
 			$question = $this->Questions->patchEntity($question, $this->getRequest()->getData());
 			if ($this->Questions->save($question)) {
 				$this->Flash->success(__('The question has been saved.'));
-				return $this->redirect(['action' => 'edit', 'question' => $question->id]);
+				return $this->redirect(['action' => 'edit', '?' => ['question' => $question->id]]);
 			} else {
 				$this->Flash->warning(__('The question could not be saved. Please correct the errors below and try again.'));
 				$this->Configuration->loadAffiliate($question->affiliate_id);
@@ -116,24 +112,22 @@ class QuestionsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('question');
 		try {
-			$question = $this->Questions->get($id, [
-				'contain' => [
+			$question = $this->Questions->find('translations')
+				->contain([
 					'Answers' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['Answers.sort']);
+							return $q->find('translations')->order(['Answers.sort']);
 						},
 					],
-				]
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+				])
+				->where(['Questions.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -158,7 +152,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Activate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -166,10 +160,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -188,7 +179,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Deactivate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -196,10 +187,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -218,7 +206,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -226,10 +214,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -267,10 +252,7 @@ class QuestionsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -282,7 +264,7 @@ class QuestionsController extends AppController {
 		} else {
 			$sort = $question->answers[0]->sort + 1;
 		}
-		$answer = $this->Questions->Answers->newEntity();
+		$answer = $this->Questions->Answers->newEmptyEntity();
 		$answer = $this->Questions->Answers->patchEntity($answer, [
 			'question_id' => $id,
 			'sort' => $sort,
@@ -302,10 +284,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('answer');
 		try {
 			$answer = $this->Questions->Answers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid answer.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid answer.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -323,11 +302,11 @@ class QuestionsController extends AppController {
 		if ($count == 0) {
 			if (!$this->Questions->Answers->delete($answer)) {
 				$this->Flash->warning(__('Failed to remove this answer.'));
-				return $this->redirect(['action' => 'view', 'question' => $answer->question_id]);
+				return $this->redirect(['action' => 'view', '?' => ['question' => $answer->question_id]]);
 			}
 		} else {
 			$this->Flash->info(__('This answer has responses saved, and cannot be removed for historical purposes. You can deactivate it instead, so it will no longer be shown for new registrations.'));
-			return $this->redirect(['action' => 'view', 'question' => $answer->question_id]);
+			return $this->redirect(['action' => 'view', '?' => ['question' => $answer->question_id]]);
 		}
 	}
 
@@ -336,10 +315,7 @@ class QuestionsController extends AppController {
 
 		try {
 			$affiliate = TableRegistry::getTableLocator()->get('Affiliates')->get($this->getRequest()->getQuery('affiliate'));
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid affiliate.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -347,15 +323,17 @@ class QuestionsController extends AppController {
 		$this->Authorization->authorize($affiliate);
 
 		$this->set('questions', $this->Questions->find()
+			->leftJoinWith('QuestionsTranslations')
 			->where([
 				'OR' => [
 					'Questions.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
-					'Questions_question_translation.content LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
+					'QuestionsTranslations.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
 				],
 				'Questions.active' => true,
 				'Questions.affiliate_id' => $affiliate->id,
 			])
 			->order('Questions.question')
+			->all()
 			->combine('id', 'question')
 			->toArray());
 	}

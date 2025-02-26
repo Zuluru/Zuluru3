@@ -20,7 +20,7 @@ class PricesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -28,7 +28,6 @@ class PricesControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -52,18 +51,18 @@ class PricesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete prices
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
-			$admin->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
+			$admin->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]],
 			'The price point has been deleted.');
 
 		// But not the last price on an event
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $single_event->prices[0]->id],
-			$admin->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $single_event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $single_event->prices[0]->id]],
+			$admin->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $single_event->id]],
 			'You cannot delete the only price point on an event.');
 
 		// And not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $dependent_event->prices[0]->id],
-			$admin->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $dependent_event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $dependent_event->prices[0]->id]],
+			$admin->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $dependent_event->id]],
 			'#The following records reference this price point, so it cannot be deleted#');
 	}
 
@@ -71,7 +70,6 @@ class PricesControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -88,12 +86,12 @@ class PricesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete prices in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
-			$manager->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
+			$manager->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]],
 			'The price point has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $affiliate_event->prices[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $affiliate_event->prices[0]->id]],
 			$manager->id);
 	}
 
@@ -101,7 +99,6 @@ class PricesControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -113,11 +110,11 @@ class PricesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete prices
-		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]]);
 	}
 
 }

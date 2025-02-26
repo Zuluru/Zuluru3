@@ -10,11 +10,12 @@ use Cake\Chronos\ChronosInterface;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 
-class SelectorHelperTest extends TestCase
-{
+class SelectorHelperTest extends TestCase {
 
 	use ScenarioAwareTrait;
+	use TruncateDirtyTables;
 
 	/**
 	 * Test subject

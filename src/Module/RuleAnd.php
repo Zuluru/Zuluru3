@@ -7,8 +7,8 @@ namespace App\Module;
 use App\Model\Entity\Team;
 
 class RuleAnd extends RuleMeta {
-	public $meta_rule = true;
-	public $reason_type = REASON_TYPE_CONSOLIDATED;
+	public bool $meta_rule = true;
+	public int $reason_type = REASON_TYPE_CONSOLIDATED;
 
 	public function parse($config) {
 		$this->rule = [];

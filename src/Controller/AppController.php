@@ -5,23 +5,27 @@ use App\Cache\Cache;
 use App\Core\UserCache;
 use App\Core\ModuleRegistry;
 use App\Model\Entity\Person;
-use App\Mailer\Email;
+use App\Mailer\Mailer;
+use App\View\CsvView;
+use App\View\IcalView;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
+use Cake\Http\Exception\BadRequestException;
 use Cake\Http\Response;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
 use Cake\I18n\Number;
 use Cake\Log\Log;
+use Cake\Mailer\Message;
 use Cake\Network\Exception\SocketException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
+use Cake\View\JsonView;
 use Exception;
-use Muffin\Footprint\Auth\FootprintAwareTrait;
 use Psr\Log\LogLevel;
 
 /**
@@ -31,17 +35,14 @@ use Psr\Log\LogLevel;
  * @package       cake
  * @subpackage    cake.cake.libs.controller
  * @property \App\Controller\Component\AuthenticationComponent $Authentication
- * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
+ * @property \App\Controller\Component\AuthorizationComponent $Authorization
  * @property \Cake\Controller\Component\FlashComponent $Flash
  * @property \Cake\Controller\Component\RequestHandlerComponent $RequestHandler
+ * @property \Cake\Controller\Component\FormProtectionComponent $FormProtection
  * @property \App\Core\UserCache $UserCache
  * @property \App\Model\Table\ConfigurationTable $Configuration
  */
 class AppController extends Controller {
-	use FootprintAwareTrait {
-		_setCurrentUser as _footprintSetCurrentUser;
-	}
-
 	protected $menu_items = [];
 
 	/**
@@ -52,21 +53,33 @@ class AppController extends Controller {
 	 * @return void
 	 * @throws Exception
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
+
+		$this->loadComponent('Flash');
+		$this->loadComponent('RequestHandler', [
+			'enableBeforeRedirect' => false,
+			'viewClassMap' => [
+				// @todo Cake4: See https://book.cakephp.org/4/en/controllers.html#controller-viewclasses for 4.4
+				'csv' => CsvView::class,
+				'ics' => IcalView::class,
+				'json' => JsonView::class,
+			]
+		]);
+
+		// Don't attempt to do anything database- or user-related during installation
+		if ($this->getPlugin() === 'CakePHPAppInstaller') {
+			return;
+		}
 
 		// TODO: Find a better solution for black-holing of Ajax requests?
 		if (!$this->getRequest()->is('ajax') && !$this->getRequest()->is('json')) {
-			$this->loadComponent('Security');
-			$this->Security->setConfig('blackHoleCallback', '_blackhole');
-		}
-
-		$this->loadComponent('Flash');
-		$this->loadComponent('RequestHandler', ['enableBeforeRedirect' => false]);
-
-		// Don't attempt to do anything database- or user-related during installation
-		if ($this->getPlugin() === 'Installer') {
-			return;
+			$this->loadComponent('FormProtection', [
+				'validate' => false,
+				'validationFailureCallback' => function (BadRequestException $exception) {
+					throw $exception;
+				},
+			]);
 		}
 
 		$this->UserCache = UserCache::getInstance(true);
@@ -75,13 +88,15 @@ class AppController extends Controller {
 		$this->loadComponent('Authentication', [
 			'logoutRedirect' => '/',
 			'loginRedirect' => '/',
+			'identityCheckEvent' => 'Controller.initialize',
 		]);
 
 		// Check what actions anyone (logged on or not) is allowed in this controller.
 		$allowed = $this->getRequest()->is('json') ? $this->_noAuthenticationJsonActions() : $this->_noAuthenticationActions();
 		$this->Authentication->allowUnauthenticated($allowed);
 
-		$this->loadComponent('Authorization.Authorization');
+		// @todo Cake4: Fix policies and revert this to 'Authorization.Authorization'
+		$this->loadComponent('Authorization');
 
 		// Footprint trait needs the _userModel set to whatever is being used for authentication
 		$this->_userModel = Configure::read('Security.authModel');
@@ -118,20 +133,15 @@ class AppController extends Controller {
 		}
 	}
 
-	public function beforeFilter(CakeEvent $cakeEvent) {
+	public function beforeFilter(\Cake\Event\EventInterface $cakeEvent) {
 		parent::beforeFilter($cakeEvent);
 
 		// Don't attempt to do anything database- or user-related during installation
-		if ($this->getPlugin() === 'Installer') {
+		if ($this->getPlugin() === 'CakePHPAppInstaller') {
 			return;
 		}
 
-		// Backward compatibility with old CakePHP-style named URLs
-		// TODO: Remove this in maybe 2020, once there's been a good time to update links
-		$this->request = Router::parseNamedParams($this->request);
-		$this->request = $this->request->withQueryParams(array_merge($this->request->getQueryParams(), $this->request->getParam('named')));
-
-		$this->loadModel('Configuration');
+		$this->Configuration = $this->fetchTable('Configuration');
 		$this->_setLanguage();
 
 		// Load configuration from database or cache
@@ -183,7 +193,7 @@ class AppController extends Controller {
 					($this->getRequest()->getParam('controller') != 'Teams' || !in_array($this->getRequest()->getQuery('team'), $response_required))
 				) {
 					$this->Flash->info(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.'));
-					return $this->redirect(['plugin' => false, 'controller' => 'Teams', 'action' => 'view', 'team' => current($response_required)]);
+					return $this->redirect(['plugin' => false, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => current($response_required)]]);
 				}
 			}
 		}
@@ -193,16 +203,16 @@ class AppController extends Controller {
 		$this->_initMenu();
 	}
 
-	public function flashEmail(CakeEvent $event, Email $email, $result) {
+	public function flashEmail(CakeEvent $event, Message $email, $result) {
 		$this->Flash->email(null, [
 			'params' => [
 				'saved' => true,
-				'to' => $email->to(),
-				'from' => $email->from(),
-				'replyTo' => $email->replyTo(),
-				'cc' => $email->cc(),
-				'bcc' => $email->bcc(),
-				'subject' => $email->subject(),
+				'to' => $email->getTo(),
+				'from' => $email->getFrom(),
+				'replyTo' => $email->getReplyTo(),
+				'cc' => $email->getCc(),
+				'bcc' => $email->getBcc(),
+				'subject' => $email->getSubject(),
 				'result' => $result,
 			],
 			'key' => 'email',
@@ -229,12 +239,12 @@ class AppController extends Controller {
 		]);
 	}
 
-	public function beforeRender(CakeEvent $cakeEvent) {
+	public function beforeRender(\Cake\Event\EventInterface $cakeEvent): void {
 		parent::beforeRender($cakeEvent);
 
 		if ($this->getRequest()->is('json')) {
 			// We don't have our own JSON view class to set these overrides
-			$this->viewBuilder()->setHelpers([
+			$this->viewBuilder()->addHelpers([
 				'Html' => ['className' => 'ZuluruHtml'],
 				'Time' => ['className' => 'ZuluruTime'],
 			]);
@@ -255,7 +265,7 @@ class AppController extends Controller {
 	 * @return \Cake\Http\Response|null
 	 * @link https://book.cakephp.org/3/en/controllers.html#Controller::redirect
 	 */
-	public function redirect($url, $status = 302) {
+	public function redirect($url = null, int $status = 302): ?Response {
 		$this->disableAutoRender();
 
 		if ($status) {
@@ -343,7 +353,7 @@ class AppController extends Controller {
 	 * Read and set variables for the database-based affiliate options.
 	 */
 	protected function _loadAffiliateOptions() {
-		$this->loadModel('Affiliates');
+		$this->Affiliates = $this->fetchTable('Affiliates');
 
 		$conditions = [
 			'Affiliates.active' => true,
@@ -368,7 +378,7 @@ class AppController extends Controller {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return [];
 	}
 
@@ -404,7 +414,7 @@ class AppController extends Controller {
 		$this->menu_items = [];
 
 		$identity = $this->Authentication->getIdentity();
-		$groups = $this->UserCache->read('GroupIDs');
+		$groups = $this->UserCache->read('UserGroupIDs');
 		if ($identity && $identity->isManager()) {
 			$affiliates = $this->Authentication->applicableAffiliates(true);
 		}
@@ -414,7 +424,7 @@ class AppController extends Controller {
 		}
 
 		if ($identity && $identity->isLoggedIn()) {
-			$this->_addMenuItem(__('My Profile'), ['plugin' => false, 'controller' => 'People', 'action' => 'view']);
+			//$this->_addMenuItem(__('My Profile'), ['plugin' => false, 'controller' => 'People', 'action' => 'view']);
 			$this->_addMenuItem(__('View'), ['plugin' => false, 'controller' => 'People', 'action' => 'view'], __('My Profile'));
 			$this->_addMenuItem(__('Edit'), ['plugin' => false, 'controller' => 'People', 'action' => 'edit'], __('My Profile'));
 			if (!$identity->getOriginalData()->person->user_id) {
@@ -453,7 +463,7 @@ class AppController extends Controller {
 		if (Configure::read('feature.registration')) {
 			// Parents always get the registration menu items
 			if (!Configure::read('feature.minimal_menus') && ($this->Authorization->can(\App\Controller\PeopleController::class, 'show_registration'))) {
-				$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard']);
+				//$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard']);
 				$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard'], __('Registration'));
 				$this->_addMenuItem(__('All Events'), ['plugin' => false, 'controller' => 'Events', 'action' => 'index'], __('Registration'));
 				if ($identity && $identity->isLoggedIn() && !empty($this->UserCache->read('Registrations'))) {
@@ -462,7 +472,7 @@ class AppController extends Controller {
 
 				$can_pay = count($this->UserCache->read('RegistrationsCanPay'));
 				if ($can_pay) {
-					$this->_addMenuItem(__('Checkout {0}', "<span class=\"badge\">$can_pay</span>"), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'checkout'], __('Registration'));
+					$this->_addMenuItem(__('Checkout {0}', "<span class=\"badge rounded-pill bg-primary\">$can_pay</span>"), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'checkout'], __('Registration'));
 				}
 			}
 
@@ -485,14 +495,14 @@ class AppController extends Controller {
 		}
 
 		if ($identity && $identity->isLoggedIn()) {
-			$this->_addMenuItem(__('Teams'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'index']);
+			//$this->_addMenuItem(__('Teams'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'index']);
 			$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'index'], __('Teams'));
 			// If registrations are enabled, it takes care of team creation
 			if (($identity && $identity->isManager()) || !Configure::read('feature.registration')) {
 				$this->_addMenuItem(__('Create Team'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'add'], __('Teams'));
 			}
 			if (!Configure::read('feature.minimal_menus') && $identity && $identity->isManager()) {
-				$this->loadModel('Teams');
+				$this->Teams = $this->fetchTable('Teams');
 				$new = $this->Teams->find()
 					->where([
 						'division_id IS' => null,
@@ -501,7 +511,7 @@ class AppController extends Controller {
 					->count();
 				if ($new > 0) {
 					$this->set('unassigned_teams', $new);
-					$this->_addMenuItem(__('Unassigned Teams') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'Teams', 'action' => 'unassigned'], __('Teams'));
+					$this->_addMenuItem(__('Unassigned Teams') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'Teams', 'action' => 'unassigned'], __('Teams'));
 				}
 				$this->_addMenuItem(__('Statistics'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'statistics'], __('Teams'));
 			}
@@ -513,7 +523,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Create Franchise'), ['plugin' => false, 'controller' => 'Franchises', 'action' => 'add'], [__('Teams'), __('Franchises')]);
 		}
 
-		$this->_addMenuItem(__('Leagues'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'index']);
+		//$this->_addMenuItem(__('Leagues'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'index'], __('Leagues'));
 		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('League Summary'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'summary'], __('Leagues'));
@@ -526,6 +536,7 @@ class AppController extends Controller {
 					return $q->where(['Divisions.schedule_type' => 'tournament']);
 				})
 				->order(['Leagues.open', 'Leagues.close', 'Leagues.id'])
+				->all()
 				->combine('id', 'name')
 				->toArray();
 		}, 'today', I18n::getLocale());
@@ -533,11 +544,11 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Tournaments'), ['plugin' => false, 'controller' => 'Tournaments', 'action' => 'index']);
 			foreach ($tournaments as $id => $name) {
 				// TODO: Handle custom URLs
-				$this->_addMenuItem($name, ['plugin' => false, 'controller' => 'Tournaments', 'action' => 'view', 'tournament' => $id], __('Tournaments'));
+				$this->_addMenuItem($name, ['plugin' => false, 'controller' => 'Tournaments', 'action' => 'view', '?' => ['tournament' => $id]], __('Tournaments'));
 			}
 		}
 
-		$this->_addMenuItem(Configure::read('UI.fields_cap'), ['plugin' => false, 'controller' => 'Facilities', 'action' => 'index']);
+		//$this->_addMenuItem(Configure::read('UI.fields_cap'), ['plugin' => false, 'controller' => 'Facilities', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Facilities', 'action' => 'index'], Configure::read('UI.fields_cap'));
 		$this->_addMenuItem(__('Map of All {0}', Configure::read('UI.fields_cap')), ['plugin' => false, 'controller' => 'Maps', 'action' => 'index'], Configure::read('UI.fields_cap'), null, ['target' => 'map']);
 		if ($identity && $identity->isManager()) {
@@ -547,10 +558,10 @@ class AppController extends Controller {
 			if (!Configure::read('feature.affiliates')) {
 				$this->_addMenuItem(__('Add Bulk Game Slots'), ['plugin' => false, 'controller' => 'GameSlots', 'action' => 'add'], Configure::read('UI.fields_cap'));
 			} else if (count($affiliates) == 1) {
-				$this->_addMenuItem(__('Add Bulk Game Slots'), ['plugin' => false, 'controller' => 'GameSlots', 'action' => 'add', 'affiliate' => current(array_keys($affiliates))], Configure::read('UI.fields_cap'));
+				$this->_addMenuItem(__('Add Bulk Game Slots'), ['plugin' => false, 'controller' => 'GameSlots', 'action' => 'add', '?' => ['affiliate' => current(array_keys($affiliates))]], Configure::read('UI.fields_cap'));
 			} else {
 				foreach ($affiliates as $affiliate => $name) {
-					$this->_addMenuItem(__($name), ['plugin' => false, 'controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliate], [Configure::read('UI.fields_cap'), __('Add Bulk Game Slots')]);
+					$this->_addMenuItem(__($name), ['plugin' => false, 'controller' => 'GameSlots', 'action' => 'add', '?' => ['affiliate' => $affiliate]], [Configure::read('UI.fields_cap'), __('Add Bulk Game Slots')]);
 				}
 			}
 
@@ -558,7 +569,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Regions', 'action' => 'index'], [Configure::read('UI.fields_cap'), __('Regions')]);
 			$this->_addMenuItem(__('Create Region'), ['plugin' => false, 'controller' => 'Regions', 'action' => 'add'], [Configure::read('UI.fields_cap'), __('Regions')]);
 
-			$this->loadModel('People');
+			$this->People = $this->fetchTable('People');
 			if (!Configure::read('feature.minimal_menus')) {
 				$new = $this->People->find()
 					->distinct(['People.id'])
@@ -571,7 +582,7 @@ class AppController extends Controller {
 					->count();
 				if ($new > 0) {
 					$this->set('new_accounts', $new);
-					$this->_addMenuItem(__('Approve New Accounts') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'list_new'], __('People'));
+					$this->_addMenuItem(__('Approve New Accounts') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'list_new'], __('People'));
 				}
 
 				if (Configure::read('feature.photos') && Configure::read('feature.approve_photos')) {
@@ -583,7 +594,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_photos', $new);
-						$this->_addMenuItem(__('Approve New Photos') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_photos'], __('People'));
+						$this->_addMenuItem(__('Approve New Photos') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_photos'], __('People'));
 					}
 				}
 
@@ -596,7 +607,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_documents', $new);
-						$this->_addMenuItem(__('Approve New Documents') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_documents'], __('People'));
+						$this->_addMenuItem(__('Approve New Documents') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_documents'], __('People'));
 					}
 				}
 			}
@@ -607,20 +618,21 @@ class AppController extends Controller {
 			}
 
 			$this->_addMenuItem(__('List All'), ['plugin' => false, 'controller' => 'People', 'action' => 'index'], __('People'));
-			$groups = $this->People->Groups->find()
+			$groups = $this->People->UserGroups->find()
 				->enableHydration(false)
 				->where([
 					'OR' => [
 						// We always want to include players, even if they aren't a valid "create account" group.
-						'Groups.id' => GROUP_PLAYER,
-						'Groups.active' => true,
+						'UserGroups.id' => GROUP_PLAYER,
+						'UserGroups.active' => true,
 					],
 				])
-				->order(['Groups.level', 'Groups.id'])
+				->order(['UserGroups.level', 'UserGroups.id'])
+				->all()
 				->combine('id', 'name')
 				->toArray();
 			foreach ($groups as $group => $name) {
-				$this->_addMenuItem(__(Inflector::pluralize($name)), ['plugin' => false, 'controller' => 'People', 'action' => 'index', 'group' => $group], [__('People'), __('List All')]);
+				$this->_addMenuItem(__(Inflector::pluralize($name)), ['plugin' => false, 'controller' => 'People', 'action' => 'index', '?' => ['group' => $group]], [__('People'), __('List All')]);
 			}
 		}
 
@@ -630,7 +642,7 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Badges'), ['plugin' => false, 'controller' => 'Badges', 'action' => 'index'], __('People'));
 				$this->_addMenuItem(__('Nominate'), ['plugin' => false, 'controller' => 'People', 'action' => 'nominate'], [__('People'), __('Badges')]);
 				if (!Configure::read('feature.minimal_menus') && $identity && $identity->isManager()) {
-					$this->loadModel('People');
+					$this->People = $this->fetchTable('People');
 					$new = $this->People->Badges->find()
 						->matching('People')
 						->where([
@@ -640,7 +652,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_nominations', $new);
-						$this->_addMenuItem(__('Approve Nominations') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_badges'], [__('People'), __('Badges')]);
+						$this->_addMenuItem(__('Approve Nominations') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_badges'], [__('People'), __('Badges')]);
 					}
 					$this->_addMenuItem(__('Deactivated'), ['plugin' => false, 'controller' => 'Badges', 'action' => 'deactivated'], [__('People'), __('Badges')]);
 				}
@@ -677,7 +689,7 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Affiliates'), ['plugin' => false, 'controller' => 'Affiliates', 'action' => 'index'], __('Configuration'));
 			}
 
-			$this->_addMenuItem(__('Permissions'), ['plugin' => false, 'controller' => 'Groups', 'action' => 'index'], __('Configuration'));
+			$this->_addMenuItem(__('Permissions'), ['plugin' => false, 'controller' => 'UserGroups', 'action' => 'index'], __('Configuration'));
 		}
 
 		if ($identity && $identity->isManager()) {
@@ -696,7 +708,7 @@ class AppController extends Controller {
 		}
 
 		if ($this->Authorization->can(AllController::class, 'clear_cache')) {
-			$this->_addMenuItem(__('Clear Cache'), ['plugin' => false, 'controller' => 'All', 'action' => 'clear_cache', 'return' => AppController::_return()], __('Configuration'));
+			$this->_addMenuItem(__('Clear Cache'), ['plugin' => false, 'controller' => 'All', 'action' => 'clear_cache', '?' => ['return' => AppController::_return()]], __('Configuration'));
 		}
 
 		if ($identity && $identity->isAdmin()) {
@@ -726,44 +738,44 @@ class AppController extends Controller {
 		if (Configure::read('feature.affiliates') && $identity && $identity->isManager()) {
 			if (count($affiliates) == 1 && !$identity->isAdmin()) {
 				$affiliate = current(array_keys($affiliates));
-				$this->_addMenuItem(__('Organization'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'organization', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
-				$this->_addMenuItem(__('Features'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'feature', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
-				$this->_addMenuItem(__('Email'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'email', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
-				$this->_addMenuItem(__('Team'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'team', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
-				$this->_addMenuItem(__('User'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
+				$this->_addMenuItem(__('Organization'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'organization', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
+				$this->_addMenuItem(__('Features'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'feature', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
+				$this->_addMenuItem(__('Email'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'email', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
+				$this->_addMenuItem(__('Team'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'team', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
+				$this->_addMenuItem(__('User'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
 				foreach (Configure::read('App.callbacks') as $name => $config) {
 					if (is_numeric($name) && is_string($config)) {
 						$name = $config;
 					}
-					$this->_addMenuItem(Inflector::humanize($name), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user_' . strtolower($name), 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
+					$this->_addMenuItem(Inflector::humanize($name), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user_' . strtolower($name), '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
 				}
-				$this->_addMenuItem(__('Profile'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'profile', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
-				$this->_addMenuItem(__('Scoring'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'scoring', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
+				$this->_addMenuItem(__('Profile'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'profile', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
+				$this->_addMenuItem(__('Scoring'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'scoring', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
 				if (Configure::read('feature.registration')) {
-					$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'registration', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
+					$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'registration', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
 					if (Configure::read('registration.online_payments')) {
-						$this->_addMenuItem(__('Payment'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'payment', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
+						$this->_addMenuItem(__('Payment'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'payment', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings')]);
 					}
 				}
 			} else {
 				foreach ($affiliates as $affiliate => $name) {
-					$this->_addMenuItem(__('Organization'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'organization', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
-					$this->_addMenuItem(__('Features'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'feature', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
-					$this->_addMenuItem(__('Email'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'email', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
-					$this->_addMenuItem(__('Team'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'team', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
-					$this->_addMenuItem(__('User'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
+					$this->_addMenuItem(__('Organization'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'organization', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
+					$this->_addMenuItem(__('Features'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'feature', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
+					$this->_addMenuItem(__('Email'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'email', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
+					$this->_addMenuItem(__('Team'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'team', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
+					$this->_addMenuItem(__('User'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
 					foreach (Configure::read('App.callbacks') as $name => $config) {
 						if (is_numeric($name) && is_string($config)) {
 							$name = $config;
 						}
-						$this->_addMenuItem(Inflector::humanize($name), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user_' . strtolower($name), 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
+						$this->_addMenuItem(Inflector::humanize($name), ['plugin' => false, 'controller' => 'Settings', 'action' => 'user_' . strtolower($name), '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
 					}
-					$this->_addMenuItem(__('Profile'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'profile', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
-					$this->_addMenuItem(__('Scoring'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'scoring', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
+					$this->_addMenuItem(__('Profile'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'profile', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
+					$this->_addMenuItem(__('Scoring'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'scoring', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
 					if (Configure::read('feature.registration')) {
-						$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'registration', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
+						$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'registration', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
 						if (Configure::read('registration.online_payments')) {
-							$this->_addMenuItem(__('Payment'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'payment', 'affiliate' => $affiliate], [__('Configuration'), __('Settings'), __($name)]);
+							$this->_addMenuItem(__('Payment'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'payment', '?' => ['affiliate' => $affiliate]], [__('Configuration'), __('Settings'), __($name)]);
 						}
 					}
 				}
@@ -832,24 +844,24 @@ class AppController extends Controller {
 	 */
 	protected function _initPersonalMenu($id = null, $name = null) {
 		if ($id) {
-			$this->_addMenuItem(__('View'), ['plugin' => false, 'controller' => 'People', 'action' => 'view', 'act_as' => $id], [__('My Profile'), $name]);
-			$this->_addMenuItem(__('Edit'), ['plugin' => false, 'controller' => 'People', 'action' => 'edit', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('View'), ['plugin' => false, 'controller' => 'People', 'action' => 'view', '?' => ['act_as' => $id]], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Edit'), ['plugin' => false, 'controller' => 'People', 'action' => 'edit', '?' => ['act_as' => $id]], [__('My Profile'), $name]);
 			if (!$this->UserCache->read('Person.user_id', $id)) {
-				$this->_addMenuItem(__('Create Login'), ['plugin' => false, 'controller' => 'People', 'action' => 'add_account', 'person' => $id], [__('My Profile'), $name]);
+				$this->_addMenuItem(__('Create Login'), ['plugin' => false, 'controller' => 'People', 'action' => 'add_account', '?' => ['person' => $id]], [__('My Profile'), $name]);
 			}
-			$this->_addMenuItem(__('Preferences'), ['plugin' => false, 'controller' => 'People', 'action' => 'preferences', 'act_as' => $id], [__('My Profile'), $name]);
-			$this->_addMenuItem(__('Waiver History'), ['plugin' => false, 'controller' => 'People', 'action' => 'waivers', 'act_as' => $id], [__('My Profile'), $name]);
-			$this->_addMenuItem(__('Upload Photo'), ['plugin' => false, 'controller' => 'People', 'action' => 'photo_upload', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Preferences'), ['plugin' => false, 'controller' => 'People', 'action' => 'preferences', '?' => ['act_as' => $id]], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Waiver History'), ['plugin' => false, 'controller' => 'People', 'action' => 'waivers', '?' => ['act_as' => $id]], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Upload Photo'), ['plugin' => false, 'controller' => 'People', 'action' => 'photo_upload', '?' => ['act_as' => $id]], [__('My Profile'), $name]);
 
 			if (Configure::read('feature.registration')) {
 				if (!empty($this->UserCache->read('RegistrationsCanPay', $id))) {
-					$this->_addMenuItem(__('Checkout'), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'checkout', 'act_as' => $id], [__('Registration'), $name]);
+					$this->_addMenuItem(__('Checkout'), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'checkout', '?' => ['act_as' => $id]], [__('Registration'), $name]);
 				}
 
 				if (!empty($this->UserCache->read('Registrations', $id))) {
-					$this->_addMenuItem(__('History'), ['plugin' => false, 'controller' => 'People', 'action' => 'registrations', 'act_as' => $id], [__('Registration'), $name]);
+					$this->_addMenuItem(__('History'), ['plugin' => false, 'controller' => 'People', 'action' => 'registrations', '?' => ['act_as' => $id]], [__('Registration'), $name]);
 				}
-				$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard', 'act_as' => $id], [__('Registration'), $name]);
+				$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard', '?' => ['act_as' => $id]], [__('Registration'), $name]);
 			}
 		}
 
@@ -863,7 +875,7 @@ class AppController extends Controller {
 
 		if ($id) {
 			if (!empty($this->UserCache->read('AllTeamIDs', $id))) {
-				$this->_addMenuItem(__('History'), ['plugin' => false, 'controller' => 'People', 'action' => 'teams', 'person' => $id], [__('Teams'), $name]);
+				$this->_addMenuItem(__('History'), ['plugin' => false, 'controller' => 'People', 'action' => 'teams', '?' => ['person' => $id]], [__('Teams'), $name]);
 			}
 		}
 
@@ -897,10 +909,10 @@ class AppController extends Controller {
 		$key = "{$team->name}::{$team->id}";
 
 		if (!empty($team->division_id)) {
-			$this->_addMenuItem($team->name . __(' ({0})', $team->division->long_league_name), ['plugin' => false, 'controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $path, $key);
+			$this->_addMenuItem($team->name . __(' ({0})', $team->division->long_league_name), ['plugin' => false, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], $path, $key);
 			$this->_addDivisionMenuItems($team->division, $team->division->league, $id, $name);
 		} else {
-			$this->_addMenuItem($team->name, ['plugin' => false, 'controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $path, $key);
+			$this->_addMenuItem($team->name, ['plugin' => false, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], $path, $key);
 		}
 	}
 
@@ -914,7 +926,7 @@ class AppController extends Controller {
 			$path = [__('Teams'), __('Franchises')];
 		}
 
-		$this->_addMenuItem($franchise->name, ['plugin' => false, 'controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $path, "{$franchise->name}::{$franchise->id}");
+		$this->_addMenuItem($franchise->name, ['plugin' => false, 'controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $path, "{$franchise->name}::{$franchise->id}");
 	}
 
 	/**
@@ -927,7 +939,7 @@ class AppController extends Controller {
 			$path = [__('Leagues'), __('My Leagues')];
 		}
 
-		$this->_addMenuItem($division->league_name, ['plugin' => false, 'controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $path);
+		$this->_addMenuItem($division->league_name, ['plugin' => false, 'controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]], $path);
 	}
 
 	/**
@@ -1025,7 +1037,7 @@ class AppController extends Controller {
 			$email->setAttachments($attachments);
 		}
 
-		$email->viewBuilder()->setHelpers([
+		$email->viewBuilder()->addHelpers([
 			'Number', 'Text',
 			'Html' => ['className' => 'ZuluruHtml'],
 			'Time' => ['className' => 'ZuluruTime'],
@@ -1034,10 +1046,10 @@ class AppController extends Controller {
 		// Get ready and send it
 		try {
 			if (array_key_exists('content', $opts)) {
-				$email->send($opts['content']);
+				$email->deliver($opts['content']);
 			} else {
 				$email->viewBuilder()->setTemplate($opts['template']);
-				$email->send();
+				$email->deliver();
 			}
 		} catch (SocketException $ex) {
 			Log::write(LogLevel::ERROR, 'Mail delivery error: ' . $ex->getMessage());
@@ -1048,7 +1060,7 @@ class AppController extends Controller {
 	}
 
 	public static function _getMailer() {
-		$mailer = new Email(filter_var(env('DEBUG_EMAIL', false), FILTER_VALIDATE_BOOLEAN) ? 'debug' : 'default');
+		$mailer = new Mailer(filter_var(env('DEBUG_EMAIL', false), FILTER_VALIDATE_BOOLEAN) ? 'debug' : 'default');
 
 		// Set the theme, if any
 		$theme = Configure::read('App.theme');
@@ -1178,13 +1190,13 @@ class AppController extends Controller {
 				// Set the default pagination order; query params may override it.
 				// TODO: Multiple default sort fields break pagination links.
 				// https://github.com/cakephp/cakephp/issues/7324 has related info.
-				//$this->paginate['order'] = ['People.last_name', 'People.first_name', 'People.id'];
-				$this->paginate['order'] = ['People.last_name'];
+				//$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
+				$this->paginate['order'] = ['People.last_name' => 'ASC'];
 
-				$this->loadModel('People');
+				$this->People = $this->fetchTable('People');
 				$query = $this->People->find()
 					->distinct(['People.id'])
-					->contain(['Affiliates', 'Groups']);
+					->contain(['Affiliates', 'UserGroups']);
 
 				$columns = $this->People->getSchema()->columns();
 				$search_conditions = [];
@@ -1209,9 +1221,10 @@ class AppController extends Controller {
 					$admins = $this->People->find()
 						->enableHydration(false)
 						->select(['People.id'])
-						->matching('Groups', function (Query $q) {
-							return $q->where(['Groups.id' => GROUP_ADMIN]);
+						->matching('UserGroups', function (Query $q) {
+							return $q->where(['UserGroups.id' => GROUP_ADMIN]);
 						})
+						->all()
 						->extract('id')
 						->toArray();
 					$query->matching('Affiliates')
@@ -1223,8 +1236,8 @@ class AppController extends Controller {
 				}
 
 				if (array_key_exists('group_id IN', $conditions)) {
-					$query->matching('Groups', function (Query $q) use ($conditions) {
-						return $q->where(['Groups.id IN' => $conditions['group_id IN']]);
+					$query->matching('UserGroups', function (Query $q) use ($conditions) {
+						return $q->where(['UserGroups.id IN' => $conditions['group_id IN']]);
 					});
 				}
 
@@ -1236,13 +1249,14 @@ class AppController extends Controller {
 
 	protected function _extractSearchParams(array $url_params = []) {
 		if ($this->getRequest()->is('post')) {
-			$params = $url = array_merge($this->getRequest()->getData(), $this->getRequest()->getQueryParams());
+			$params = array_merge($this->getRequest()->getData(), $this->getRequest()->getQueryParams());
 		} else {
-			$params = $url = $this->getRequest()->getQueryParams();
+			$params = $this->getRequest()->getQueryParams();
 		}
 		foreach (['sort', 'direction', 'page'] as $pagination) {
 			unset($params[$pagination]);
 		}
+		$url = $params;
 		foreach ($url_params as $param) {
 			unset($params[$param]);
 		}
@@ -1264,15 +1278,15 @@ class AppController extends Controller {
 		}
 
 		// Special cases for children only apply to players
-		if ($person->has('groups')) {
-			$groups = $person->groups;
-		} else if ($person->has('_matchingData') && array_key_exists('Groups', $person->_matchingData)) {
-			$groups = $person->_matchingData['Groups'];
+		if ($person->has('user_groups')) {
+			$groups = $person->user_groups;
+		} else if ($person->has('_matchingData') && array_key_exists('UserGroups', $person->_matchingData)) {
+			$groups = $person->_matchingData['UserGroups'];
 			if (!is_array($groups)) {
 				$groups = [$groups];
 			}
 		} else {
-			$groups = UserCache::getInstance()->read('Groups', $person->id);
+			$groups = UserCache::getInstance()->read('UserGroups', $person->id);
 		}
 		if (!collection($groups)->some(function ($group) {
 			return $group->id == GROUP_PLAYER;
@@ -1308,17 +1322,4 @@ class AppController extends Controller {
 		}
 		return \App\Lib\base64_url_encode($url);
 	}
-
-	// Wrapper around the Footprint function, to work with Authentication plugin
-	protected function _setCurrentUser($user = null) {
-		if (!$user) {
-			$user = $this->getRequest()->getAttribute('identity');
-			if ($user) {
-				$user = $user->getOriginalData();
-			}
-		}
-
-		return $this->_footprintSetCurrentUser($user);
-	}
-
 }

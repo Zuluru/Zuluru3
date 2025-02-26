@@ -3,7 +3,6 @@ namespace App\Model\Entity;
 
 use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
-use Cake\I18n\I18n;
 use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\Utility\Inflector;
@@ -84,7 +83,7 @@ class League extends Entity {
 		$full_name = $this->long_name;
 
 		// Add the year, if it's not already part of the name
-		if (!empty($this->open) && $this->open != '0000-00-00') {
+		if (!empty($this->open)) {
 			$year = $this->open->year;
 			if (strpos($full_name, (string)$year) === false) {
 				// TODO: Add closing year, if different than opening
@@ -96,8 +95,8 @@ class League extends Entity {
 	}
 
 	protected function _getLongSeason() {
-		if (!empty($this->open) && $this->open != '0000-00-00') {
-			$year = $this->open->year;
+		if (!empty($this->open)) {
+			$year = (string)$this->open->year;
 			if (!empty($this->season) && $this->season != 'None') {
 				$long_season = $year . ' ' . __($this->season);
 			} else {

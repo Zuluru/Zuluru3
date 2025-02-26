@@ -8,6 +8,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\OrRule;
+use InvalidArgumentException;
 
 /**
  * Facilities Model
@@ -24,7 +25,7 @@ class FacilitiesTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('facilities');
@@ -41,10 +42,13 @@ class FacilitiesTable extends AppTable {
 				'location_city' => 'proper_case_format',
 			],
 		]);
-		$this->addBehavior('Translate', ['fields' => [
-			'name', 'code', 'driving_directions', 'parking_details', 'transit_directions', 'biking_directions',
-			'washrooms', 'public_instructions', 'site_instructions', 'sponsor',
-		]]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => [
+				'name', 'code', 'driving_directions', 'parking_details', 'transit_directions', 'biking_directions',
+				'washrooms', 'public_instructions', 'site_instructions', 'sponsor',
+			],
+		]);
 
 		$this->belongsTo('Regions', [
 			'foreignKey' => 'region_id',
@@ -67,7 +71,7 @@ class FacilitiesTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -120,7 +124,7 @@ class FacilitiesTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['region_id'], 'Regions', __('You must select a valid region.')));
 
 		$rules->add(new InConfigRule('provinces'), 'validProvince', [
@@ -154,7 +158,7 @@ class FacilitiesTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Regions->affiliate($this->field('region_id', ['Facilities.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

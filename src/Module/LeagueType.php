@@ -85,7 +85,7 @@ abstract class LeagueType {
 	 */
 	public function addResults(Division $division, $spirit_obj) {
 		// Hopefully, everything we need is already cached
-		$results = Cache::remember("division/{$division->id}/standings", function () use ($division, $spirit_obj) {
+		$results = Cache::remember("division_{$division->id}_standings", function () use ($division, $spirit_obj) {
 			$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 
 			// Read the team list
@@ -374,7 +374,8 @@ abstract class LeagueType {
 		$games_table->getConnection()->transactional(function () use ($division, $games, $games_table) {
 			foreach ($games as $game) {
 				$validate = ($game->isNew() ? 'scheduleAdd' : 'scheduleEdit');
-				if (!$games_table->save($game, ['validate' => $validate, 'games' => $games, 'game_slots' => $division->used_slots])) {
+				$double_header = $division->_options->double_header ?? false;
+				if (!$games_table->save($game, ['validate' => $validate, 'double_header' => $double_header, 'games' => $games, 'game_slots' => $division->used_slots])) {
 					$errors = [__('Failed to save a game.')];
 					foreach ($game->getErrors() as $field => $error) {
 						$errors[] = $field . ': ';
@@ -647,7 +648,7 @@ abstract class LeagueType {
 					[
 						'type' => 'link',
 						'link' => __('{0} Availability Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))),
-						'target' => ['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id, 'date' => $dates[0]->toDateString()],
+						'target' => ['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id, 'date' => $dates[0]->toDateString()]],
 					],
 				],
 			]);

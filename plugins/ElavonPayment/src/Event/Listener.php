@@ -19,7 +19,7 @@ class Listener implements EventListenerInterface {
 	/**
 	 * @return array|string[]
 	 */
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			// Listeners for events that collect elements to be displayed
 			'Plugin.checkout' => 'checkout',

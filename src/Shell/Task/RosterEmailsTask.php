@@ -102,6 +102,7 @@ class RosterEmailsTask extends Shell {
 			$league = $division->league;
 			$sport = $league->sport;
 		} else {
+			$league = null;
 			$sport = current(array_keys(Configure::read('options.sport')));
 		}
 

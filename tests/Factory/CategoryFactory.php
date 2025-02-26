@@ -26,7 +26,7 @@ class CategoryFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'type' => 'Tasks',
 			];
 		});

@@ -21,7 +21,7 @@ class GameTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 	];
 
 	public $autoFixtures = false;
@@ -215,7 +215,7 @@ class GameTest extends TestCase {
 	 * Test isFinalized method
 	 */
 	public function testIsFinalized(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 
 		/** @var \App\Model\Entity\Game $finalized_game */
 		$finalized_game = $this->loadFixtureScenario(SingleGameScenario::class, [

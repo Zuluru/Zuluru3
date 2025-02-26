@@ -1,7 +1,0 @@
-<?php
-/**
- * @var \App\View\AppView $this
- * @var \App\Model\Entity\Field $field
- */
-
-echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['action' => 'open', 'field' => $field->id]]);

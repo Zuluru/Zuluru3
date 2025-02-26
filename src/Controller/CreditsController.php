@@ -18,7 +18,7 @@ class CreditsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -39,7 +39,7 @@ class CreditsController extends AppController {
 				'People' => [Configure::read('Security.authModel')],
 			])
 			->order(['Credits.affiliate_id', 'Credits.created']);
-		if ($credits->isEmpty()) {
+		if ($credits->all()->isEmpty()) {
 			$this->Flash->info($all ? __('There are no credits.') : __('There are no unused credits.'));
 			return $this->redirect('/');
 		}
@@ -58,7 +58,7 @@ class CreditsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('credit');
@@ -66,10 +66,7 @@ class CreditsController extends AppController {
 			$credit = $this->Credits->get($id, [
 				'contain' => ['People', 'Payments']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -82,20 +79,17 @@ class CreditsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$credit = $this->Credits->newEntity();
+		$credit = $this->Credits->newEmptyEntity();
 
 		$id = $this->getRequest()->getQuery('person');
 		try {
 			$credit->person = $this->Credits->People->get($id, [
 				'contain' => [Configure::read('Security.authModel')]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -130,7 +124,7 @@ class CreditsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('credit');
@@ -141,10 +135,7 @@ class CreditsController extends AppController {
 					'Payments' => ['Payments'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -160,7 +151,7 @@ class CreditsController extends AppController {
 				$this->Flash->warning(__('The credit could not be saved. Please correct the errors below and try again.'));
 
 				if ($credit->payment && $credit->payment->getError('payment_amount')) {
-					$credit->setErrors(['amount' => $credit->payment->getError('payment_amount')]);
+					$credit->setError('amount', $credit->payment->getError('payment_amount'));
 				}
 			}
 		}
@@ -176,10 +167,7 @@ class CreditsController extends AppController {
 					'People',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect('/');
 		}
@@ -193,10 +181,7 @@ class CreditsController extends AppController {
 				$person = $this->Credits->People->get($person_id, [
 					'contain' => [Configure::read('Security.authModel')]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
@@ -267,6 +252,7 @@ class CreditsController extends AppController {
 				'Teams.division_id IS NOT' => null,
 				'Divisions.close >' => FrozenDate::now()->subMonths(3),
 			])
+			->all()
 			->extract('id')
 			->toArray();
 		if (!empty($teams)) {
@@ -290,7 +276,7 @@ class CreditsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -306,10 +292,7 @@ class CreditsController extends AppController {
 			$credit = $this->Credits->get($id, [
 				'contain' => ['Payments' => ['Payments']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect(['action' => 'index']);
 		}

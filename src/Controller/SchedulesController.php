@@ -7,6 +7,7 @@ use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
+use Cake\Http\Response;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Number;
@@ -30,9 +31,9 @@ class SchedulesController extends AppController {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->loadModel('Divisions');
+		$this->Divisions = $this->fetchTable('Divisions');
 	}
 
 	/**
@@ -40,7 +41,7 @@ class SchedulesController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['today', 'day'];
 	}
 
@@ -54,10 +55,10 @@ class SchedulesController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing of schedule deletion
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['delete']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['delete']);
 		}
 	}
 
@@ -84,10 +85,7 @@ class SchedulesController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->warning(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->warning(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -96,7 +94,7 @@ class SchedulesController extends AppController {
 
 		if ($division->schedule_type == 'none') {
 			$this->Flash->warning(__('This division\'s "schedule type" is set to "none", so no games can be added.'));
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $id]]);
 		}
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
@@ -139,7 +137,7 @@ class SchedulesController extends AppController {
 
 		if ($this->_numTeams($division) < 2) {
 			$this->Flash->warning(__('Cannot schedule games in a division with less than two teams.'));
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		// Non-tournament divisions must currently have even # of teams for scheduling unless the exclude_teams flag is set
@@ -154,12 +152,12 @@ class SchedulesController extends AppController {
 						[
 							'type' => 'link',
 							'link' => __('edit your division'),
-							'target' => ['controller' => 'Divisions', 'action' => 'edit', 'division' => $id],
+							'target' => ['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $id]],
 						],
 					],
 				],
 			]);
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$stages = collection($division->pools)->extract('stage')->toList();
@@ -275,7 +273,7 @@ class SchedulesController extends AppController {
 			}
 
 			if ($type != 'snake' && array_sum(collection($division->_options->pools)->extract('count')->toList()) != $this->_numTeams($division)) {
-				$division->_options->pools[1]->setErrors('count', __('Number of teams must add up to {0}.', $this->_numTeams($division)));
+				$division->_options->pools[1]->setError('count', __('Number of teams must add up to {0}.', $this->_numTeams($division)));
 			}
 
 			if (!$division->getErrors()) {
@@ -496,7 +494,7 @@ class SchedulesController extends AppController {
 	protected function _savePools($division) {
 		$this->loadComponent('Lock');
 		if (!$this->Lock->lock('scheduling', $division->league->affiliate_id, 'schedule creation or edit')) {
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]);
 		}
 
 		if ($this->Divisions->Pools->getConnection()->transactional(function () use ($division) {
@@ -509,7 +507,7 @@ class SchedulesController extends AppController {
 			return true;
 		})) {
 			$this->Flash->success(__('The pools have been saved.'));
-			return $this->redirect(['controller' => 'Schedules', 'action' => 'add', 'division' => $division->id]);
+			return $this->redirect(['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $division->id]]);
 		} else {
 			$this->Flash->warning(__('The pools could not be saved. Please correct the errors below and try again.'));
 		}
@@ -584,7 +582,7 @@ class SchedulesController extends AppController {
 
 		if (count($division->game_slots) == 0 && !Configure::read('feature.allow_past_games')) {
 			$this->Flash->warning(__('Sorry, there are no {0} available for your division. Check that {0} have been allocated before attempting to proceed.', __(Configure::read("sports.{$division->league->sport}.fields"))));
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]);
 		}
 
 		$dates = collection($division->game_slots)->extract('date')->toList();
@@ -597,7 +595,7 @@ class SchedulesController extends AppController {
 
 	protected function _confirm($division, $stage) {
 		if (!$this->_canSchedule($division, $stage)) {
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]);
 		}
 
 		$this->set([
@@ -610,12 +608,12 @@ class SchedulesController extends AppController {
 	protected function _finalize($division, $stage) {
 		$this->loadComponent('Lock');
 		if (!$this->Lock->lock('scheduling', $division->league->affiliate_id, 'schedule creation or edit')) {
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]);
 		}
 
 		try {
 			if (!$this->_canSchedule($division, $stage)) {
-				return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+				return $this->redirect(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]);
 			}
 
 			EventManager::instance()->on('Controller.Schedules.ratings_ladder_scheduled', [$this, '_ratings_ladder_scheduled']);
@@ -625,7 +623,7 @@ class SchedulesController extends AppController {
 				return $this->_type($division, $stage);
 			}
 
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $division->id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division->id]]);
 		} catch (ScheduleException $ex) {
 			$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
 		}
@@ -688,10 +686,7 @@ class SchedulesController extends AppController {
 					$this->pool = $this->Divisions->Pools->get($division->_options->pool_id, [
 						'contain' => ['PoolsTeams']
 					]);
-				} catch (RecordNotFoundException $ex) {
-					$this->Flash->error(__('The requested pool was not found!'));
-					return 0;
-				} catch (InvalidPrimaryKeyException $ex) {
+				} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 					$this->Flash->error(__('The requested pool was not found!'));
 					return 0;
 				}
@@ -769,10 +764,7 @@ class SchedulesController extends AppController {
 					]
 				]);
 				$division = null;
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->warning(__('Invalid league.'));
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->warning(__('Invalid league.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
@@ -818,10 +810,7 @@ class SchedulesController extends AppController {
 					]
 				]);
 				$league = null;
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->warning(__('Invalid division.'));
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
@@ -848,14 +837,14 @@ class SchedulesController extends AppController {
 
 		// Set defaults
 		$reset_pools = $same_pool = $dependent = [];
-		$date = new FrozenDate($date);
 
 		if ($date) {
+			$date = new FrozenDate($date);
 			$query->contain(['GameSlots']);
 			if ($multi_day) {
 				$query->andWhere([
 					function ($exp) use ($query, $date) {
-						$end = $date->next(Configure::read('organization.first_day'))->subDay();
+						$end = $date->next(Configure::read('organization.first_day'))->subDays(1);
 						return $exp->between('GameSlots.game_date', $date, $end, 'date');
 					},
 				]);
@@ -868,10 +857,7 @@ class SchedulesController extends AppController {
 			$query->andWhere(['Games.pool_id' => $pool_id]);
 			try {
 				$pool = $this->Divisions->Pools->get($pool_id);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->warning(__('Invalid pool.'));
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->warning(__('Invalid pool.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
@@ -879,12 +865,12 @@ class SchedulesController extends AppController {
 			$pool = null;
 		}
 
-		if ($query->isEmpty()) {
+		if ($query->all()->isEmpty()) {
 			$this->Flash->warning(__('There are no games to delete on that date.'));
 			if ($division_id) {
-				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $division_id]);
+				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division_id]]);
 			} else {
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league_id]);
+				return $this->redirect(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league_id]]);
 			}
 		}
 		$games = $query->toArray();
@@ -967,10 +953,10 @@ class SchedulesController extends AppController {
 					foreach ($league->divisions as $division) {
 						$this->Divisions->clearCache($division, ['schedule', 'standings']);
 					}
-					return $this->redirect(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league_id]);
+					return $this->redirect(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league_id]]);
 				} else {
 					$this->Divisions->clearCache($division, ['schedule', 'standings']);
-					return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $division_id]);
+					return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division_id]]);
 				}
 			} else {
 				$this->Flash->warning(__('Failed to delete games on the requested date.'));
@@ -1006,10 +992,7 @@ class SchedulesController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->warning(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->warning(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1021,13 +1004,15 @@ class SchedulesController extends AppController {
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$this->loadComponent('Lock');
 			if (!$this->Lock->lock('scheduling', $division->league->affiliate_id, 'schedule creation or edit')) {
-				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $id]);
+				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $id]]);
 			}
 			try {
 				// Save the list of games to be rescheduled; we'll overwrite it in startSchedule
 				$games = $division->games;
+				$slot_ids = collection($games)->extract('game_slot_id')->toArray();
+
 				$new_date = new FrozenDate($this->getRequest()->getData('new_date'));
-				$division->_options = new Entity(['ignore_games' => $games]);
+				$division->_options = new Entity(['ignore_games' => $games, 'double_header' => true]);
 				$league_obj->startSchedule($division, $new_date);
 				$league_obj->assignFieldsByPreferences($division, $new_date, $games);
 				$league_obj->finishSchedule($division, $games);
@@ -1036,8 +1021,11 @@ class SchedulesController extends AppController {
 				TableRegistry::getTableLocator()->get('ActivityLogs')
 					->deleteAll(['game_id IN' => $ids]);
 
+				TableRegistry::getTableLocator()->get('GameSlots')
+					->updateAll(['assigned' => false], ['id IN' => $slot_ids]);
+
 				$this->Flash->success(__('Games rescheduled.'));
-				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $id]);
+				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $id]]);
 			} catch (ScheduleException $ex) {
 				$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
 			}
@@ -1056,11 +1044,12 @@ class SchedulesController extends AppController {
 				'DivisionsGameslots.division_id' => $id,
 			])
 			->order(['GameSlots.game_date'])
+			->all()
 			->extract('game_slot.game_date')
 			->toArray();
 		if (empty($dates)) {
 			$this->Flash->warning(__('Sorry, there are no {0} available for your division. Check that {0} have been allocated before attempting to proceed.', __(Configure::read("sports.{$division->league->sport}.fields"))));
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $id]]);
 		}
 
 		$this->set(compact('id', 'division', 'date', 'dates'));
@@ -1095,10 +1084,7 @@ class SchedulesController extends AppController {
 						],
 					]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->warning(__('Invalid league.'));
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->warning(__('Invalid league.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
@@ -1125,10 +1111,7 @@ class SchedulesController extends AppController {
 						],
 					]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->warning(__('Invalid division.'));
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
@@ -1150,7 +1133,7 @@ class SchedulesController extends AppController {
 		if ($multi_day) {
 			$query->andWhere([
 				function ($exp) use ($query, $date) {
-					$end = (new FrozenDate($date))->next(Configure::read('organization.first_day'))->subDay();
+					$end = (new FrozenDate($date))->next(Configure::read('organization.first_day'))->subDays(1);
 					return $exp->between('GameSlots.game_date', $date, $end, 'date');
 				},
 			]);
@@ -1214,9 +1197,9 @@ class SchedulesController extends AppController {
 		}
 
 		if (isset($league)) {
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league_id]);
+			return $this->redirect(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league_id]]);
 		} else {
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $division_id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division_id]]);
 		}
 	}
 
@@ -1238,7 +1221,7 @@ class SchedulesController extends AppController {
 
 	public function day() {
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
-			$date = $this->getRequest()->getData('date.year') . '-' . $this->getRequest()->getData('date.month') . '-' . $this->getRequest()->getData('date.day');
+			$date = $this->getRequest()->getData('date');
 		} else {
 			$date = $this->getRequest()->getQuery('date');
 		}
@@ -1268,6 +1251,7 @@ class SchedulesController extends AppController {
 					'Divisions.open <=' => $date,
 					'Divisions.close >=' => $date,
 				])
+				->all()
 				->extract('id')
 				->toList();
 
@@ -1317,11 +1301,11 @@ class SchedulesController extends AppController {
 	/**
 	 * Override the redirect function; if it's a view and there's only one division, view the league instead
 	 */
-	public function redirect($url = null, $status = 302) {
+	public function redirect($url = null, int $status = 302): ?Response {
 		if (isset($url['action']) && $url['action'] == 'view' && isset($url['controller']) && $url['controller'] == 'Divisions') {
-			$league = $this->Divisions->league($url['division']);
+			$league = $this->Divisions->league($url['?']['division']);
 			if ($this->Divisions->find('byLeague', compact('league'))->count() == 1) {
-				parent::redirect(['controller' => 'Leagues', 'action' => $url['action'], 'league' => $league], $status);
+				parent::redirect(['controller' => 'Leagues', 'action' => $url['action'], '?' => ['league' => $league]], $status);
 			}
 		}
 		return parent::redirect($url, $status);

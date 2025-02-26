@@ -36,7 +36,7 @@ class TeamsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.RosterRoles',
 	];
 
@@ -89,7 +89,7 @@ class TeamsTableTest extends TableTestCase {
 
 		/** @var Person $player */
 		$player = PersonFactory::make()
-			->with('TeamsPeople', TeamsPersonFactory::make()->with('Teams.Divisions', ['league_id' => $leagues[0]->id, 'is_open' => false, 'open' => FrozenDate::now()->subMonth()]))
+			->with('TeamsPeople', TeamsPersonFactory::make()->with('Teams.Divisions', ['league_id' => $leagues[0]->id, 'is_open' => false, 'open' => FrozenDate::now()->subMonths(1)]))
 			->with('TeamsPeople', TeamsPersonFactory::make()->with('Teams.Divisions', ['league_id' => $leagues[1]->id, 'is_open' => true]))
 			->with('TeamsPeople', TeamsPersonFactory::make()->with('Teams.Divisions', ['league_id' => $leagues[2]->id, 'is_open' => true]))
 			->persist();

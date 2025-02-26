@@ -19,7 +19,7 @@ class RegistrationAuditsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'response_code' => 1,

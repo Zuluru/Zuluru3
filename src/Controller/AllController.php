@@ -2,7 +2,6 @@
 namespace App\Controller;
 
 use Cake\Cache\Cache;
-use Cake\Http\Cookie\Cookie;
 use Cake\I18n\I18n;
 
 class AllController extends AppController {
@@ -12,14 +11,14 @@ class AllController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['language', 'credits'];
 	}
 
 	public function clear_cache() {
 		$this->Authorization->authorize($this);
 
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		$this->Flash->success(__('The cache has been cleared.'));
 		return $this->redirect('/');
 	}
@@ -27,12 +26,8 @@ class AllController extends AppController {
 	public function language() {
 		$lang = $this->getRequest()->getQuery('lang');
 		if (!empty($lang)) {
-			$this->setResponse($this->getResponse()->withCookie(new Cookie(
-				'ZuluruLocale',
-				$lang
-			)));
+			I18n::setLocale($lang);
 			if ($this->Authentication->getIdentity()) {
-				I18n::setLocale($lang);
 				$this->Flash->html(__('Your language has been changed for this session. To change it permanently, {0}.'), [
 					'params' => [
 						'replacements' => [

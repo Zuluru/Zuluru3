@@ -7,6 +7,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use Cake\Core\Configure;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Fields Model
@@ -23,7 +24,7 @@ class FieldsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('fields');
@@ -31,7 +32,10 @@ class FieldsTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['num']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['num'],
+		]);
 
 		$this->belongsTo('Facilities', [
 			'foreignKey' => 'facility_id',
@@ -51,7 +55,7 @@ class FieldsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -107,7 +111,7 @@ class FieldsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['facility_id'], 'Facilities', __('You must select a valid facility.')));
 
 		$rules->add(function (EntityInterface $entity, array $options) {
@@ -161,7 +165,7 @@ class FieldsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Facilities->affiliate($this->field('facility_id', ['Fields.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -169,7 +173,7 @@ class FieldsTable extends AppTable {
 	public function sport($id) {
 		try {
 			return $this->field('sport', ['Fields.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

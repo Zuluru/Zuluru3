@@ -28,7 +28,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Full list method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function full_list() {
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
@@ -49,10 +49,7 @@ class RegistrationsController extends AppController {
 					'Divisions' => ['Leagues'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
@@ -66,14 +63,13 @@ class RegistrationsController extends AppController {
 
 		$query = $this->Registrations->find()
 			->contain(['People', 'Payments'])
-			->where(['Registrations.event_id' => $id])
-			->order(['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC']);
+			->where(['Registrations.event_id' => $id]);
 
 		if ($this->getRequest()->is('csv')) {
 			$query->contain([
 				'People' => [
 					Configure::read('Security.authModel'),
-					'Groups',
+					'UserGroups',
 					'Related' => [Configure::read('Security.authModel')],
 				],
 				'Payments' => ['RegistrationAudits'],
@@ -122,10 +118,7 @@ class RegistrationsController extends AppController {
 					'Divisions' => ['Leagues'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
@@ -223,12 +216,11 @@ class RegistrationsController extends AppController {
 
 		$years = $this->Registrations->Events->find()
 			->enableHydration(false)
-			// TODO: Use a query object here
-			->select(['year' => 'YEAR(open)'])
-			->distinct(['year' => 'YEAR(open)'])
-			->matching('Affiliates', function (Query $q) use ($affiliates) {
-				return $q->where(['Affiliates.id IN' => $affiliates]);
-			})
+			->select(['year' => 'DISTINCT YEAR(Events.open)'])
+			->where([
+				'YEAR(Events.open) !=' => 0,
+				'Events.affiliate_id IN' => $affiliates,
+			])
 			->order(['year'])
 			->toArray();
 
@@ -238,9 +230,8 @@ class RegistrationsController extends AppController {
 	public function report() {
 		$this->Authorization->authorize($this);
 		if ($this->getRequest()->is('post')) {
-			// Deconstruct dates
-			$start_date = sprintf('%04d-%02d-%02d', $this->getRequest()->getData('start_date.year'), $this->getRequest()->getData('start_date.month'), $this->getRequest()->getData('start_date.day'));
-			$end_date = sprintf('%04d-%02d-%02d', $this->getRequest()->getData('end_date.year'), $this->getRequest()->getData('end_date.month'), $this->getRequest()->getData('end_date.day'));
+			$start_date = $this->getRequest()->getData('start_date');
+			$end_date = $this->getRequest()->getData('end_date');
 		} else {
 			$start_date = $this->getRequest()->getQuery('start_date');
 			$end_date = $this->getRequest()->getQuery('end_date');
@@ -284,9 +275,8 @@ class RegistrationsController extends AppController {
 			$this->set('registrations', $query);
 			$this->setResponse($this->getResponse()->withDownload("Registrations $start_date to $end_date.csv"));
 		} else {
-			$query->order(['Events.affiliate_id']);
 			$this->paginate = [
-				'order' => ['Registrations.payment' => 'DESC'],
+				'order' => ['Events.affiliate_id', 'Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'],
 			];
 			$this->set('registrations', $this->paginate($query));
 		}
@@ -301,7 +291,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('registration');
@@ -330,10 +320,7 @@ class RegistrationsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid registration.'));
-			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
@@ -344,7 +331,7 @@ class RegistrationsController extends AppController {
 			// Try the invoice; if authorized, redirect there. Otherwise, throw the original exception.
 			try {
 				$this->Authorization->authorize($registration, 'invoice');
-				return $this->redirect(['action' => 'invoice', 'registration' => $id]);
+				return $this->redirect(['action' => 'invoice', '?' => ['registration' => $id]]);
 			} catch (ForbiddenException $ex2) {
 				throw $ex;
 			}
@@ -360,7 +347,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Register method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function register() {
 		$this->Registrations->expireReservations();
@@ -390,10 +377,7 @@ class RegistrationsController extends AppController {
 					'Divisions' => ['Leagues'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['controller' => 'Events', 'action' => 'wizard']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'wizard']);
 		}
@@ -423,7 +407,7 @@ class RegistrationsController extends AppController {
 		$event->mergeAutoQuestions($event_obj, $this->UserCache->currentId());
 
 		$data = $this->getRequest()->getData();
-		$registration = $this->Registrations->newEntity();
+		$registration = $this->Registrations->newEmptyEntity();
 		$force_save = false;
 		if (isset($price)) {
 			if (empty($event->questionnaire->questions) && !in_array($price->online_payment_option, [ONLINE_MINIMUM_DEPOSIT, ONLINE_SPECIFIC_DEPOSIT, ONLINE_NO_MINIMUM])) {
@@ -510,8 +494,7 @@ class RegistrationsController extends AppController {
 				]), 'register');
 
 				$this->set(compact('price', 'for_edit'));
-			} catch (RecordNotFoundException $ex) {
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			}
 		}
 	}
@@ -538,10 +521,7 @@ class RegistrationsController extends AppController {
 					'Payments',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid registration.'));
-			return $this->redirect(['controller' => 'Events', 'action' => 'wizard']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'wizard']);
 		}
@@ -565,7 +545,7 @@ class RegistrationsController extends AppController {
 			}
 		}
 
-		$payment = $this->Registrations->Payments->newEntity();
+		$payment = $this->Registrations->Payments->newEmptyEntity();
 
 		if ($credit) {
 			$payment = $this->Registrations->Payments->patchEntity($payment, [
@@ -636,7 +616,7 @@ class RegistrationsController extends AppController {
 						return $q->where(['Credits.amount_used != Credits.amount']);
 					},
 				],
-				// TODOLATER: Include relatives, and allow us to pay for them too; see also All/splash.ctp
+				// TODOLATER: Include relatives, and allow us to pay for them too; see also All/splash.php
 				'Related' => [Configure::read('Security.authModel')],
 			]
 		]);
@@ -720,10 +700,7 @@ class RegistrationsController extends AppController {
 					'Responses',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid registration.'));
-			return $this->redirect(['action' => 'checkout']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect(['action' => 'checkout']);
 		}
@@ -764,17 +741,14 @@ class RegistrationsController extends AppController {
 					'Payments',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid registration.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect('/');
 		}
 
 		$this->Authorization->authorize($registration);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-		$payment = $this->Registrations->Payments->newEntity();
+		$payment = $this->Registrations->Payments->newEmptyEntity();
 
 		$this->set(compact('registration', 'payment'));
 
@@ -816,7 +790,7 @@ class RegistrationsController extends AppController {
 			// The registration is also passed as an option, so that the payment rules have easy access to it
 			if ($this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
 				$this->Flash->success(__('The payment has been saved.'));
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
+				return $this->redirect(['action' => 'view', '?' => ['registration' => $registration->id]]);
 			} else {
 				$this->Flash->warning(__('The payment could not be saved. Please correct the errors below and try again.'));
 			}
@@ -846,17 +820,14 @@ class RegistrationsController extends AppController {
 			]);
 
 			$payment = collection($registration->payments)->firstMatch(compact('id'));
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid payment.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid payment.'));
 			return $this->redirect('/');
 		}
 
 		$this->Authorization->authorize($payment);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-		$refund = $this->Registrations->Payments->newEntity();
+		$refund = $this->Registrations->Payments->newEmptyEntity();
 
 		if ($payment->registration_audit_id) {
 			$api = $this->Registrations->Payments->RegistrationAudits->getAPI($payment->registration_audit);
@@ -868,9 +839,9 @@ class RegistrationsController extends AppController {
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
 			/** @var Payment $refund */
 			$refund = $this->Registrations->Payments->patchEntity($refund, $data, ['validate' => 'refund', 'registration' => $registration]);
-			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false)) {
+			if ($this->Registrations->refundPayment($this->getRequest(), $registration->event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false)) {
 				$this->Flash->success(__('The refund has been saved.'));
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
+				return $this->redirect(['action' => 'view', '?' => ['registration' => $registration->id]]);
 			}
 		}
 
@@ -880,7 +851,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Invoice method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function invoice() {
 		$id = $this->getRequest()->getQuery('registration');
@@ -893,10 +864,7 @@ class RegistrationsController extends AppController {
 					'Prices',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid registration.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect('/');
 		}
@@ -931,27 +899,24 @@ class RegistrationsController extends AppController {
 			]);
 
 			$payment = collection($registration->payments)->firstMatch(compact('id'));
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid payment.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid payment.'));
 			return $this->redirect('/');
 		}
 
 		$this->Authorization->authorize($payment);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-		$refund = $this->Registrations->Payments->newEntity();
+		$refund = $this->Registrations->Payments->newEmptyEntity();
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$data = $this->getRequest()->getData();
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
 			/** @var Payment $refund */
 			$refund = $this->Registrations->Payments->patchEntity($refund, $data, ['validate' => 'credit', 'registration' => $registration]);
-			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $data['mark_refunded'], false, $data['credit_notes'])) {
+			if ($this->Registrations->refundPayment($this->getRequest(), $registration->event, $registration, $payment, $refund, $data['mark_refunded'], false, $data['credit_notes'])) {
 				$this->Flash->success(__('The credit has been saved.'));
 				$this->UserCache->clear('Credits', $registration->person_id);
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
+				return $this->redirect(['action' => 'view', '?' => ['registration' => $registration->id]]);
 			}
 		}
 
@@ -961,7 +926,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('registration');
@@ -990,10 +955,7 @@ class RegistrationsController extends AppController {
 					'Responses',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid registration.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect('/');
 		}
@@ -1050,7 +1012,7 @@ class RegistrationsController extends AppController {
 				return $this->redirect(['action' => 'checkout']);
 			} else {
 				$this->Flash->success(__('The registration has been saved.'));
-				return $this->redirect(['controller' => 'People', 'action' => 'registrations', 'person' => $registration->person->id]);
+				return $this->redirect(['controller' => 'People', 'action' => 'registrations', '?' => ['person' => $registration->person->id]]);
 			}
 		} else {
 			$this->Authorization->can(new ContextResource($registration->event, ['price' => $registration->price, 'for_edit' => $registration, 'all_rules' => true]), 'register');
@@ -1102,10 +1064,7 @@ class RegistrationsController extends AppController {
 					'Divisions' => ['Leagues'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
@@ -1129,7 +1088,7 @@ class RegistrationsController extends AppController {
 
 			case TEST_PAYMENTS_ADMINS:
 				// TODO: Better way to do this
-				$groups = UserCache::getInstance()->read('Groups');
+				$groups = UserCache::getInstance()->read('UserGroups');
 				return collection($groups)->some(function ($group) {
 					return in_array($group->id, [GROUP_ADMIN, GROUP_MANAGER]);
 				});

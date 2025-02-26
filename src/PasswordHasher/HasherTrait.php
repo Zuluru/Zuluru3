@@ -6,7 +6,7 @@ use Authentication\PasswordHasher\LegacyPasswordHasher;
 trait HasherTrait {
 	private $_hasher = null;
 
-	private function initHasher() {
+	private function initHasher(): void {
 		if (!$this->_hasher) {
 			// The hash that bcrypt creates is not good for emailed links:
 			// it is long and contains non-letter characters, which make it
@@ -22,7 +22,7 @@ trait HasherTrait {
 	 * @param string|array $input Plain text to hash.
 	 * @return string Input hash
 	 */
-	public function _makeHash($input) {
+	public function _makeHash($input): string {
 		$this->initHasher();
 		if (is_array($input)) {
 			$input = implode(':', array_map(function ($value) {
@@ -44,7 +44,7 @@ trait HasherTrait {
 	 * @param string $hash Existing hash.
 	 * @return bool True if hashes match else false.
 	 */
-	public function _checkHash($input, $hash) {
+	public function _checkHash($input, $hash): bool {
 		$this->initHasher();
 		if (is_array($input)) {
 			$input = implode(':', array_map(function ($value) {

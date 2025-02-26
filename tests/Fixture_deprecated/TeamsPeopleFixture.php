@@ -27,14 +27,14 @@ class TeamsPeopleFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'team_id' => TEAM_ID_RED_PAST,
 				'person_id' => PERSON_ID_CAPTAIN,
 				'role' => 'captain',
 				'status' => ROSTER_APPROVED,
-				'created' => FrozenDate::now()->subYear(),
+				'created' => FrozenDate::now()->subYears(1),
 				'number' => 1,
 				'position' => 'unspecified'
 			],
@@ -43,7 +43,7 @@ class TeamsPeopleFixture extends TestFixture {
 				'person_id' => PERSON_ID_CHILD,
 				'role' => 'player',
 				'status' => ROSTER_APPROVED,
-				'created' => FrozenDate::now()->subYear(),
+				'created' => FrozenDate::now()->subYears(1),
 				'number' => 2,
 				'position' => 'unspecified'
 			],
@@ -52,7 +52,7 @@ class TeamsPeopleFixture extends TestFixture {
 				'person_id' => PERSON_ID_MANAGER,
 				'role' => 'player',
 				'status' => ROSTER_APPROVED,
-				'created' => FrozenDate::now()->subYear(),
+				'created' => FrozenDate::now()->subYears(1),
 				'number' => 2,
 				'position' => 'unspecified'
 			],
@@ -61,7 +61,7 @@ class TeamsPeopleFixture extends TestFixture {
 				'person_id' => PERSON_ID_PLAYER,
 				'role' => 'player',
 				'status' => ROSTER_APPROVED,
-				'created' => FrozenDate::now()->subYear(),
+				'created' => FrozenDate::now()->subYears(1),
 				'number' => 2,
 				'position' => 'unspecified'
 			],

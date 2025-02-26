@@ -25,12 +25,12 @@ class FacilityFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->lastName,
+				'name' => $faker->lastName(),
 				'code' => strtoupper($faker->randomLetter() . $faker->randomLetter() . $faker->randomLetter()),
-				'location_street' => $faker->streetAddress,
-				'location_city' => $faker->city,
+				'location_street' => $faker->streetAddress(),
+				'location_city' => $faker->city(),
 				'location_province' => 'Ontario',
-				'location_postal_code' => $faker->postcode,
+				'location_postal_code' => $faker->postcode(),
 				'location_country' => 'Canada',
 				'sport' => 'ultimate',
 				'is_open' => true,

@@ -11,6 +11,9 @@ use Cake\Validation\Validator;
 use App\Core\UserCache;
 use App\Model\Rule\GreaterDateRule;
 use App\Model\Rule\InDateConfigRule;
+use InvalidArgumentException;
+use Josegonzalez\Upload\Validation\UploadValidation;
+use Laminas\Diactoros\UploadedFile;
 
 /**
  * Uploads Model
@@ -26,7 +29,7 @@ class UploadsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('uploads');
@@ -81,56 +84,66 @@ class UploadsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
+		$max = ini_get('upload_max_filesize');
+		$unit = substr($max,-1);
+		if ($unit == 'M' || $unit == 'K') {
+			$max .= 'b';
+		}
+		$too_large_message = __('The selected document is too large. Documents must be less than {0}.', $max);
+
+		$validator->setProvider('upload', UploadValidation::class);
+
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('filename', 'create', __('There was an unexpected error uploading the file. Please try again.'))
 			->notEmptyFile('filename', __('You must select a document to upload.'))
-			->add('filename', 'noErrors', [
-				'rule' => function ($value, $context) {
-					// We may just get a plain filename here, from cropped photo uploads
-					if (!is_array($value)) {
-						return true;
-					}
 
-					// TODO: Use validation functions provided by the Upload behavior
-					if ($value['error'] == UPLOAD_ERR_NO_FILE) {
-						return __('You must select a document to upload.');
-					}
-					if ($value['error'] == UPLOAD_ERR_INI_SIZE) {
-						$max = ini_get('upload_max_filesize');
-						$unit = substr($max,-1);
-						if ($unit == 'M' || $unit == 'K') {
-							$max .= 'b';
-						}
-						return __('The selected document is too large. Documents must be less than {0}.', $max);
-					}
-					if ($value['error'] == UPLOAD_ERR_NO_TMP_DIR || $value['error'] == UPLOAD_ERR_CANT_WRITE) {
-						return __('This system does not appear to be properly configured for document uploads. Please contact your administrator to have them correct this.');
-					}
-					if ($value['error'] == UPLOAD_ERR_PARTIAL) {
-						return __('The file was not fully uploaded. Please try again.');
-					}
-					if ($value['error'] != 0) {
-						return __('There was an unexpected error uploading the file. Please try again.');
-					}
-					if ($value['size'] == 0) {
-						return __('You uploaded an empty file. Please try again.');
-					}
+			->add('filename', 'fileFileUpload', [
+				'rule' => 'isFileUpload',
+				'message' => __('You must select a document to upload.'),
+				'provider' => 'upload'
+			])
 
-					return true;
-				},
+			->add('filename', 'fileUnderPhpSizeLimit', [
+				'rule' => 'isUnderPhpSizeLimit',
+				'message' => $too_large_message,
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileUnderFormSizeLimit', [
+				'rule' => 'isUnderFormSizeLimit',
+				'message' => $too_large_message,
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileSuccessfulWrite', [
+				'rule' => 'isSuccessfulWrite',
+				'message' => __('This system does not appear to be properly configured for document uploads. Please contact your administrator to have them correct this.'),
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileCompletedUpload', [
+				'rule' => 'isCompletedUpload',
+				'message' => __('The file was not fully uploaded. Please try again.'),
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileAboveMinSize', [
+				'rule' => ['isAboveMinSize', 0],
+				'message' => __('You uploaded an empty file. Please try again.'),
+				'provider' => 'upload'
 			])
 
 			->boolean('approved')
 			->allowEmptyString('approved')
 
-			->date('valid_from', __('You must provide a valid date.'))
+			->date('valid_from', ['ymd'], __('You must provide a valid date.'))
 			->allowEmptyDate('valid_from')
 
-			->date('valid_until', __('You must provide a valid date.'))
+			->date('valid_until', ['ymd'], __('You must provide a valid date.'))
 			->allowEmptyDate('valid_until')
 
 			;
@@ -145,7 +158,7 @@ class UploadsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['type_id'], 'UploadTypes'));
 
@@ -175,7 +188,7 @@ class UploadsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		UserCache::getInstance()->clear('Documents', $entity->person_id);
 	}
 
@@ -195,7 +208,7 @@ class UploadsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->UploadTypes->affiliate($this->field('type_id', ['Uploads.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

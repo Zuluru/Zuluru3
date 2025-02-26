@@ -884,74 +884,72 @@ function initializeStatus() {
 	 * Initialize CKEditor on any applicable input fields
 	 */
 	if (typeof CKEDITOR !== 'undefined') {
-		CKEDITOR.replaceAll(function (textarea, config) {
-			textarea = zjQuery(textarea);
-			if (CKEDITOR.instances[textarea.attr('id')] != undefined) {
-				return false;
-			} else if (textarea.hasClass('wysiwyg_advanced')) {
-				config.toolbar = [
-					{
-						name: 'clipboard',
-						items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']
-					},
-					{name: 'editing', items: ['SpellChecker', 'Scayt']},
-					{name: 'links', items: ['Link', 'Unlink', 'Anchor']},
-					{name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar', 'PageBreak']},
-					'/',
-					{
-						name: 'basicstyles',
-						items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-					},
-					{
-						name: 'paragraph',
-						items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv',
-							'-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-					},
-					'/',
-					{name: 'styles', items: ['Format', 'Font', 'FontSize']},
-					{name: 'colors', items: ['TextColor', 'BGColor']},
-					{name: 'tools', items: ['Maximize', 'ShowBlocks', '-', 'About']},
-					{name: 'document', items: ['Source']}
-				];
-			} else if (textarea.hasClass('wysiwyg_simple')) {
-				config.toolbar = [
-					{name: 'clipboard', items: ['Cut', 'Copy', 'PasteText', '-', 'Undo', 'Redo']},
-					{
-						name: 'basicstyles',
-						items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-					},
-					{name: 'paragraph', items: ['NumberedList', 'BulletedList']},
-					{name: 'styles', items: ['Format']}
-				];
-			} else if (textarea.hasClass('wysiwyg_newsletter')) {
-				config.toolbar = [
-					{
-						name: 'clipboard',
-						items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']
-					},
-					{name: 'editing', items: ['SpellChecker', 'Scayt']},
-					{name: 'links', items: ['Link', 'Unlink', 'Anchor']},
-					{name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar', 'PageBreak']},
-					'/',
-					{
-						name: 'basicstyles',
-						items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-					},
-					{
-						name: 'paragraph',
-						items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv',
-							'-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-					},
-					'/',
-					{name: 'styles', items: ['Format', 'Font', 'FontSize']},
-					{name: 'colors', items: ['TextColor', 'BGColor']},
-					{name: 'tools', items: ['Maximize', 'ShowBlocks', '-', 'About']},
-					{name: 'document', items: ['Source']}
-				];
-			} else {
-				return false;
+		if (CKEDITOR.instances === undefined) {
+			CKEDITOR.instances = [];
+		}
+		document.querySelectorAll('textarea').forEach(function (textarea) {
+			jtextarea = zjQuery(textarea);
+			if (CKEDITOR.instances[jtextarea.attr('id')] !== undefined) {
+				return;
 			}
-			config.resize_dir = 'both';
+
+			if (jtextarea.hasClass('wysiwyg_advanced') || jtextarea.hasClass('wysiwyg_newsletter')) {
+				editorConfig.toolbar.items = [
+					'heading',
+					'|',
+					'fontSize',
+					'fontFamily',
+					'fontColor',
+					'fontBackgroundColor',
+					'|',
+					'bold',
+					'italic',
+					'underline',
+					'|',
+					'link',
+					'insertTable',
+					'blockQuote',
+					'|',
+					'alignment',
+					'|',
+					'bulletedList',
+					'numberedList',
+					'todoList',
+					'outdent',
+					'indent',
+					'|',
+					'sourceEditing',
+				];
+				editorConfig.menuBar.isVisible = true;
+			} else if (jtextarea.hasClass('wysiwyg_simple')) {
+				editorConfig.toolbar.items = [
+					'undo',
+					'redo',
+					'|',
+					'bold',
+					'italic',
+					'underline',
+					'strikethrough',
+					'subscript',
+					'superscript',
+					'|',
+					'removeFormat',
+					'|',
+					'bulletedList',
+					'numberedList',
+					'|',
+					'heading',
+				];
+				editorConfig.menuBar.isVisible = false;
+			} else {
+				return;
+			}
+
+			ClassicEditor
+				.create(textarea, editorConfig)
+				.catch(error => console.log(error));
+
+			CKEDITOR.instances[jtextarea.attr('id')] = true;
 		});
 	}
 
@@ -1036,6 +1034,7 @@ function initializeStatus() {
 	if (zuluru_mobile) {
 		// Mobile devices don't have "hover" semantics, so instead
 		// we'll add a bunch of separate icons to toggle tooltips.
+		zjQuery('img.tooltip_toggle').remove();
 		zjQuery('.trigger').before(zuluru_popup + ' ');
 		zjQuery('.tooltip_toggle').uitooltip({
 				items: '.tooltip_toggle',
@@ -1488,8 +1487,8 @@ zjQuery(function($) {
 	 */
 	$('.dynamic-load').on('shown.bs.collapse', function (e) {
 		var trigger = $(e.target);
-		trigger.closest('.panel').find('.refresh').first().show();
-		var container = trigger.children('.panel-body').first();
+		trigger.closest('.accordion-item').find('.refresh').first().show();
+		var container = trigger.children('.accordion-body').first();
 		if (container.html() != '') {
 			return;
 		}
@@ -1497,15 +1496,15 @@ zjQuery(function($) {
 	});
 	$('.dynamic-load').on('hidden.bs.collapse', function (e) {
 		var trigger = $(e.target);
-		trigger.closest('.panel').find('.refresh').first().hide();
+		trigger.closest('.accordion-item').find('.refresh').first().hide();
 	});
 
 	/**
 	 * Add refresh event handlers for accordion panels.
 	 */
-	$('body').on('click', '.panel-heading .refresh', function() {
+	$('body').on('click', '.accordion-heading .refresh', function() {
 		var trigger = $(this);
-		var container = trigger.children('.panel-body').first();
+		var container = trigger.children('.accordion-body').first();
 		handleAjaxTrigger(trigger, trigger, null, 'replace_content', false, null);
 
 		// Don't bubble the event up any further
@@ -1515,15 +1514,20 @@ zjQuery(function($) {
 	/**
 	 * Scroll selected accordion headings to the top of the page, if they are off the top.
 	 * We have some long panels, and this increases usability.
-	 * Adapted from http://stackoverflow.com/questions/21958933/bootstrap-accordion-scroll-to-top-of-active-panel-heading
+	 * From https://stackoverflow.com/questions/35992900/bootstrap-accordion-scroll-to-top-of-active-open-accordion-on-click
 	 */
-	$('#accordion').on('shown.bs.collapse', function (e) {
-		var offset = $(e.target).prev('.panel-heading');
-		if (offset && ($(offset).offset().top < $(window).scrollTop())) {
-			$('html,body').animate({
-				scrollTop: $(offset).offset().top
-			}, 500);
+	$('.collapse').on('shown.bs.collapse', function (e) {
+		var $card = $(this).closest('.accordion-item');
+		var $open = $($(this).data('parent')).find('.collapse.show');
+
+		var additionalOffset = 0;
+		if($card.prevAll().filter($open.closest('.accordion-item')).length !== 0)
+		{
+			additionalOffset =  $open.height();
 		}
+		$('html,body').animate({
+			scrollTop: $card.offset().top - additionalOffset
+		}, 500);
 	});
 
 	/**

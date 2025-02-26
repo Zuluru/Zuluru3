@@ -20,7 +20,7 @@ class SubscriptionsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'mailing_list_id' => MAILING_LIST_ID_MASTERS,

@@ -4,17 +4,17 @@ namespace App\Controller;
 use App\Authorization\ContextResource;
 use App\Model\Entity\Division;
 use App\Model\Entity\Game;
+use App\Service\Games\ScheduleService;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Database\Type\DateType;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event;
+use Cake\Http\Response;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use App\Exception\ScheduleException;
 use App\Model\Entity\DivisionsPerson;
 use App\Model\Results\Comparison;
 use App\Model\Table\GamesTable;
@@ -31,7 +31,7 @@ class DivisionsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		$actions = ['view', 'schedule', 'standings', 'tooltip'];
 		if (Configure::read('feature.public')) {
 			$actions[] = 'scores';
@@ -52,7 +52,7 @@ class DivisionsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('division');
@@ -62,10 +62,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -73,15 +70,16 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 		$this->Divisions->prepForView($division);
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
+		$can_edit = $this->Authorization->can($division, 'edit_schedule');
 
-		$this->set(compact('division', 'league_obj'));
-		$this->set('_serialize', ['division']);
+		$this->set(compact('division', 'league_obj', 'can_edit'));
+		$this->viewBuilder()->setOption('serialize', ['division']);
 	}
 
 	/**
 	 * Tooltip function
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function tooltip() {
 		$this->getRequest()->allowMethod('ajax');
@@ -100,10 +98,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -115,7 +110,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Stats method. Displays stats for all players in the division.
 	 *
-	 * @return \Cake\Network\Response|void
+	 * @return \Cake\Http\Response|void
 	 */
 	public function stats() {
 		$id = intval($this->getRequest()->getQuery('division'));
@@ -133,10 +128,7 @@ class DivisionsController extends AppController {
 					'Teams',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -147,7 +139,7 @@ class DivisionsController extends AppController {
 		$sport_obj = $this->moduleRegistry->load("Sport:{$division->league->sport}");
 
 		// Hopefully, everything we need is already cached
-		$stats = Cache::remember("division/{$id}/stats", function () use ($division, $sport_obj) {
+		$stats = Cache::remember("division_{$id}_stats", function () use ($division, $sport_obj) {
 			if (empty($division->teams)) {
 				return ['people' => [], 'calculated_stats' => []];
 			}
@@ -169,6 +161,7 @@ class DivisionsController extends AppController {
 						'TeamsPeople.status' => ROSTER_APPROVED,
 					])
 					->order(['People.' . Configure::read('gender.column') => Configure::read('gender.order'), 'People.last_name', 'People.first_name'])
+					->all()
 					->indexBy('id')
 					->toArray(),
 			];
@@ -187,16 +180,13 @@ class DivisionsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$league_id = $this->getRequest()->getQuery('league');
 		try {
 			$league = $this->Divisions->Leagues->get($league_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -204,7 +194,7 @@ class DivisionsController extends AppController {
 		$this->Authorization->authorize($league, 'add_division');
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
-		$division = $this->Divisions->newEntity();
+		$division = $this->Divisions->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$division = $this->Divisions->patchEntity($division, $this->getRequest()->getData(), ['validateDays' => true]);
@@ -219,10 +209,7 @@ class DivisionsController extends AppController {
 				$division = $this->Divisions->cloneWithoutIds($this->getRequest()->getQuery('division'), [
 					'contain' => ['Days'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid division.'));
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
@@ -242,18 +229,16 @@ class DivisionsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = intval($this->getRequest()->getQuery('division'));
 		try {
-			$division = $this->Divisions->get($id, [
-				'contain' => ['Leagues', 'Days'],
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$division = $this->Divisions->find('translations')
+				->contain(['Leagues', 'Days'])
+				->where(['Divisions.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -302,7 +287,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Add coordinator method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_coordinator() {
 		$id = $this->getRequest()->getQuery('division');
@@ -317,10 +302,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -342,17 +324,14 @@ class DivisionsController extends AppController {
 						],
 					],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
 
 			if (!empty($person->divisions)) {
 				$this->Flash->info(__('{0} is already a coordinator of this division.', $person->full_name));
-				return $this->redirect(['action' => 'add_coordinator', 'division' => $id]);
+				return $this->redirect(['action' => 'add_coordinator', '?' => ['division' => $id]]);
 			} else {
 				$person->_joinData = new DivisionsPerson([
 					'position' => 'coordinator',
@@ -361,10 +340,10 @@ class DivisionsController extends AppController {
 					$this->UserCache->clear('Divisions', $person_id);
 					$this->UserCache->clear('DivisionIDs', $person_id);
 					$this->Flash->success(__('Added {0} as coordinator.', $person->full_name));
-					return $this->redirect(['action' => 'view', 'division' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 				} else {
 					$this->Flash->warning(__('Failed to add {0} as coordinator.', $person->full_name));
-					return $this->redirect(['action' => 'add_coordinator', 'division' => $id]);
+					return $this->redirect(['action' => 'add_coordinator', '?' => ['division' => $id]]);
 				}
 			}
 		}
@@ -375,7 +354,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Remove coordinator method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to view.
+	 * @return void|\Cake\Http\Response Redirects to view.
 	 */
 	public function remove_coordinator() {
 		$this->getRequest()->allowMethod(['post']);
@@ -395,10 +374,7 @@ class DivisionsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -407,7 +383,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->people)) {
 			$this->Flash->warning(__('That person is not a coordinator of this division!'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Divisions->People->unlink($division, $division->people, false);
@@ -415,13 +391,13 @@ class DivisionsController extends AppController {
 		$this->UserCache->clear('DivisionIDs', $person_id);
 		$this->Flash->success(__('Successfully removed coordinator.'));
 
-		return $this->redirect(['action' => 'view', 'division' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 	}
 
 	/**
 	 * Add teams method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_teams() {
 		$id = $this->getRequest()->getQuery('division');
@@ -432,10 +408,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -455,7 +428,7 @@ class DivisionsController extends AppController {
 				$division->setDirty('teams', true);
 				if ($this->Divisions->save($division)) {
 					$this->Flash->success(__('The teams have been saved.'));
-					return $this->redirect(['action' => 'view', 'division' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 				} else {
 					$this->Flash->warning(__('The teams could not be saved. Please correct the errors below and try again.'));
 				}
@@ -468,7 +441,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Ratings method. Adjust team ratings.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful save, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful save, renders view otherwise
 	 */
 	public function ratings() {
 		$id = intval($this->getRequest()->getQuery('division'));
@@ -489,10 +462,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -501,7 +471,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot adjust ratings for a division with no teams.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
@@ -513,7 +483,7 @@ class DivisionsController extends AppController {
 			// This recalculation will save all changes including initial rating adjustments
 			if ($rating_obj->recalculateRatings($division)) {
 				$this->Flash->success(__('The ratings have been saved.'));
-				return $this->redirect(['action' => 'view', 'division' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 			} else {
 				$this->Flash->warning(__('The ratings could not be saved. Please correct the errors below and try again.'));
 			}
@@ -525,7 +495,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Seeds method. Adjust initial team seeding.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful save, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful save, renders view otherwise
 	 */
 	public function seeds() {
 		$id = intval($this->getRequest()->getQuery('division'));
@@ -546,10 +516,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -558,7 +525,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot adjust seeds for a division with no teams.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
@@ -577,7 +544,7 @@ class DivisionsController extends AppController {
 				}
 				if ($this->Divisions->save($division)) {
 					$this->Flash->success(__('The seeds have been saved.'));
-					return $this->redirect(['action' => 'view', 'division' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 				} else {
 					$this->Flash->warning(__('The seeds could not be saved. Please correct the errors below and try again.'));
 				}
@@ -590,7 +557,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -626,101 +593,67 @@ class DivisionsController extends AppController {
 	/**
 	 * Schedule method. Display and optionally edit schedules.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function schedule() {
 		$id = intval($this->getRequest()->getQuery('division'));
 
-		// Hopefully, everything we need is already cached
-		$division = Cache::remember("division/{$id}/schedule", function () use ($id) {
-			try {
-				$division = $this->Divisions->get($id, [
-					'finder' => 'translations',
-					'contain' => [
-						'Days' => [
+		try {
+			/** @var Division $division */
+			$division = $this->Divisions->get($id, [
+				'contain' => [
+					'Days' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->order(['DivisionsDays.day_id']);
+						},
+					],
+					'Teams',
+					'Leagues' => [
+						'StatTypes' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['DivisionsDays.day_id']);
+								return $q->where(['StatTypes.type' => 'entered']);
 							},
-						],
-						'Teams',
-						'Leagues' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-							'StatTypes' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->where(['StatTypes.type' => 'entered']);
-								},
-							],
-						],
-						'Games' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->where([
-									'OR' => [
-										'Games.home_dependency_type !=' => 'copy',
-										'Games.home_dependency_type IS' => null,
-									],
-								]);
-							},
-							'GameSlots' => [
-								'Fields' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-									'Facilities' => [
-										'queryBuilder' => function (Query $q) {
-											return $q->find('translations');
-										},
-									],
-								],
-							],
-							'ScoreEntries',
-							'HomeTeam',
-							'HomePoolTeam' => [
-								'DependencyPool' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
-							],
-							'AwayTeam',
-							'AwayPoolTeam' => [
-								'DependencyPool' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
-							],
-							'Pools' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
 						],
 					],
-				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid division.'));
-				return null;
-			} catch (InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid division.'));
-				return null;
-			}
-
-			if (empty($division->games)) {
-				$this->Flash->info(__('This division has no games scheduled yet.'));
-				return null;
-			}
-
-			// Sort games by date, time and field
-			usort($division->games, [GamesTable::class, 'compareDateAndField']);
-
-			return $division;
-		}, 'long_term');
-
-		if (!$division) {
+					'Games' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->where([
+								'OR' => [
+									'Games.home_dependency_type !=' => 'copy',
+									'Games.home_dependency_type IS' => null,
+								],
+							]);
+						},
+						'GameSlots' => [
+							'Fields' => [
+								'Facilities',
+							],
+						],
+						'ScoreEntries',
+						'HomeTeam',
+						'HomePoolTeam' => [
+							'DependencyPool',
+						],
+						'AwayTeam',
+						'AwayPoolTeam' => [
+							'DependencyPool',
+						],
+						'Pools',
+					],
+				]
+			]);
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
+
+		if (empty($division->games)) {
+			$this->Flash->info(__('This division has no games scheduled yet.'));
+			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
+		}
+
+		// Sort games by date, time and field
+		usort($division->games, [GamesTable::class, 'compareDateAndField']);
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
@@ -753,67 +686,21 @@ class DivisionsController extends AppController {
 		// Save posted data
 		if ($this->getRequest()->is(['patch', 'post', 'put']) && $this->Authorization->can($division, 'edit_schedule')) {
 			$this->loadComponent('Lock');
-
-			if ($this->Lock->lock('scheduling', $this->Divisions->affiliate($id), 'schedule creation or edit')) {
-				try {
-					$edit_games = $this->Divisions->Games->patchEntities($division->games, $this->getRequest()->getData('games'),
-						array_merge($this->getRequest()->getData('options'), ['validate' => 'scheduleEdit'])
-					);
-
-					$edit_ids = collection($edit_games)->extract('id')->toArray();
-					$other_games = collection($division->games)->reject(function ($game) use ($edit_ids) {
-						return in_array($game->id, $edit_ids);
-					})->toArray();
-					$division->games = array_merge($edit_games, $other_games);
-					usort($division->games, [GamesTable::class, 'compareDateAndField']);
-
-					if ($this->Divisions->Games->getConnection()->transactional(function () use ($division, $edit_games, $game_slots) {
-						$success = true;
-						$options = array_merge($this->getRequest()->getData('options'), [
-							'games' => $edit_games,
-							'game_slots' => $game_slots,
-							'validate' => 'scheduleEdit',
-						]);
-						// We intentionally do not use saveMany here; it returns immediately when one save fails,
-						// whereas this method will generate error messages for everything applicable.
-						foreach ($division->games as $game) {
-							if (!$this->Divisions->Games->save($game, $options)) {
-								$success = false;
-							}
-						}
-						return $success;
-					})) {
-						$this->Flash->success(__('Schedule changes saved!'));
-
-						// With the saves being inside a transaction, afterSaveCommit is not called.
-						$event = new Event('Model.afterSaveCommit', $this, [null]);
-						$this->getEventManager()->dispatch($event);
-
-						return $this->redirect(['action' => 'schedule', 'division' => $id]);
-					}
-
-					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				} catch (ScheduleException $ex) {
-					$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				}
+			$schedule = new ScheduleService($this->Divisions->Games->getTarget(), $this->Flash, $this->Lock);
+			if ($schedule->update($division->league, $division->games, $game_slots, $this->getRequest()->getData())) {
+				return $this->redirect (['action' => 'schedule', '?' => ['division' => $id]]);
 			}
 		}
 
 		$division->games = collection($division->games)->indexBy('id')->toArray();
 		$this->set(compact('id', 'division', 'edit_date', 'game_slots', 'is_tournament', 'multi_day'));
-		$this->set('_serialize', ['division']);
+		$this->viewBuilder()->setOption('serialize', ['division']);
 	}
 
 	/**
 	 * Standings method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function standings() {
 		$id = intval($this->getRequest()->getQuery('division'));
@@ -831,10 +718,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -844,7 +728,7 @@ class DivisionsController extends AppController {
 		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
 		if (!$league_obj->addResults($division, $spirit_obj)) {
 			$this->Flash->info(__('Cannot generate standings for a division with no schedule.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
@@ -876,13 +760,13 @@ class DivisionsController extends AppController {
 			$show_teams = $division->teams;
 		}
 		$this->set(compact('division', 'league_obj', 'spirit_obj', 'team_id', 'show_teams', 'more_before', 'more_after'));
-		$this->set('_serialize', ['division']);
+		$this->viewBuilder()->setOption('serialize', ['division']);
 	}
 
 	/**
 	 * Scores method. Shows a matrix of scores from games between team pairings.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function scores() {
 		$id = $this->getRequest()->getQuery('division');
@@ -898,10 +782,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -945,7 +826,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Fields method. Displays field distribution report.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function fields() {
 		$id = $this->getRequest()->getQuery('division');
@@ -982,10 +863,7 @@ class DivisionsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1020,7 +898,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Slots method. Shows game slots available to the division on selected date.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function slots() {
 		$id = $this->getRequest()->getQuery('division');
@@ -1028,10 +906,7 @@ class DivisionsController extends AppController {
 			$division = $this->Divisions->get($id, [
 				'contain' => ['Leagues'],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1048,6 +923,7 @@ class DivisionsController extends AppController {
 				return $q->where(['Divisions.id' => $id]);
 			})
 			->order(['GameSlots.game_date'])
+			->all()
 			->extract('game_date')
 			->toArray();
 
@@ -1112,7 +988,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Status method. Generates division status report.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function status() {
 		$id = $this->getRequest()->getQuery('division');
@@ -1127,10 +1003,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1139,12 +1012,12 @@ class DivisionsController extends AppController {
 
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot generate status report for a division with no teams.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 		// TODO: Use the league_obj to determine what functions are applicable instead of hard-coding the list
 		if (!in_array($division->schedule_type, ['roundrobin', 'ratings_ladder'])) {
 			$this->Flash->info(__('Cannot generate status report for a division with this schedule type.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
@@ -1170,18 +1043,20 @@ class DivisionsController extends AppController {
 
 		if (empty($division->games)) {
 			$this->Flash->info(__('Cannot generate status report for a division with no schedule.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$regions = TableRegistry::getTableLocator()->get('Regions')->find()
 			->enableHydration(false)
 			->where(['affiliate_id' => $division->league->affiliate_id])
+			->all()
 			->combine('id', 'name')
 			->toArray();
 
 		$fields = TableRegistry::getTableLocator()->get('Fields')->find()
 			->contain(['Facilities'])
 			->where(['Facilities.region_id IN' => array_keys($regions)])
+			->all()
 			->indexBy('id')
 			->toArray();
 
@@ -1257,7 +1132,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Allstars method. Generates report on all star nominations.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function allstars() {
 		$id = $this->getRequest()->getQuery('division');
@@ -1267,10 +1142,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1302,7 +1174,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Emails method. Provides list of captain emails, and mailto link.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function emails() {
 		$id = $this->getRequest()->getQuery('division');
@@ -1323,10 +1195,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1339,7 +1208,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Spirit method. Generates spirit report.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function spirit() {
 		$id = $this->getRequest()->getQuery('division');
@@ -1350,10 +1219,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1378,6 +1244,7 @@ class DivisionsController extends AppController {
 				]],
 			])
 			->order(['Games.id'])
+			->all()
 			->filter(function (Game $game) {
 				return !empty($game->spirit_entries);
 			})
@@ -1401,7 +1268,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Approve scores method. Gives list of games that are not yet finalized.
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise
 	 */
 	public function approve_scores() {
 		$id = $this->getRequest()->getQuery('division');
@@ -1454,10 +1321,7 @@ class DivisionsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1482,7 +1346,7 @@ class DivisionsController extends AppController {
 	/**
 	 * Initialize ratings method. Initializes ratings for playoff teams based on their regular season records.
 	 *
-	 * @return \Cake\Network\Response Redirects to division view
+	 * @return \Cake\Http\Response Redirects to division view
 	 */
 	public function initialize_ratings() {
 		$id = intval($this->getRequest()->getQuery('division'));
@@ -1494,10 +1358,7 @@ class DivisionsController extends AppController {
 					'Leagues',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1507,7 +1368,7 @@ class DivisionsController extends AppController {
 
 		if (!$division->is_playoff) {
 			$this->Flash->info(__('Only playoff divisions can be initialized.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		// Initialize all teams ratings with their regular season ratings
@@ -1515,7 +1376,7 @@ class DivisionsController extends AppController {
 			$affiliated_team = $team->_getAffiliatedTeam($division);
 			if (!$affiliated_team) {
 				$this->Flash->warning(__('{0} does not have a unique affiliated team in the correct division.', $team->name));
-				return $this->redirect(['action' => 'view', 'division' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 			}
 			$team->rating = $team->initial_rating = $affiliated_team->rating;
 		}
@@ -1527,13 +1388,13 @@ class DivisionsController extends AppController {
 			$this->Flash->warning(__('Failed to initialize team ratings.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'division' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 	}
 
 	/**
 	 * Initialize dependencies method. Initializes seed-based tournament dependencies based on current standings.
 	 *
-	 * @return \Cake\Network\Response Redirects to division schedule
+	 * @return \Cake\Http\Response Redirects to division schedule
 	 */
 	public function initialize_dependencies() {
 		$id = intval($this->getRequest()->getQuery('division'));
@@ -1561,10 +1422,7 @@ class DivisionsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1599,7 +1457,7 @@ class DivisionsController extends AppController {
 		if ($pool) {
 			if (in_array($pool, $finalized_pools)) {
 				$this->Flash->warning(__('There are already games finalized in this pool. Unable to proceed.'));
-				return $this->redirect(['action' => 'schedule', 'division' => $id]);
+				return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 			}
 			$conditions['Games.pool_id'] = $pool;
 		}
@@ -1618,7 +1476,7 @@ class DivisionsController extends AppController {
 			$date = new FrozenDate($date);
 			$multi_day = ($division->schedule_type != 'tournament' && count($division->days) > 1);
 			if ($multi_day) {
-				$end = $date->next(Configure::read('organization.first_day'))->subDay();
+				$end = $date->next(Configure::read('organization.first_day'))->subDays(1);
 				$games = collection($games)->filter(function ($game) use ($date, $end) {
 					return $game->game_slot->game_date >= $date && $game->game_slot->game_date <= $end;
 				})->toArray();
@@ -1630,7 +1488,7 @@ class DivisionsController extends AppController {
 		}
 		if (empty($games)) {
 			$this->Flash->warning(__('There are currently no dependencies to initialize in this division.'));
-			return $this->redirect(['action' => 'schedule', 'division' => $id]);
+			return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 		}
 
 		$pools = array_unique(collection($games)->extract('pool_id')->toArray());
@@ -1647,7 +1505,7 @@ class DivisionsController extends AppController {
 								[
 									'type' => 'link',
 									'link' => __('initialize division ratings'),
-									'target' => ['action' => 'initialize_ratings', 'division' => $id],
+									'target' => ['action' => 'initialize_ratings', '?' => ['division' => $id]],
 								],
 							],
 						],
@@ -1655,7 +1513,7 @@ class DivisionsController extends AppController {
 				} else {
 					$this->Flash->warning($msg);
 				}
-				return $this->redirect(['action' => 'seeds', 'division' => $id]);
+				return $this->redirect(['action' => 'seeds', '?' => ['division' => $id]]);
 			}
 		}
 
@@ -1687,7 +1545,7 @@ class DivisionsController extends AppController {
 								$seed = $game->$pool_team->dependency_id;
 								if ($seed > count($division->teams)) {
 									$this->Flash->warning(__('Not enough teams in the division to fulfill all scheduled seeds.'));
-									return $this->redirect(['action' => 'schedule', 'division' => $id]);
+									return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 								}
 								// The sort call above leaves the teams array indexed by id, but we don't want that here
 								$teams = array_values($division->teams);
@@ -1779,7 +1637,7 @@ class DivisionsController extends AppController {
 					}
 					if (empty($copy)) {
 						$this->Flash->warning(__('Failed to {0} game dependency.', __('locate')));
-						return $this->redirect(['action' => 'schedule', 'division' => $id]);
+						return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 					}
 					$game = $this->Divisions->Games->patchEntity($game, [
 						'home_score' => $copy->$home,
@@ -1793,19 +1651,19 @@ class DivisionsController extends AppController {
 
 			if (!$this->Divisions->Games->save($game)) {
 				$this->Flash->warning(__('Failed to {0} game dependency.', __($operation)));
-				return $this->redirect(['action' => 'schedule', 'division' => $id]);
+				return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 			}
 		}
 		$this->Flash->success(__('Dependencies have been {0}.', $reset ? __('reset') : __('resolved')));
 		$this->Divisions->clearCache($division, ['schedule', 'standings']);
 
-		return $this->redirect(['action' => 'schedule', 'division' => $id]);
+		return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 	}
 
 	/**
 	 * Delete stage method. Deletes a tournament stage in cases where it needs to be re-done.
 	 *
-	 * @return \Cake\Network\Response Redirects to "schedule add" page
+	 * @return \Cake\Http\Response Redirects to "schedule add" page
 	 */
 	public function delete_stage() {
 		$id = intval($this->getRequest()->getQuery('division'));
@@ -1821,10 +1679,7 @@ class DivisionsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -1834,7 +1689,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->pools)) {
 			$this->Flash->warning(__('There are currently no pools to delete in this stage.'));
-			return $this->redirect(['controller' => 'Schedules', 'action' => 'add', 'division' => $id]);
+			return $this->redirect(['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $id]]);
 		}
 
 		if ($this->Divisions->Pools->getConnection()->transactional(function () use ($division, $stage) {
@@ -1850,17 +1705,17 @@ class DivisionsController extends AppController {
 			$this->Flash->warning(__('Pools in this stage were not deleted.'));
 		}
 
-		return $this->redirect(['controller' => 'Schedules', 'action' => 'add', 'division' => $id]);
+		return $this->redirect(['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $id]]);
 	}
 
 	/**
 	 * Override the redirect function; if it's a view and there's only one division, view the league instead
 	 */
-	public function redirect($url = null, $status = 302) {
+	public function redirect($url = null, int $status = 302): ?Response {
 		if (is_array($url) && in_array($url['action'], ['edit', 'view']) && (!array_key_exists('controller', $url) || $url['controller'] == 'Divisions')) {
-			$league = $this->Divisions->league($url['division']);
+			$league = $this->Divisions->league($url['?']['division']);
 			if ($this->Divisions->find('byLeague', compact('league'))->count() == 1) {
-				return parent::redirect(['controller' => 'Leagues', 'action' => $url['action'], 'league' => $league], $status);
+				return parent::redirect(['controller' => 'Leagues', 'action' => $url['action'], '?' => ['league' => $league]], $status);
 			}
 		}
 		return parent::redirect($url, $status);
@@ -1883,7 +1738,7 @@ class DivisionsController extends AppController {
 			$query->where(['Leagues.sport' => $sport]);
 		}
 
-		$this->set('divisions', $query->combine('id', 'full_league_name')->toArray());
+		$this->set('divisions', $query->all()->combine('id', 'full_league_name')->toArray());
 	}
 
 }

@@ -18,7 +18,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -116,45 +116,45 @@ class TasksControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to view tasks, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]], $admin->id);
 		$this->assertResponseContains('/tasks/edit?task=' . $task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $task->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $assigned_task->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $assigned_task->id]], $admin->id);
 		$this->assertResponseContains('/tasks/edit?task=' . $assigned_task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $assigned_task->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $affiliate_task->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $affiliate_task->id]], $admin->id);
 		$this->assertResponseContains('/tasks/edit?task=' . $affiliate_task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $affiliate_task->id);
 
 		// Managers are allowed to view tasks
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]], $manager->id);
 		$this->assertResponseContains('/tasks/edit?task=' . $task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $task->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $assigned_task->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $assigned_task->id]], $manager->id);
 		$this->assertResponseContains('/tasks/edit?task=' . $assigned_task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $assigned_task->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $affiliate_task->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $affiliate_task->id]],
 			$manager->id, ['controller' => 'Tasks', 'action' => 'index'],
 			'Invalid task.');
 
 		// Volunteers are allowed to view tasks
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]], $volunteer->id);
 
 		// But not assigned ones
-		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $assigned_task->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $assigned_task->id]],
 			$volunteer->id, ['controller' => 'Tasks', 'action' => 'index'],
 			'Invalid task.');
 
 		// Others are not allowed to view tasks
-		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]],
 			$player->id, ['controller' => 'Tasks', 'action' => 'index'],
 			'Invalid task.');
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -215,8 +215,8 @@ class TasksControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to edit tasks
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => $affiliate_task->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $task->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $affiliate_task->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -241,10 +241,10 @@ class TasksControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to edit tasks
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $task->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => $affiliate_task->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $affiliate_task->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -263,16 +263,15 @@ class TasksControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to edit tasks
-		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $task->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $task->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $task->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -292,12 +291,12 @@ class TasksControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete tasks
-		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => $task->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $task->id]],
 			$admin->id, [], ['controller' => 'Tasks', 'action' => 'index'],
 			'The task has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => $dependent_task->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $dependent_task->id]],
 			$admin->id, [], ['controller' => 'Tasks', 'action' => 'index'],
 			'#The following records reference this task, so it cannot be deleted#');
 	}
@@ -306,7 +305,6 @@ class TasksControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -325,12 +323,12 @@ class TasksControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete tasks in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => $task->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $task->id]],
 			$manager->id, [], ['controller' => 'Tasks', 'action' => 'index'],
 			'The task has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => $affiliate_task->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $affiliate_task->id]],
 			$manager->id);
 	}
 
@@ -338,7 +336,6 @@ class TasksControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -350,11 +347,11 @@ class TasksControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete tasks
-		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => $task->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $task->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => $task->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $task->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => $task->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $task->id]]);
 	}
 
 }

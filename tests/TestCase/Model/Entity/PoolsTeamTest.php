@@ -11,45 +11,49 @@ use Cake\TestSuite\TestCase;
  */
 class PoolsTeamTest extends TestCase {
 
-    public function dataForDependencyTest()
-    {
-        return [ [
-                PoolsTeamFactory::make()
-                    ->with('DependencyPool', [
-                        'name' => 'B',
-                        'type' => 'crossover',
-                    ]),
-                'winner of B',
-            ], [
-                PoolsTeamFactory::make(['dependency_id' => 2,])
-                    ->with('DependencyPool', [
-                        'name' => 'B',
-                        'type' => 'crossover',
-                    ]),
-                'loser of B',
-            ], [
-                PoolsTeamFactory::make(['dependency_id' => 1,])
-                    ->with('DependencyPool', [
-                        'name' => 'A',
-                    ]),
-                '1st in pool A',
-            ], [
-                PoolsTeamFactory::make([ 'dependency_id' => 1, 'dependency_ordinal' => 50]),
-                '1st among 50th place teams',
-            ], [
-                PoolsTeamFactory::make(['dependency_id' => 1,]),
-                '1st seed',
-            ],
-        ];
-    }
+	public function dataForDependencyTest()
+	{
+		return [
+			[
+				[],
+				['name' => 'B', 'type' => 'crossover'],
+				'winner of B',
+			],
+			[
+				['dependency_id' => 2],
+				['name' => 'B', 'type' => 'crossover'],
+				'loser of B',
+			],
+			[
+				['dependency_id' => 1],
+				['name' => 'A'],
+				'1st in pool A',
+			],
+			[
+				['dependency_id' => 1, 'dependency_ordinal' => 50],
+				[],
+				'1st among 50th place teams',
+			],
+			[
+				['dependency_id' => 1],
+				[],
+				'1st seed',
+			],
+		];
+	}
 
 	/**
 	 * Test dependency method
 	 *
-     * @dataProvider dataForDependencyTest
+	 * @dataProvider dataForDependencyTest
 	 * @return void
 	 */
-	public function testDependency(PoolsTeamFactory $factory, $expectedDependency) {
+	public function testDependency(array $poolsTeamArgs, array $dependencyPoolArgs, string $expectedDependency) {
+		$factory = PoolsTeamFactory::make($poolsTeamArgs);
+		if (!empty($dependencyPoolArgs)) {
+			$factory = $factory->with('DependencyPool', $dependencyPoolArgs);
+		}
+
 		$this->assertEquals($expectedDependency, $factory->persist()->dependency());
 	}
 

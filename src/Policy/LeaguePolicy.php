@@ -48,7 +48,7 @@ class LeaguePolicy extends AppPolicy {
 	public function canStats(IdentityInterface $identity = null, League $league) {
 		if (!$league->hasStats()) {
 			throw new ForbiddenRedirectException(__('This league does not have stat tracking enabled.'),
-				['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id]);
+				['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]]);
 		}
 
 		return Configure::read('feature.public') || ($identity && $identity->isLoggedIn());

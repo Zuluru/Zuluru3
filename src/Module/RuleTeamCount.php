@@ -16,14 +16,14 @@ class RuleTeamCount extends Rule implements RuleHaving {
 	 *
 	 * @var FrozenDate[]
 	 */
-	protected $range;
+	protected array $range;
 
 	/**
 	 * List of roles to look for
 	 *
 	 * @var string[]
 	 */
-	protected $roles;
+	protected array $roles;
 
 	public function parse($config) {
 		$config = array_map(function($item) {
@@ -43,16 +43,16 @@ class RuleTeamCount extends Rule implements RuleHaving {
 		if ($config[0] == '<') {
 			$to = substr($config, 1);
 			try {
-				$to = (new FrozenDate($to))->subDay();
+				$to = (new FrozenDate($to))->subDays(1);
 			} catch (\Exception $ex) {
 				$this->parse_error = __('Invalid date: {0}', $to);
 				return false;
 			}
-			$this->range = [new FrozenDate('0000-00-00'), $to];
+			$this->range = [new FrozenDate('0001-01-01'), $to];
 		} else if ($config[0] == '>') {
 			$from = substr($config, 1);
 			try {
-				$from = (new FrozenDate($from))->addDay();
+				$from = (new FrozenDate($from))->addDays(1);
 			} catch (\Exception $ex) {
 				$this->parse_error = __('Invalid date: {0}', $from);
 				return false;

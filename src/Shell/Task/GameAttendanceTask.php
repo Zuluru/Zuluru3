@@ -66,7 +66,7 @@ class GameAttendanceTask extends Shell {
 					->notEq('AwayTeam.attendance_reminder', -1)
 					->gte($days_to_game, 'AwayTeam.attendance_reminder');
 
-				return $exp->or_([$home_conditions, $away_conditions]);
+				return $exp->or([$home_conditions, $away_conditions]);
 			});
 
 		foreach ($remind as $game) {
@@ -108,7 +108,7 @@ class GameAttendanceTask extends Shell {
 					->notEq('AwayTeam.attendance_summary', -1)
 					->gte($days_to_game, 'AwayTeam.attendance_summary');
 
-				return $exp->or_([$home_conditions, $away_conditions]);
+				return $exp->or([$home_conditions, $away_conditions]);
 			});
 
 		foreach ($summary as $game) {

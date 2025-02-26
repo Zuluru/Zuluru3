@@ -15,14 +15,14 @@ class RuleLeagueTeamCount extends Rule implements RuleHaving {
 	 *
 	 * @var int[]
 	 */
-	protected $leagues;
+	protected array $leagues;
 
 	/**
 	 * List of roles to look for
 	 *
 	 * @var string[]
 	 */
-	protected $roles;
+	protected array $roles;
 
 	public function parse($config) {
 		$config = str_replace(['"', "'"], '', strtolower($config));

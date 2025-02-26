@@ -19,7 +19,7 @@ class StatsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'game_id' => GAME_ID_THURSDAY_ROUND_ROBIN,

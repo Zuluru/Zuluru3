@@ -4,11 +4,14 @@ namespace App\Test\TestCase\View\Helper;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
 use App\View\Helper\ZuluruHtmlHelper;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 
 /**
  * App\Model\Helper\ZuluruHtmlHelper Test Case
  */
 class ZuluruHtmlHelperTest extends TestCase {
+
+	use TruncateDirtyTables;
 
 	/**
 	 * Test subject

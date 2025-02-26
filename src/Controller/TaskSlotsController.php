@@ -5,7 +5,6 @@ use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use App\View\Helper\ZuluruTimeHelper;
 
@@ -21,7 +20,7 @@ class TaskSlotsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		if (!Configure::read('feature.tasks')) {
 			return [];
 		}
@@ -32,7 +31,7 @@ class TaskSlotsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('slot');
@@ -44,10 +43,7 @@ class TaskSlotsController extends AppController {
 					'ApprovedBy',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -60,16 +56,13 @@ class TaskSlotsController extends AppController {
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
 	public function ical($id) {
-		$this->viewBuilder()->setLayout('ical');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => [
 					'Tasks' => ['Categories', 'People'],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			return;
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			return;
 		}
 		if (!$task_slot->approved) {
@@ -82,22 +75,19 @@ class TaskSlotsController extends AppController {
 		$this->set('calendar_name', 'Task');
 		$this->setResponse($this->getResponse()->withDownload("$id.ics"));
 		$this->set(compact('task_slot'));
-		$this->RequestHandler->ext = 'ics';
+		$this->viewBuilder()->setLayoutPath('ics')->setClassName('Ical');
 	}
 
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$id = $this->getRequest()->getQuery('task');
 		try {
 			$task = $this->TaskSlots->Tasks->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -105,7 +95,7 @@ class TaskSlotsController extends AppController {
 		$this->Authorization->authorize($task, 'add_slots');
 		$this->Configuration->loadAffiliate($task->affiliate_id);
 
-		$task_slot = $this->TaskSlots->newEntity();
+		$task_slot = $this->TaskSlots->newEmptyEntity();
 		if ($this->getRequest()->is('post')) {
 			$task_slot = $this->TaskSlots->patchEntity($task_slot, array_merge($this->getRequest()->getData(), ['task_id' => $id]));
 			$date = $task_slot->task_date;
@@ -115,7 +105,7 @@ class TaskSlotsController extends AppController {
 						$slot = $this->TaskSlots->newEntity(array_merge($this->getRequest()->getData(), ['task_id' => $id, 'task_date' => $date]));
 						$this->TaskSlots->save($slot);
 					}
-					$date = $date->addDay();
+					$date = $date->addDays(1);
 				}
 				$this->Flash->success(__('The task slot(s) have been saved. You may create more similar task slots below.'));
 			} else {
@@ -130,16 +120,13 @@ class TaskSlotsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -162,7 +149,7 @@ class TaskSlotsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -170,10 +157,7 @@ class TaskSlotsController extends AppController {
 		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -205,10 +189,7 @@ class TaskSlotsController extends AppController {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -220,12 +201,9 @@ class TaskSlotsController extends AppController {
 		if (!empty($person_id)) {
 			try {
 				$this->TaskSlots->People->get($person_id);
-			} catch (RecordNotFoundException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
-			} catch (InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 			}
 
 			try {
@@ -253,7 +231,7 @@ class TaskSlotsController extends AppController {
 					ZuluruTimeHelper::time($conflict->task_start),
 					ZuluruTimeHelper::time($conflict->task_end),
 					ZuluruTimeHelper::date($conflict->task_date)));
-				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 			} catch (RecordNotFoundException $ex) {
 				// This is actually the situation that we want: no conflict!
 			}
@@ -280,7 +258,7 @@ class TaskSlotsController extends AppController {
 
 		if (!$this->TaskSlots->save($task_slot)) {
 			$this->Flash->info(__('Error assigning the task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		if ($task_slot->approved && $person_id) {
@@ -288,19 +266,20 @@ class TaskSlotsController extends AppController {
 		}
 		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('The assignment has been saved.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		// Read some data required to correctly build the output
 		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$people = $this->TaskSlots->Tasks->People->find()
-			->matching('Groups', function (Query $q) {
-				return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
+			->matching('UserGroups', function (Query $q) {
+				return $q->where(['UserGroups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
 			})
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 			})
 			->order(['People.first_name', 'People.last_name'])
+			->all()
 			->combine('id', 'full_name')
 			->toArray();
 
@@ -322,10 +301,7 @@ class TaskSlotsController extends AppController {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -334,12 +310,12 @@ class TaskSlotsController extends AppController {
 
 		if (!$task_slot->person_id) {
 			$this->Flash->info(__('This task slot has not been assigned.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		if ($task_slot->approved) {
 			$this->Flash->info(__('This task slot has already been approved.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		$task_slot = $this->TaskSlots->patchEntity($task_slot, [
@@ -349,13 +325,13 @@ class TaskSlotsController extends AppController {
 
 		if (!$this->TaskSlots->save($task_slot)) {
 			$this->Flash->info(__('Error approving the task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		$this->UserCache->clear('Tasks', $task_slot->person_id);
 		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('The assignment has been approved.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		// Read some data required to correctly build the output

@@ -14,6 +14,7 @@ class AppPolicy implements BeforePolicyInterface {
 
 	public function blockAnonymous($identity) {
 		if (!$identity) {
+			// @todo Cake4: Change all policies to return objects with reasons instead of throwing exceptions, and handle those instead in the custom RedirectFlashHandler
 			throw new ForbiddenException();
 		}
 	}

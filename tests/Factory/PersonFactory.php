@@ -31,25 +31,20 @@ class PersonFactory extends BaseFactory
 	protected function setDefaultTemplate(): void
 	{
 		$this->setDefaultData(function(Generator $faker) {
-			$gender = $faker->boolean();
 			// TODO: Is there a way to force this format in the phoneNumber generator?
 			$phoneFormat = '({{areaCode}}) {{exchangeCode}}-####';
 
 			return [
-				'first_name' => $faker->firstName,
-				'last_name' => $faker->lastName,
-				'gender' => $gender ? 'Woman' : 'Man',
-				'roster_designation' => $gender ? 'Woman' : 'Open',
+				'first_name' => $faker->firstName(),
+				'last_name' => $faker->lastName(),
 				'home_phone' => $faker->numerify($faker->parse($phoneFormat)),
 				'work_phone' => $faker->boolean() ? $faker->numerify($faker->parse($phoneFormat)) : null,
 				'mobile_phone' => $faker->boolean() ? $faker->numerify($faker->parse($phoneFormat)) : null,
-				'addr_street' => $faker->streetAddress,
-				'addr_city' => $faker->city,
+				'addr_street' => $faker->streetAddress(),
+				'addr_city' => $faker->city(),
 				'addr_prov' => 'Ontario',
-				'addr_postalcode' => $faker->postcode,
+				'addr_postalcode' => $faker->postcode(),
 				'addr_country' => 'Canada',
-				'birthdate' => $faker->dateTimeBetween('-60 years', '-18 years'),
-				'height' => $faker->numberBetween(48, 80),
 				'complete' => true,
 				'status' => 'active',
 
@@ -64,8 +59,8 @@ class PersonFactory extends BaseFactory
 	 * @return self
 	 */
 	public function withGroup(int $group_id): self {
-		$group = $this->getTable()->Groups->get($group_id);
-		return $this->with('Groups', $group);
+		$group = $this->getTable()->UserGroups->get($group_id);
+		return $this->with('UserGroups', $group);
 	}
 
 	/**
@@ -75,16 +70,16 @@ class PersonFactory extends BaseFactory
 	public function withGroups(array $group_ids): self {
 		$groups = [];
 		foreach ($group_ids as $group_id) {
-			$groups[] = $this->getTable()->Groups->get($group_id);
+			$groups[] = $this->getTable()->UserGroups->get($group_id);
 		}
-		return $this->with('Groups', $groups);
+		return $this->with('UserGroups', $groups);
 	}
 
 	public function admin(array $data = []): self {
 		return $this
 			->patchData($data)
 			->withGroup(GROUP_ADMIN)
-			->with('Users');
+			->with('Users', ['password' => 'test123']);
 	}
 
 	public function manager(array $data = []): self {
@@ -95,6 +90,34 @@ class PersonFactory extends BaseFactory
 	}
 
 	public function player(array $data = []): self {
+		$faker = $this->getFaker();
+
+		$gender = $faker->boolean();
+		$data += [
+			'gender' => $gender ? 'Woman' : 'Man',
+			'roster_designation' => $gender ? 'Woman' : 'Open',
+			'birthdate' => new FrozenDate($faker->dateTimeBetween('-60 years', '-18 years')),
+			'height' => $faker->numberBetween(48, 80),
+			'shirt_size' => $faker->randomElement([
+				'Womens XSmall',
+				'Womens Small',
+				'Womens Medium',
+				'Womens Large',
+				'Womens XLarge',
+				'Womens XXLarge',
+				'Womens XXXLarge',
+				'Mens Small',
+				'Mens Medium',
+				'Mens Large',
+				'Mens XLarge',
+				'Mens XXLarge',
+				'Mens XXXLarge',
+				'Youth Small',
+				'Youth Medium',
+				'Youth Large',
+			]),
+		];
+
 		return $this
 			->patchData($data)
 			->withGroup(GROUP_PLAYER)

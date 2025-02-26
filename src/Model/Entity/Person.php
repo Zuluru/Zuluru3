@@ -84,7 +84,7 @@ use Cake\Routing\Router;
  * @property \App\Model\Entity\Badge[] $badges
  * @property \App\Model\Entity\Division[] $divisions
  * @property \App\Model\Entity\Franchise[] $franchises
- * @property \App\Model\Entity\Group[] $groups
+ * @property \App\Model\Entity\UserGroup[] $user_groups
  * @property \App\Model\Entity\Person[] $relatives Profiles that this person controls
  * @property \App\Model\Entity\Person[] $related Profiles that control this person
  * @property \App\Model\Entity\Team[] $teams
@@ -171,7 +171,7 @@ class Person extends Entity {
 		'allstars',
 		'badges',
 		'credits',
-		'groups',
+		'user_groups',
 		'notes',
 		'preregistrations',
 		'registrations',
@@ -200,21 +200,21 @@ class Person extends Entity {
 		}
 
 		if (empty($this->user_id)) {
-			$this->_properties['user'] = null;
+			$this->_fields['user'] = null;
 		} else {
 			// Convoluted process to get the name of the property where user table data will be found
 			$user_model = Configure::read('Security.authModel');
 			$people_table = TableRegistry::getTableLocator()->get('People');
 			$property = $people_table->associations()->get($user_model)->getProperty();
-			if (!array_key_exists($property, $this->_properties)) {
+			if (!array_key_exists($property, $this->_fields)) {
 				$people_table->loadInto($this, [$user_model]);
 			}
 			if ($property != 'user') {
-				$this->_properties['user'] = $this->$property;
+				$this->_fields['user'] = $this->$property;
 			}
 		}
 
-		return $this->_properties['user'];
+		return $this->_fields['user'];
 	}
 
 	protected function _getUserName() {
@@ -302,7 +302,7 @@ class Person extends Entity {
 		} else {
 			$display = __($this->gender);
 		}
-		if (Configure::read('gender.column') === 'roster_designation') {
+		if (Configure::read('gender.column') === 'roster_designation' && $this->roster_designation) {
 			$display .= __(' ({0}: {1})', __('Roster Designation'), __($this->roster_designation));
 		}
 
@@ -325,7 +325,7 @@ class Person extends Entity {
 		if (empty($new->user_id)) {
 			$preserve_if_new_is_empty = array_merge($preserve_if_new_is_empty, ['home_phone', 'work_phone', 'mobile_phone', 'addr_street', 'addr_city', 'addr_prov', 'addr_country', 'addr_postalcode']);
 		}
-		foreach (array_keys($new->_properties) as $prop) {
+		foreach (array_keys($new->_fields) as $prop) {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
 					if (!empty($new->$prop)) {
@@ -371,10 +371,10 @@ class Person extends Entity {
 				$my_owned_division_ids = [];
 			}
 
-			$is_player = collection($this->groups)->some(function ($group) {
+			$is_player = collection($this->user_groups)->some(function ($group) {
 				return $group->id == GROUP_PLAYER;
 			});
-			$is_parent = collection($this->groups)->some(function ($group) {
+			$is_parent = collection($this->user_groups)->some(function ($group) {
 				return $group->id == GROUP_PARENT;
 			});
 
@@ -449,7 +449,7 @@ class Person extends Entity {
 					'birthdate' => true,
 					'height' => true,
 					'shirt_size' => true,
-					'groups' => true,
+					'user_groups' => true,
 					'status' => true,
 					'has_dog' => true,
 					'contact_for_feedback' => true,
@@ -659,7 +659,7 @@ class Person extends Entity {
 		if (!empty($photo)) {
 			$upload_dir = Configure::read('App.paths.uploads');
 			if (file_exists($upload_dir . DS . $photo->filename)) {
-				return Router::url(['controller' => 'People', 'action' => 'photo', 'person' => $photo->person_id], true);
+				return Router::url(['controller' => 'People', 'action' => 'photo', '?' => ['person' => $photo->person_id]], true);
 			}
 		} else if (Configure::read('feature.gravatar')) {
 			$url = 'https://www.gravatar.com/avatar/';

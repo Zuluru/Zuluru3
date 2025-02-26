@@ -19,7 +19,7 @@ class PoolsTeamsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'pool_id' => POOL_ID_MONDAY_SEEDED,

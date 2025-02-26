@@ -25,7 +25,7 @@ class FieldFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'num' => $faker->word,
+				'num' => $faker->word(),
 				'sport' => 'ultimate',
 				'is_open' => true,
 				'latitude' => $faker->randomFloat(6, -90, 90),

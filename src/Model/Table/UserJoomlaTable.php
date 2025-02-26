@@ -51,7 +51,7 @@ class UserJoomlaTable extends UsersTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 		$this->initializeJoomlaConfig();
 
@@ -88,7 +88,7 @@ class UserJoomlaTable extends UsersTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return bool
 	 */
-	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// TODOSECOND: Delete j_user_usergroup_map record too
 	}
 

@@ -2,7 +2,6 @@
 namespace Javelin\Controller;
 
 use App\Authorization\ContextResource;
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
@@ -15,7 +14,7 @@ class TeamsController extends AppController {
 
 	public function join() {
 		$id = $this->getRequest()->getQuery('team');
-		$this->loadModel('Teams');
+		$this->Teams = $this->fetchTable('Teams');
 
 		try {
 			$team = $this->Teams->get($id, [
@@ -29,10 +28,7 @@ class TeamsController extends AppController {
 					],
 				]]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -49,21 +45,18 @@ class TeamsController extends AppController {
 			$this->Flash->error(__('Failed to add your team to {0}. You can try again; if the problem persists, contact support.', 'Javelin'));
 		}
 
-		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', 'team' => $id]);
+		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => $id]]);
 	}
 
 	public function leave() {
 		$id = $this->getRequest()->getQuery('team');
-		$this->loadModel('Teams');
+		$this->Teams = $this->fetchTable('Teams');
 
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -80,7 +73,7 @@ class TeamsController extends AppController {
 			$this->Flash->error(__('Failed to remove your team from {0}. You can try again; if the problem persists, contact support.', 'Javelin'));
 		}
 
-		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', 'team' => $id]);
+		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => $id]]);
 	}
 
 }

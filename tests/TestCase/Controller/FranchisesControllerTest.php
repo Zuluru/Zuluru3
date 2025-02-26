@@ -25,7 +25,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.RosterRoles',
 		'app.Settings',
 	];
@@ -55,11 +55,11 @@ class FranchisesControllerTest extends ControllerTestCase {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Anyone is allowed to get the list by letter
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], $volunteer->id);
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], $player->id);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B']);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', '?' => ['letter' => 'B']], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', '?' => ['letter' => 'B']], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', '?' => ['letter' => 'B']], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', '?' => ['letter' => 'B']], $player->id);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Franchises', 'action' => 'letter', '?' => ['letter' => 'B']]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -85,39 +85,39 @@ class FranchisesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to view franchises, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $admin->id);
 		$this->assertResponseContains('/franchises/edit?franchise=' . $franchise->id);
 		$this->assertResponseContains('/franchises/delete?franchise=' . $franchise->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $affiliate_franchise->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $affiliate_franchise->id]], $admin->id);
 		$this->assertResponseContains('/franchises/edit?franchise=' . $affiliate_franchise->id);
 		$this->assertResponseContains('/franchises/delete?franchise=' . $affiliate_franchise->id);
 
 		// Managers are allowed to view franchises
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $manager->id);
 		$this->assertResponseContains('/franchises/edit?franchise=' . $franchise->id);
 		$this->assertResponseContains('/franchises/delete?franchise=' . $franchise->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $affiliate_franchise->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $affiliate_franchise->id]], $manager->id);
 		$this->assertResponseNotContains('/franchises/edit?franchise=' . $affiliate_franchise->id);
 		$this->assertResponseNotContains('/franchises/delete?franchise=' . $affiliate_franchise->id);
 
 		// Owners are allowed to view and edit their franchises, but not delete; that happens automatically if the last team is removed
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $owner->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $owner->id);
 		$this->assertResponseContains('/franchises/edit?franchise=' . $franchise->id);
 		$this->assertResponseNotContains('/franchises/delete?franchise=' . $franchise->id);
 
 		// Others are allowed to view franchises, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $player->id);
 		$this->assertResponseNotContains('/franchises/edit?franchise=' . $franchise->id);
 		$this->assertResponseNotContains('/franchises/delete?franchise=' . $franchise->id);
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $volunteer->id);
 		$this->assertResponseNotContains('/franchises/edit?franchise=' . $franchise->id);
 		$this->assertResponseNotContains('/franchises/delete?franchise=' . $franchise->id);
 
 		// Others are allowed to view
-		$this->assertGetAnonymousAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -198,8 +198,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Admins are allowed to edit franchises
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $affiliate_franchise->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $franchise->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $affiliate_franchise->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -218,10 +218,10 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to edit franchises
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $franchise->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $affiliate_franchise->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $affiliate_franchise->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -244,8 +244,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$other_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Captains are allowed to edit their own franchises only
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $owner->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $other_franchise->id], $owner->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $franchise->id]], $owner->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $other_franchise->id]], $owner->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -261,16 +261,15 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Others are not allowed to edit franchises
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $franchise->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $franchise->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'edit', '?' => ['franchise' => $franchise->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -288,12 +287,12 @@ class FranchisesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete franchises
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $franchise->id]],
 			$admin->id, [], ['controller' => 'Franchises', 'action' => 'index'],
 			'The franchise has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $affiliate_franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $affiliate_franchise->id]],
 			$admin->id, [], ['controller' => 'Franchises', 'action' => 'index'],
 			'#The following records reference this franchise, so it cannot be deleted#');
 	}
@@ -302,7 +301,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -314,12 +312,12 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to delete franchises in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $franchise->id]],
 			$manager->id, [], ['controller' => 'Franchises', 'action' => 'index'],
 			'The franchise has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $affiliate_franchise->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $affiliate_franchise->id]],
 			$manager->id);
 	}
 
@@ -327,7 +325,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -340,13 +337,13 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$owner = $franchise->people[0];
 
 		// Others are not allowed to delete franchises. Captains are allowed to do so, but only indirectly by removing the last team in it.
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $franchise->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $franchise->id]],
 			$player->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $franchise->id]],
 			$owner->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $franchise->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'delete', '?' => ['franchise' => $franchise->id]]);
 	}
 
 	/**
@@ -354,7 +351,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddTeamAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -373,18 +369,18 @@ class FranchisesControllerTest extends ControllerTestCase {
 		TeamsPersonFactory::make(['person_id' => $owner->id, 'team_id' => $team->id, 'role' => 'captain'])->persist();
 
 		// Franchise owners are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id], $owner->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_team', '?' => ['franchise' => $franchise->id]], $owner->id);
 		$this->assertResponseContains('<option value="' . $team->id . '">' . $team->name . ' (' . $team->division->full_league_name . ')</option>');
 
 		// Post the form
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_team', '?' => ['franchise' => $franchise->id]],
 			$owner->id, [
 				'team_id' => $team->id,
-			], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+			], ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			'The selected team has been added to this franchise.');
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $owner->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $owner->id);
 		$this->assertResponseContains('/franchises/remove_team?franchise=' . $franchise->id . '&amp;team=' . $team->id);
 	}
 
@@ -399,18 +395,17 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Others are not allowed to add teams
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id], $admin->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', '?' => ['franchise' => $franchise->id]], $admin->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', '?' => ['franchise' => $franchise->id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', '?' => ['franchise' => $franchise->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', '?' => ['franchise' => $franchise->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', '?' => ['franchise' => $franchise->id]]);
 	}
 
 	/**
 	 * Test remove_team method as an admin
 	 */
 	public function testRemoveTeamAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -424,8 +419,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		FranchisesTeamFactory::make(['franchise_id' => $franchise2->id, 'team_id' => $franchise->teams[0]->id])->persist();
 
 		// Admins are allowed to remove teams
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id],
-			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', '?' => ['franchise' => $franchise->id, 'team' => $franchise->teams[0]->id]],
+			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			'The selected team has been removed from this franchise.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -435,7 +430,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_team method as a manager
 	 */
 	public function testRemoveTeamAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -449,8 +443,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		FranchisesTeamFactory::make(['franchise_id' => $franchise2->id, 'team_id' => $franchise->teams[0]->id])->persist();
 
 		// Managers are allowed to remove teams
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id],
-			$manager->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', '?' => ['franchise' => $franchise->id, 'team' => $franchise->teams[0]->id]],
+			$manager->id, [], ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			'The selected team has been removed from this franchise.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -460,7 +454,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_team method as franchise owner
 	 */
 	public function testRemoveTeamAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -476,7 +469,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		FranchisesTeamFactory::make(['franchise_id' => $franchise2->id, 'team_id' => $franchise->teams[0]->id])->persist();
 
 		// Franchise owners are allowed to remove teams
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', '?' => ['franchise' => $franchise->id, 'team' => $franchise->teams[0]->id]],
 			$owner->id, [], '/',
 			'The selected team has been removed from this franchise. As there were no other teams in the franchise, it has been deleted as well.');
 		$this->expectException(RecordNotFoundException::class);
@@ -487,7 +480,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_team method as others
 	 */
 	public function testRemoveTeamAsOther(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -501,11 +493,11 @@ class FranchisesControllerTest extends ControllerTestCase {
 		FranchisesTeamFactory::make(['franchise_id' => $franchise2->id, 'team_id' => $franchise->teams[0]->id])->persist();
 
 		// Others are not allowed to remove teams
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', '?' => ['franchise' => $franchise->id, 'team' => $franchise->teams[0]->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', '?' => ['franchise' => $franchise->id, 'team' => $franchise->teams[0]->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', '?' => ['franchise' => $franchise->id, 'team' => $franchise->teams[0]->id]]);
 	}
 
 	/**
@@ -520,7 +512,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Admins are allowed to add owner
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['franchise' => $franchise->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -537,7 +529,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Managers are allowed to add owner
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['franchise' => $franchise->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -547,7 +539,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddOwnerAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -560,10 +551,10 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$owner = $franchise->people[0];
 
 		// Franchise owners are allowed to add owners
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id], $owner->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['franchise' => $franchise->id]], $owner->id);
 
 		// Try the search page
-		$this->assertPostAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['franchise' => $franchise->id]],
 			$owner->id, [
 				'affiliate_id' => $affiliates[0]->id,
 				'first_name' => '',
@@ -575,12 +566,12 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$return = urlencode(\App\Lib\base64_url_encode(Configure::read('App.base') . '/franchises/add_owner?franchise=' . $franchise->id));
 		$this->assertResponseContains('/franchises/add_owner?person=' . $player->id . '&amp;return=' . $return . '&amp;franchise=' . $franchise->id);
 
-		$this->assertGetAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_owner', 'person' => $player->id, 'franchise' => $franchise->id],
-			$owner->id, ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['person' => $player->id, 'franchise' => $franchise->id]],
+			$owner->id, ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			"Added {$player->full_name} as owner.");
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $owner->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], $owner->id);
 		$this->assertResponseContains('/franchises/remove_owner?franchise=' . $franchise->id . '&amp;person=' . $player->id);
 	}
 
@@ -595,16 +586,15 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Others are not allowed to add owners
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['franchise' => $franchise->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['franchise' => $franchise->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', '?' => ['franchise' => $franchise->id]]);
 	}
 
 	/**
 	 * Test remove_owner method as an admin
 	 */
 	public function testRemoveOwnerAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -617,13 +607,13 @@ class FranchisesControllerTest extends ControllerTestCase {
 		[$owner, $owner2] = $franchise->people;
 
 		// Admins are allowed to remove owners
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner->id],
-			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $owner->id]],
+			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			'Successfully removed owner.');
 
 		// But not the last owner
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner2->id],
-			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $owner2->id]],
+			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			'You cannot remove the only owner of a franchise!');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -633,7 +623,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_owner method as a manager
 	 */
 	public function testRemoveOwnerAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -646,8 +635,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$owner = $franchise->people[0];
 
 		// Managers are allowed to remove owners
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner->id],
-			$manager->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $owner->id]],
+			$manager->id, [], ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			'Successfully removed owner.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -657,7 +646,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_owner method as franchise owner
 	 */
 	public function testRemoveOwnerAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -670,8 +658,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		[$owner, $owner2] = $franchise->people;
 
 		// Franchise owners are allowed to remove other owners
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner2->id],
-			$owner->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $owner2->id]],
+			$owner->id, [], ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]],
 			'Successfully removed owner.');
 	}
 
@@ -679,7 +667,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_owner method as others
 	 */
 	public function testRemoveOwnerAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -692,11 +679,11 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$owner = $franchise->people[0];
 
 		// Others are not allowed to remove owners
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $owner->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $owner->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $owner->id]]);
 	}
 
 }

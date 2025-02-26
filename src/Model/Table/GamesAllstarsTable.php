@@ -21,7 +21,7 @@ class GamesAllstarsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('games_allstars');
@@ -45,7 +45,7 @@ class GamesAllstarsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add(new OnTeamRule(), 'teamMember', [
 			'errorField' => 'person_id',
 			'message' => __('That person is not on that team.'),
@@ -63,7 +63,7 @@ class GamesAllstarsTable extends AppTable {
 	 * @param mixed $operation The operation (e.g. create, delete) about to be run
 	 * @return void
 	 */
-	public function beforeRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
 		if ($entity->isNew() && !$entity->has('team_id')) {
 			// Set the team ID, based on what we know
 			if ($options['game']->division->allstars_from == 'submitter') {

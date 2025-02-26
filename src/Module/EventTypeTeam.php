@@ -31,7 +31,7 @@ class EventTypeTeam extends EventType {
 
 		$rule = new ExistsIn(['division_id'], 'Divisions');
 		if (!$rule($entity, ['errorField' => 'division_id'])) {
-			$entity->setErrors('division_id', ['validDivision' => __('You must select a valid division.')]);
+			$entity->setError('division_id', ['validDivision' => __('You must select a valid division.')]);
 			$ret = false;
 		}
 

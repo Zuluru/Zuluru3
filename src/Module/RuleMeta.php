@@ -8,7 +8,7 @@ namespace App\Module;
 use Cake\ORM\Query;
 
 abstract class RuleMeta extends Rule {
-	protected $people;
+	protected array $people;
 
 	public function query($affiliate, $conditions) {
 		if (empty($this->rule)) {

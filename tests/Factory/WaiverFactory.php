@@ -25,7 +25,7 @@ class WaiverFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'description' => $faker->text(256),
 				'expiry_type' => $faker->text(32),
 			];

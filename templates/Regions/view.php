@@ -1,0 +1,104 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region $region
+ * @var string[] $affiliates
+ */
+
+use App\Controller\AppController;
+
+$this->Breadcrumbs->add(__('Regions'));
+$this->Breadcrumbs->add(h($region->name));
+$this->Breadcrumbs->add(__('View'));
+?>
+
+<div class="regions view">
+	<h2><?= h($region->name) ?></h2>
+<?php
+if (count($affiliates) > 1):
+?>
+	<dl class="row">
+		<dt class="col-sm-3 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($region->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $region->affiliate->id]]) ?></dd>
+	</dl>
+<?php
+endif;
+?>
+</div>
+<div class="related row">
+	<div class="column">
+		<h4 class="subheader"><?= __('Facilities') ?></h4>
+<?php
+if (!empty($region->facilities)):
+?>
+		<div class="table-responsive">
+			<table class="table table-striped table-hover table-condensed">
+				<thead>
+					<tr>
+						<th><?= __('Name') ?></th>
+						<th><?= __('Code') ?></th>
+						<th><?= __('Is Open') ?></th>
+						<th class="actions"><?= __('Actions') ?></th>
+					</tr>
+				</thead>
+				<tbody>
+<?php
+	foreach ($region->facilities as $facility):
+?>
+					<tr>
+						<td><?= h($facility->name) ?></td>
+						<td><?= h($facility->code) ?></td>
+						<td><?= $facility->is_open ? __('Yes') : __('No') ?></td>
+						<td class="actions"><?php
+							echo $this->Html->iconLink('view_24.png',
+								['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility->id]],
+								['alt' => __('View'), 'title' => __('View')]);
+							echo $this->Html->iconLink('edit_24.png',
+								['controller' => 'Facilities', 'action' => 'edit', '?' => ['facility' => $facility->id, 'return' => AppController::_return()]],
+								['alt' => __('Edit'), 'title' => __('Edit')]);
+							echo $this->Form->iconPostLink('delete_24.png',
+								['controller' => 'Facilities', 'action' => 'delete', '?' => ['facility' => $facility->id, 'return' => AppController::_return()]],
+								['alt' => __('Delete'), 'title' => __('Delete')],
+								['confirm' => __('Are you sure you want to delete this facility?')]);
+						?></td>
+					</tr>
+
+<?php
+	endforeach;
+?>
+				</tbody>
+			</table>
+		</div>
+<?php
+endif;
+?>
+	</div>
+</div>
+
+<div class="actions columns">
+<?php
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Add Facility'),
+		['controller' => 'Facilities', 'action' => 'add', '?' => ['region' => $region->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+	$this->Html->link(__('List Regions'),
+		['action' => 'index'],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['region' => $region->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit'), 'title' => __('Edit Region')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['region' => $region->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Region')],
+		['confirm' => __('Are you sure you want to delete this region?')]
+	),
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Region')]
+	),
+]);
+?>
+</div>

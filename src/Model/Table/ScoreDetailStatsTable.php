@@ -4,6 +4,7 @@ namespace App\Model\Table;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * ScoreDetailStats Model
@@ -20,7 +21,7 @@ class ScoreDetailStatsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('score_detail_stats');
@@ -47,7 +48,7 @@ class ScoreDetailStatsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -64,7 +65,7 @@ class ScoreDetailStatsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['score_detail_id'], 'ScoreDetails'));
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['stat_type_id'], 'StatTypes'));
@@ -74,7 +75,7 @@ class ScoreDetailStatsTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->ScoreDetails->division($this->field('score_detail_id', ['ScoreDetailStats.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -82,7 +83,7 @@ class ScoreDetailStatsTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->ScoreDetails->team($this->field('score_detail_id', ['ScoreDetailStats.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

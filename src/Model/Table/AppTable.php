@@ -96,6 +96,9 @@ class AppTable extends Table {
 		/** @var HasMany $association */
 		foreach ($associations->getByType('HasMany') as $association) {
 			$class = $association->getName();
+			if (substr($class, -12) === 'Translations') {
+				continue;
+			}
 			$foreign_key = $association->getForeignKey();
 			$dependent = $association->getTarget()->find()->where(["$class.$foreign_key" => $id]);
 
@@ -105,7 +108,7 @@ class AppTable extends Table {
 			}
 
 			if (in_array($class, $ignoreDeep) || array_key_exists($class, $ignoreDeep)) {
-				foreach ($dependent->extract($association->getPrimaryKey())->toArray() as $deepId) {
+				foreach ($dependent->all()->extract($association->getPrimaryKey())->toArray() as $deepId) {
 					if (array_key_exists($class, $ignoreDeep)) {
 						$deep = $association->dependencies($deepId, $ignoreDeep[$class]);
 					} else {
@@ -139,7 +142,7 @@ class AppTable extends Table {
 			$entity = $this->get($entity, $options);
 		}
 
-		$entity->unsetProperty('id');
+		$entity->unset('id');
 		return $this->_cloneWithoutIds($entity);
 	}
 
@@ -150,7 +153,7 @@ class AppTable extends Table {
 		}
 
 		// Remove the ID, and set the entity as being new
-		$entity->isNew(true);
+		$entity->setNew(true);
 
 		foreach ($this->associations() as $association) {
 			$name = $association->getProperty();
@@ -160,17 +163,17 @@ class AppTable extends Table {
 					$bindingKey = $association->getBindingKey();
 					$foreignKey = $association->getForeignKey();
 					foreach ($entity->$name as $associated) {
-						$associated->unsetProperty($bindingKey);
-						$associated->unsetProperty($foreignKey);
+						$associated->unset($bindingKey);
+						$associated->unset($foreignKey);
 						$association->getTarget()->_cloneWithoutIds($associated);
 					}
 				} else if (is_a($association, \Cake\ORM\Association\BelongsToMany::class)) {
 					$bindingKey = $association->getBindingKey();
 					$foreignKey = $association->getForeignKey();
 					foreach ($entity->$name as $associated) {
-						$associated->_joinData->unsetProperty($bindingKey);
-						$associated->_joinData->unsetProperty($foreignKey);
-						$associated->_joinData->isNew(true);
+						$associated->_joinData->unset($bindingKey);
+						$associated->_joinData->unset($foreignKey);
+						$associated->_joinData->setNew(true);
 						$association->getTarget()->_cloneWithoutIds($associated);
 					}
 				} else if (is_a($association, \Cake\ORM\Association\BelongsTo::class)) {

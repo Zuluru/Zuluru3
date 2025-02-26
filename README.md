@@ -160,14 +160,14 @@ See `config/version.php` for the version of Zuluru currently installed.
 CakePHP applications such as Zuluru generate their output through the
 use of "views". Each page in the system has a primary view, with a name
 similar to the page. For example, the view for /people/edit is located
-at `/src/Template/People/edit.ctp`. The page /leagues is a shortform
-for /leagues/index, with a view at `/src/Template/Leagues/index.ctp`.
+at `/templates/People/edit.php`. The page /leagues is a shortform for
+/leagues/index, with a view at `/templates/Leagues/index.php`.
 
 Many views also make use of elements, which are like mini-views that
-are needed in various places. Elements are all in `/src/Template/Element`
+are needed in various places. Elements are all in `/templates/element`
 and folders below there.
 
-The content for emails is found under `/src/Template/Email`, with most
+The content for emails is found under `/templates/email`, with most
 having both `html` and `text` versions.
 
 CakePHP provides a way for you to replace any of these views, without
@@ -189,14 +189,14 @@ edit `app_local.php` to set the name of your theme:
 
 Now, copy and edit any view that you want to replace into your Xyz
 folder. For example, to replace the photo upload legal disclaimer text,
-you would copy `/src/Template/Element/People/photo_legal.ctp` into
-`/plugins/Xyz/src/Template/Element/People/photo_legal.ctp` and
+you would copy `/templates/element/People/photo_legal.php` into
+`/plugins/Xyz/templates/element/People/photo_legal.php` and
 edit the resulting file. View files are PHP code, so you should have at
 least a little bit of PHP knowledge if you are making complex changes.
 
 Other common views to edit include the page header (the empty default is
-found in `/src/Template/Element/Layout/header.ctp`) or the main
-layout itself (`/src/Template/Layout/default.ctp`). The layout is
+found in `/templates/element/layout/header.php`) or the main
+layout itself (`/templates/layout/default.php`). The layout is
 built to be fairly customizable without needing to resort to theming;
 for example you can add additional CSS files to include with an entry in
 `app_local.php`.

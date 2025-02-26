@@ -25,7 +25,7 @@ class QuestionnaireFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 			];
 		});
 	}

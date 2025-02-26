@@ -21,7 +21,7 @@ class FieldsControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.Countries',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Provinces',
 		'app.Settings',
 	];
@@ -72,29 +72,29 @@ class FieldsControllerTest extends ControllerTestCase {
 
 		// Anyone that gets the view gets redirected to facility view
 		$this->login($admin->id);
-		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->get(['controller' => 'Fields', 'action' => 'view', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $region->facilities[0]->id]]);
 
 		$this->login($manager->id);
-		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->get(['controller' => 'Fields', 'action' => 'view', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $region->facilities[0]->id]]);
 
 		$this->login($volunteer->id);
-		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->get(['controller' => 'Fields', 'action' => 'view', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $region->facilities[0]->id]]);
 
 		$this->login($player->id);
-		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->get(['controller' => 'Fields', 'action' => 'view', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $region->facilities[0]->id]]);
 
 		$this->logout();
-		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->get(['controller' => 'Fields', 'action' => 'view', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $region->facilities[0]->id]]);
 	}
 
 	/**
@@ -107,24 +107,24 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Anyone is allowed to view field tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$admin->id);
 		$this->assertResponseContains('/maps\\/view?field=' . $region->facilities[0]->fields[0]->id);
 
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Fields', 'action' => 'tooltip', 'field' => 0],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Fields', 'action' => 'tooltip', '?' => ['field' => 0]],
 			$admin->id, ['controller' => 'Facilities', 'action' => 'index'],
 			'Invalid field.');
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$manager->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$volunteer->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'tooltip', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$player->id);
 
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Fields', 'action' => 'tooltip', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Fields', 'action' => 'tooltip', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -139,7 +139,7 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Admins are allowed to open fields
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', '?' => ['field' => $region->facilities[0]->fields[3]->id]],
 			$admin->id);
 		$this->assertResponseContains('/fields\\/close?field=' . $region->facilities[0]->fields[3]->id);
 
@@ -157,12 +157,12 @@ class FieldsControllerTest extends ControllerTestCase {
 		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
 
 		// Managers are allowed to open fields
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', '?' => ['field' => $region->facilities[0]->fields[3]->id]],
 			$manager->id);
 		$this->assertResponseContains('/fields\\/close?field=' . $region->facilities[0]->fields[3]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $affiliate_region->facilities[0]->fields[3]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', '?' => ['field' => $affiliate_region->facilities[0]->fields[3]->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -178,11 +178,11 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Others are not allowed to open fields
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', '?' => ['field' => $region->facilities[0]->fields[3]->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', '?' => ['field' => $region->facilities[0]->fields[3]->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'open', '?' => ['field' => $region->facilities[0]->fields[3]->id]]);
 	}
 
 	/**
@@ -195,7 +195,7 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Admins are allowed to close fields
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'close', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'close', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$admin->id);
 		$this->assertResponseContains('/fields\\/open?field=' . $region->facilities[0]->fields[0]->id);
 
@@ -213,12 +213,12 @@ class FieldsControllerTest extends ControllerTestCase {
 		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
 
 		// Managers are allowed to close fields
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'close', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'close', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$manager->id);
 		$this->assertResponseContains('/fields\\/open?field=' . $region->facilities[0]->fields[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', 'field' => $affiliate_region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', '?' => ['field' => $affiliate_region->facilities[0]->fields[0]->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -234,18 +234,17 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Others are not allowed to close fields
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'close', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'close', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -254,18 +253,18 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Admins are allowed to delete fields
-		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[1]->fields[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $region->facilities[1]->fields[0]->id]],
 			$admin->id, [], ['controller' => 'Facilities', 'action' => 'index'],
 			'The field has been deleted.');
 
 		// But not the last field at a facility (field 2 will be last on this facility, now that field 1 is gone)
-		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[1]->fields[1]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $region->facilities[1]->fields[1]->id]],
 			$admin->id, [], ['controller' => 'Facilities', 'action' => 'index'],
 			'You cannot delete the only field at a facility.');
 
 		// And not ones with dependencies
 		GameSlotFactory::make(['field_id' => $region->facilities[0]->fields[0]->id])->persist();
-		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[0]->fields[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $region->facilities[0]->fields[0]->id]],
 			$admin->id, [], ['controller' => 'Facilities', 'action' => 'index'],
 			'#The following records reference this field, so it cannot be deleted#');
 
@@ -276,7 +275,6 @@ class FieldsControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -286,12 +284,12 @@ class FieldsControllerTest extends ControllerTestCase {
 		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
 
 		// Managers are allowed to delete fields in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[1]->fields[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $region->facilities[1]->fields[0]->id]],
 			$manager->id, [], ['controller' => 'Facilities', 'action' => 'index'],
 			'The field has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', 'field' => $affiliate_region->facilities[1]->fields[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $affiliate_region->facilities[1]->fields[0]->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -301,7 +299,6 @@ class FieldsControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -310,11 +307,11 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Others are not allowed to delete fields
-		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[1]->fields[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $region->facilities[1]->fields[0]->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[1]->fields[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $region->facilities[1]->fields[0]->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[1]->fields[0]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $region->facilities[1]->fields[0]->id]]);
 	}
 
 	/**
@@ -327,12 +324,12 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Anyone logged in is allowed to see the bookings list
-		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', 'field' => $region->facilities[0]->fields[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', 'field' => $region->facilities[0]->fields[0]->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', 'field' => $region->facilities[0]->fields[0]->id], $volunteer->id);
-		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', 'field' => $region->facilities[0]->fields[0]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', '?' => ['field' => $region->facilities[0]->fields[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', '?' => ['field' => $region->facilities[0]->fields[0]->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', '?' => ['field' => $region->facilities[0]->fields[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Fields', 'action' => 'bookings', '?' => ['field' => $region->facilities[0]->fields[0]->id]], $player->id);
 
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'bookings', 'field' => $region->facilities[0]->fields[0]->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'bookings', '?' => ['field' => $region->facilities[0]->fields[0]->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}

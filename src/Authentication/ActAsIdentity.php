@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Authentication;
 
 use App\Controller\AppController;
@@ -8,13 +10,14 @@ use Authentication\IdentityInterface as AuthenticationInterface;
 use Authorization\AuthorizationService;
 use Authorization\Exception\Exception;
 use Authorization\IdentityInterface as AuthorizationInterface;
+use Authorization\Policy\ResultInterface;
 use BadMethodCallException;
 use Cake\Core\Configure;
+use Cake\Http\Response;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
@@ -30,20 +33,20 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	 * Various permissions. Properties are private and accessed through functions
 	 * to prevent any potential security issues with eventual third-party plugins.
 	 */
-	private $_isAdmin = false;
-	private $_isManager = false;
-	private $_isCoordinator = false;
-	private $_isOfficial = false;
-	private $_isVolunteer = false;
-	private $_isCoach = false;
-	private $_isPlayer = false;
-	private $_isParent = false;
-	private $_isLoggedIn = false;
-	private $_isVisitor = true;
-	private $_isChild = false;
+	private bool $_isAdmin = false;
+	private bool $_isManager = false;
+	private bool $_isCoordinator = false;
+	private bool $_isOfficial = false;
+	private bool $_isVolunteer = false;
+	private bool $_isCoach = false;
+	private bool $_isPlayer = false;
+	private bool $_isParent = false;
+	private bool $_isLoggedIn = false;
+	private bool $_isVisitor = true;
+	private bool $_isChild = false;
 
-	private $_managedAffiliateIds = [];
-	private $_coordinatedDivisionIds = [];
+	private array $_managedAffiliateIds = [];
+	private array $_coordinatedDivisionIds = [];
 	private $_captainedTeamIds = null;
 	private $_allCaptainedTeamIds = null;
 	private $_teamIds = null;
@@ -79,13 +82,13 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		}
 	}
 
-	protected function _initializeGroups() {
+	protected function _initializeGroups(): void {
 		$user_cache = UserCache::getInstance();
 
 		// We explicitly don't save group details in the session, so that any external changes to them will take effect immediately
-		$groups = $user_cache->read('Groups', $this->identity->person->id);
+		$groups = $user_cache->read('UserGroups', $this->identity->person->id);
 		if ($this->identity->real_person) {
-			$real_groups = $user_cache->read('Groups', $this->identity->real_person->id);
+			$real_groups = $user_cache->read('UserGroups', $this->identity->real_person->id);
 			if (!empty($real_groups)) {
 				$real_group_levels = collection($real_groups)->extract('level')->toArray();
 			} else {
@@ -114,6 +117,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 					if ($this->identity->person->status != 'locked') {
 						$this->_isAdmin = $this->_isManager = true;
 						$this->_managedAffiliateIds = TableRegistry::getTableLocator()->get('Affiliates')->find()
+							->all()
 							->extract('id')
 							->toArray();
 					}
@@ -161,7 +165,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		}
 	}
 
-	public function actAs(ServerRequestInterface $request, ResponseInterface $response, $target) {
+	public function actAs(ServerRequestInterface $request, $target): User {
 		if ($this->identity->real_person && $target->id == $this->identity->real_person->id) {
 			// We are already acting as someone, and setting it back to ourselves
 			$this->identity->person = $this->identity->real_person;
@@ -176,7 +180,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		}
 		$this->_initializeGroups();
 
-		$request->getAttribute('authentication')->persistIdentity($request, $response, $this->identity);
+		$request->getAttribute('authentication')->persistIdentity($request, new Response(), $this->identity);
 
 		return $this->identity;
 	}
@@ -186,7 +190,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	 * @param mixed $offset
 	 * @return boolean true on success or false on failure.
 	 */
-	public function offsetExists($offset) {
+	public function offsetExists($offset): bool {
 		return $this->identity->has($offset);
 	}
 
@@ -205,7 +209,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	 * @param mixed $value
 	 * @return void
 	 */
-	public function offsetSet($offset, $value) {
+	public function offsetSet($offset, $value): void {
 		$this->identity->set($offset, $value);
 	}
 
@@ -214,14 +218,14 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	 * @param mixed $offset
 	 * @return void
 	 */
-	public function offsetUnset($offset) {
-		$this->identity->unsetProperty($offset);
+	public function offsetUnset($offset): void {
+		$this->identity->unset($offset);
 	}
 
 	/**
 	 * Authentication\IdentityInterface method
 	 */
-	public function getIdentifier() {
+	public function getIdentifier(): int {
 		return $this->identity->person->id;
 	}
 
@@ -235,8 +239,12 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	/**
 	 * Authorization\IdentityInterface method
 	 */
-	public function can($action, $resource) {
+	public function can(string $action, $resource): bool {
 		return $this->authorization->can($this, $action, $resource);
+	}
+
+	public function canResult(string $action, $resource): ResultInterface {
+		return $this->authorization->canResult($this, $action, $resource);
 	}
 
 	/**
@@ -246,18 +254,18 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return $this->authorization->applyScope($this, $action, $resource);
 	}
 
-	public function isAdmin() {
+	public function isAdmin(): bool {
 		return $this->_isAdmin;
 	}
 
-	public function isManager() {
+	public function isManager(): bool {
 		if (func_num_args() != 0) {
 			throw new InvalidArgumentException('isManager function takes no parameters. Did you mean isManagerOf?');
 		}
 		return $this->_isManager;
 	}
 
-	public function isManagerOf($entity) {
+	public function isManagerOf($entity): bool {
 		if (empty($this->_managedAffiliateIds)) {
 			return false;
 		}
@@ -296,11 +304,11 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return $this->_managedAffiliateIds;
 	}
 
-	public function isCoordinator() {
+	public function isCoordinator(): bool {
 		return $this->_isCoordinator;
 	}
 
-	public function isCoordinatorOf($entity) {
+	public function isCoordinatorOf($entity): bool {
 		if (empty($this->_coordinatedDivisionIds)) {
 			return false;
 		}
@@ -335,39 +343,39 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return $this->_coordinatedDivisionIds;
 	}
 
-	public function isOfficial() {
+	public function isOfficial(): bool {
 		return $this->_isOfficial;
 	}
 
-	public function isVolunteer() {
+	public function isVolunteer(): bool {
 		return $this->_isVolunteer;
 	}
 
-	public function isCoach() {
+	public function isCoach(): bool {
 		return $this->_isCoach;
 	}
 
-	public function isPlayer() {
+	public function isPlayer(): bool {
 		return $this->_isPlayer;
 	}
 
-	public function isParent() {
+	public function isParent(): bool {
 		return $this->_isParent;
 	}
 
-	public function isLoggedIn() {
+	public function isLoggedIn(): bool {
 		return $this->_isLoggedIn;
 	}
 
-	public function isVisitor() {
+	public function isVisitor(): bool {
 		return $this->_isVisitor;
 	}
 
-	public function isChild() {
+	public function isChild(): bool {
 		return $this->_isChild;
 	}
 
-	public function isCaptainOf($entity) {
+	public function isCaptainOf($entity): bool {
 		if ($this->_captainedTeamIds === null) {
 			$this->_captainedTeamIds = UserCache::getInstance()->read('OwnedTeamIDs');
 		}
@@ -395,7 +403,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return in_array($team_id, $this->_captainedTeamIds);
 	}
 
-	public function wasCaptainOf($entity) {
+	public function wasCaptainOf($entity): bool {
 		if ($this->_allCaptainedTeamIds === null) {
 			$this->_allCaptainedTeamIds = UserCache::getInstance()->read('AllOwnedTeamIDs');
 		}
@@ -423,7 +431,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return in_array($team_id, $this->_allCaptainedTeamIds);
 	}
 
-	public function isPlayerOn($entity) {
+	public function isPlayerOn($entity): bool {
 		if ($this->_teamIds === null) {
 			$this->_teamIds = UserCache::getInstance()->read('AcceptedTeamIDs');
 		}
@@ -451,7 +459,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return in_array($team_id, $this->_teamIds);
 	}
 
-	public function wasPlayerOn($entity) {
+	public function wasPlayerOn($entity): bool {
 		if ($this->_allTeamIds === null) {
 			$this->_allTeamIds = UserCache::getInstance()->read('AllTeamIDs');
 		}
@@ -477,7 +485,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return in_array($team_id, $this->_allTeamIds);
 	}
 
-	public function isRelativePlayerOn($entity) {
+	public function isRelativePlayerOn($entity): bool {
 		if ($this->_relativeTeamIds === null) {
 			$this->_relativeTeamIds = UserCache::getInstance()->read('RelativeTeamIDs');
 		}
@@ -503,7 +511,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return in_array($team_id, $this->_relativeTeamIds);
 	}
 
-	public function wasRelativePlayerOn($entity) {
+	public function wasRelativePlayerOn($entity): bool {
 		if ($this->_allRelativeTeamIds === null) {
 			$this->_allRelativeTeamIds = UserCache::getInstance()->read('AllRelativeTeamIDs');
 		}
@@ -529,7 +537,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return in_array($team_id, $this->_allRelativeTeamIds);
 	}
 
-	public function isMe($entity) {
+	public function isMe($entity): bool {
 		if (is_numeric($entity)) {
 			$person_id = $entity;
 		} else if (is_a($entity, \App\Model\Entity\Person::class)) {
@@ -549,7 +557,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return $this->getIdentifier() == $person_id;
 	}
 
-	public function isMine(Entity $entity) {
+	public function isMine(Entity $entity): bool {
 		if ($entity->has('created_person_id')) {
 			$person_id = $entity->created_person_id;
 		} else {
@@ -559,7 +567,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return $this->getIdentifier() == $person_id;
 	}
 
-	public function isRelative($entity) {
+	public function isRelative($entity): bool {
 		if ($this->_relativeIds === null) {
 			$this->_relativeIds = UserCache::getInstance()->read('RelativeIDs');
 		}
@@ -587,7 +595,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		return in_array($person_id, $this->_relativeIds);
 	}
 
-	public function isRelatives(Entity $entity) {
+	public function isRelatives(Entity $entity): bool {
 		if ($this->_relativeIds === null) {
 			$this->_relativeIds = UserCache::getInstance()->read('RelativeIDs');
 		}
@@ -634,6 +642,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 				return $affiliates_table->find()
 					->enableHydration(false)
 					->where(['Affiliates.id' => $affiliate])
+					->all()
 					->combine('id', 'name')
 					->toArray();
 			}
@@ -660,8 +669,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		// Anyone not logged in, and admins, get the full list
 		return $affiliates_table->find()
 			->enableHydration(false)
-			->where(['active' => true])
-			->order('name')
+			->where(['Affiliates.active' => true])
+			->order('Affiliates.name')
+			->all()
 			->combine('id', 'name')
 			->toArray();
 	}
@@ -710,8 +720,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		// Anyone not logged in, and admins, get the full list
 		return array_keys(TableRegistry::getTableLocator()->get('Affiliates')->find()
 			->enableHydration(false)
-			->where(['active' => true])
-			->order('name')
+			->where(['Affiliates.active' => true])
+			->order('Affiliates.name')
+			->all()
 			->combine('id', 'name')
 			->toArray()
 		);

@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * TeamEvents Model
@@ -24,7 +25,7 @@ class TeamEventsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('team_events');
@@ -70,7 +71,7 @@ class TeamEventsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -83,14 +84,14 @@ class TeamEventsTable extends AppTable {
 			->url('website', __('Enter a valid URL, or leave blank.'))
 			->allowEmptyString('website')
 
-			->date('date', __('You must provide a valid date.'))
-			->allowEmptyDate('date')
+			->date('date', ['ymd'], __('You must provide a valid date.'))
+			->notEmptyDate('date')
 
 			->time('start', __('You must select a valid start time.'))
-			->allowEmptyTime('start')
+			->notEmptyTime('start')
 
 			->time('end', __('You must select a valid end time.'))
-			->allowEmptyTime('end')
+			->notEmptyTime('end')
 
 			->notEmptyString('location_name', __('Location name must not be blank.'))
 
@@ -116,7 +117,7 @@ class TeamEventsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['team_id'], 'Teams'));
 
 		$rules->add(new InConfigRule('provinces'), 'validProvince', [
@@ -172,9 +173,7 @@ class TeamEventsTable extends AppTable {
 				$team = $this->Teams->get($team, [
 					'contain' => ['People'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				return [];
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException|InvalidPrimaryKeyException $ex) {
 				return [];
 			}
 		} else {
@@ -232,9 +231,7 @@ class TeamEventsTable extends AppTable {
 		// Find event details
 		try {
 			$event = $this->get($event_id);
-		} catch (RecordNotFoundException $ex) {
-			return;
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException|InvalidPrimaryKeyException $ex) {
 			return;
 		}
 		if ($event->team_id != $team->id) {
@@ -250,7 +247,7 @@ class TeamEventsTable extends AppTable {
 
 		// Extract list of players on the roster as of this date
 		$roster = collection($team->people)->filter(function ($person) use ($date) {
-			return $person->_joinData->created < $date->addDay() && $person->_joinData->status == ROSTER_APPROVED;
+			return $person->_joinData->created < $date->addDays(1) && $person->_joinData->status == ROSTER_APPROVED;
 		})->toArray();
 
 		// Go through the roster and make sure there are records for all players on this date.
@@ -274,7 +271,7 @@ class TeamEventsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Teams->affiliate($this->team($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -282,7 +279,7 @@ class TeamEventsTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('team_id', ['TeamEvents.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

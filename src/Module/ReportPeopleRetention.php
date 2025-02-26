@@ -14,6 +14,7 @@ class ReportPeopleRetention extends Report{
 			->contain(['EventTypes'])
 			->where(['EventTypes.type' => 'membership'])
 			->order(['Events.open', 'Events.close', 'Events.id'])
+			->all()
 			->indexBy('id')
 			->toArray();
 
@@ -85,6 +86,7 @@ class ReportPeopleRetention extends Report{
 					'Registrations.event_id IN' => array_keys($event_list),
 					'Registrations.payment' => 'Paid',
 				])
+				->all()
 				->extract('event_id')
 				->toArray();
 		}

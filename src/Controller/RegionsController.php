@@ -14,7 +14,7 @@ class RegionsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -31,7 +31,7 @@ class RegionsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('region');
@@ -39,10 +39,7 @@ class RegionsController extends AppController {
 			$region = $this->Regions->get($id, [
 				'contain' => ['Affiliates', 'Facilities']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid region.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -57,10 +54,10 @@ class RegionsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$region = $this->Regions->newEntity();
+		$region = $this->Regions->newEmptyEntity();
 		$this->Authorization->authorize($region);
 		if ($this->getRequest()->is('post')) {
 			$region = $this->Regions->patchEntity($region, $this->getRequest()->getData());
@@ -80,16 +77,15 @@ class RegionsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('region');
 		try {
-			$region = $this->Regions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid region.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$region = $this->Regions->find('translations')
+				->where(['Regions.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -113,7 +109,7 @@ class RegionsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -121,10 +117,7 @@ class RegionsController extends AppController {
 		$id = $this->getRequest()->getQuery('region');
 		try {
 			$region = $this->Regions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid region.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);
 		}

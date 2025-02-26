@@ -9,13 +9,6 @@ class EventTypesFixture extends TestFixture {
 	use SeedFixtureTrait;
 
 	/**
-	 * Import
-	 *
-	 * @var array
-	 */
-	public $import = ['table' => 'event_types'];
-
-	/**
 	 * Seed name to use
 	 */
 	public $seed = EventTypesSeed::class;

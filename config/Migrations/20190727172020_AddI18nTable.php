@@ -9,6 +9,10 @@ class AddI18nTable extends AbstractMigration {
 	 * @return void
 	 */
 	public function up() {
+		if (defined('PHPUNIT_TESTSUITE') && PHPUNIT_TESTSUITE) {
+			return;
+		}
+
 		$this->table('i18n')
 			->addColumn('locale', 'string', ['limit' => 6, 'null' => false, 'default' => null])
 			->addColumn('model', 'string', ['limit' => 255, 'null' => false, 'default' => null])
@@ -19,10 +23,8 @@ class AddI18nTable extends AbstractMigration {
 			->addIndex(['model', 'foreign_key', 'field'], ['name' => 'I18N_FIELD'])
 			->create();
 
-		if (!defined('PHPUNIT_TESTSUITE') || !PHPUNIT_TESTSUITE) {
-			$migrations = new Migrations();
-			$migrations->seed(['seed' => 'I18nSeed']);
-		}
+		$migrations = new Migrations();
+		$migrations->seed(['seed' => 'I18nSeed']);
 	}
 
 	/**

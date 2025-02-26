@@ -26,6 +26,7 @@ class TeamFactory extends BaseFactory
 		$this->setDefaultData(function(Generator $faker) {
 			return [
 				'name' => $faker->city() . ' ' . $faker->colorName(),
+				'shirt_colour' => 'red',
 				'track_attendance' => true,
 			];
 		});

@@ -34,6 +34,7 @@ class ReportPeopleParticipation extends Report {
 			->contain(['EventTypes'])
 			->where(['EventTypes.type' => 'membership'])
 			->order(['Events.open', 'Events.close', 'Events.id'])
+			->all()
 			->indexBy('id')
 			->toArray();
 		$event_names = [];
@@ -106,7 +107,7 @@ class ReportPeopleParticipation extends Report {
 			// We are interested in some other registration events that closed this year
 			$conditions = [
 				function (QueryExpression $exp) use ($start, $end) {
-					return $exp->between('Events.close', $start, $end->addYear(), 'date');
+					return $exp->between('Events.close', $start, $end->addYears(1), 'date');
 				},
 				// TODO: Fix or remove these hard-coded values
 				'Events.event_type_id IN' => [5,6,7],

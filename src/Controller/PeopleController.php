@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Exception\ApproveException;
+use App\Exception\EmailException;
+use App\Service\People\ApproveService;
 use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
 use Cake\Core\App;
@@ -42,7 +45,7 @@ class PeopleController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		// Relative approvals and removals may come from emailed links; people might not be logged in
 		return ['view', 'tooltip', 'approve_relative', 'remove_relative', 'vcf', 'ical'];
 	}
@@ -68,7 +71,7 @@ class PeopleController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -78,8 +81,8 @@ class PeopleController extends AppController {
 
 		// TODO: Multiple default sort fields break pagination links.
 		// https://github.com/cakephp/cakephp/issues/7324 has related info.
-		//$this->paginate['order'] = ['People.last_name', 'People.first_name', 'People.id'];
-		$this->paginate['order'] = ['People.last_name'];
+		//$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
+		$this->paginate['order'] = ['People.last_name' => 'ASC'];
 
 		$query = $this->People->find()
 			->distinct(['People.id'])
@@ -90,11 +93,11 @@ class PeopleController extends AppController {
 			->order(['Affiliates.name']);
 
 		if ($group_id) {
-			$query->matching('Groups', function (Query $q) use ($group_id) {
-				return $q->where(['Groups.id' => $group_id]);
+			$query->matching('UserGroups', function (Query $q) use ($group_id) {
+				return $q->where(['UserGroups.id' => $group_id]);
 			});
 			try {
-				$group = $this->People->Groups->field('name', ['Groups.id' => $group_id]);
+				$group = $this->People->UserGroups->field('name', ['UserGroups.id' => $group_id]);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid group.'));
 				return $this->redirect('/');
@@ -132,6 +135,11 @@ class PeopleController extends AppController {
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
+		// @todo Cake4: With the default strategy, the queries below all generate "Unable to load association. Ensure foreign key is selected." errors
+		$this->People->Affiliates->setStrategy('subquery');
+		$this->People->AffiliatesPeople->setStrategy('subquery');
+		$this->People->UserGroups->setStrategy('subquery');
+
 		// Get the list of accounts by status
 		$query = $this->People->find();
 		$this->set('status_count', $query
@@ -153,8 +161,8 @@ class PeopleController extends AppController {
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
-			->matching('Groups', function (Query $q) {
-				return $q->where(['Groups.id' => GROUP_PLAYER]);
+			->matching('UserGroups', function (Query $q) {
+				return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 			})
 			->leftJoinWith('Skills')
 			->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -172,8 +180,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -187,43 +195,52 @@ class PeopleController extends AppController {
 		$this->set('group_count', $query
 			->select([Configure::read('gender.column'), 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
-			->select($this->People->Groups)
+			->select($this->People->UserGroups)
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
-			->matching('Groups')
+			->matching('UserGroups')
 			->where(['People.status' => 'active'])
-			->group(['AffiliatesPeople.affiliate_id', 'Groups.id'])
-			->order(['Affiliates.name', 'Groups.id'])
+			->group(['AffiliatesPeople.affiliate_id', 'UserGroups.id'])
+			->order(['Affiliates.name', 'UserGroups.id'])
 		);
 
 		// Get the list of players by age
 		if (Configure::read('profile.birthdate')) {
+			// @todo Cake4: Better solution for all of this; the toArray call can go away when the behavior mods do
+			$groupConfig = $this->People->UserGroups->getBehavior('Translate')->getConfig();
+			$affiliateConfig = $this->People->Affiliates->getBehavior('Translate')->getConfig();
+			$this->People->UserGroups->removeBehavior('Translate');
+			$this->People->Affiliates->removeBehavior('Translate');
+
 			$query = $this->People->find();
 			$this->set('age_count', $query
 				->select([
-					// TODO: Use a query function for the age bucket
-					'age_bucket' => 'FLOOR((YEAR(NOW()) - YEAR(birthdate)) / 5) * 5',
+					'age_bucket' => $query->func()->floor(['(YEAR(NOW()) - YEAR(birthdate)) / 5' => 'identifier']),
 					'person_count' => $query->func()->count('People.id'),
+					'Skills.sport',
 				])
 				->select($this->People->Affiliates)
-				->select($this->People->Skills)
+				->select($this->People->UserGroups)
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where([
 					'Skills.enabled' => true,
 					'People.status' => 'active',
-					'birthdate IS NOT' => null,
-					'birthdate !=' => '0000-00-00',
+					'People.birthdate IS NOT' => null,
 				])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'age_bucket'])
 				->order(['Affiliates.name', 'Skills.sport', 'age_bucket'])
+				->toArray()
 			);
+
+			$this->People->UserGroups->addBehavior('Translate', $groupConfig);
+			$this->People->Affiliates->addBehavior('Translate', $affiliateConfig);
 		}
 
 		// Get the list of players by year started for each sport
@@ -236,8 +253,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -256,8 +273,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -276,8 +293,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -298,10 +315,10 @@ class PeopleController extends AppController {
 		// TODO: Allow for pulling demographics from past years
 		$reportDate = new FrozenDate('Aug 31');
 		if (FrozenDate::now()->month < 3) {
-			$reportDate = $reportDate->subYear();
+			$reportDate = $reportDate->subYears(1);
 		}
-		$end = $reportDate->addDay(); // Registrations have times, we'll find anything less than this to include the whole report date day.
-		$start = $end->subYear();
+		$end = $reportDate->addDays(1); // Registrations have times, we'll find anything less than this to include the whole report date day.
+		$start = $end->subYears(1);
 
 		foreach (Configure::read('options.sport') as $sport) {
 			$buckets[$sport] = Configure::read("sports.$sport.demographic_ranges");
@@ -389,8 +406,8 @@ class PeopleController extends AppController {
 				->matching('Skills', function (Query $q) use ($sport) {
 					return $q->where(['Skills.enabled' => true, 'Skills.sport' => $sport]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->group(['AffiliatesPeople.affiliate_id', 'People.gender', 'bucket'])
 				->order(['Affiliates.name', 'People.gender', 'bucket'])
@@ -438,7 +455,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Failed to queue your report request.'));
 			} else {
 				$this->Flash->success(__('Your report request has been queued; the report should be emailed to you in a few minutes.'));
-				$this->redirect('/');
+				return $this->redirect('/');
 			}
 		}
 	}
@@ -472,7 +489,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Failed to queue your report request.'));
 			} else {
 				$this->Flash->success(__('Your report request has been queued; the report should be emailed to you in a few minutes.'));
-				$this->redirect('/');
+				return $this->redirect('/');
 			}
 		}
 	}
@@ -480,7 +497,7 @@ class PeopleController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$user_id = $this->getRequest()->getQuery('user');
@@ -502,7 +519,7 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		$person->groups = $this->UserCache->read('Groups', $person->id);
+		$person->user_groups = $this->UserCache->read('UserGroups', $person->id);
 		$person->skills = collection($this->UserCache->read('Skills', $person->id))->filter(function ($skill) { return $skill->enabled; })->toArray();
 		$person->teams = $this->UserCache->read('Teams', $person->id);
 		$photo = null;
@@ -592,7 +609,7 @@ class PeopleController extends AppController {
 		$person->updateHidden($identity);
 		$photo_url = $this->Authorization->can($person, 'photo') ? $person->photoUrl($photo) : null;
 		$this->set(compact('person', 'photo', 'photo_url'));
-		$this->set('_serialize', ['person', 'photo_url']);
+		$this->viewBuilder()->setOption('serialize', ['person', 'photo_url']);
 	}
 
 	public function tooltip() {
@@ -654,19 +671,19 @@ class PeopleController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 
 		$this->_loadAddressOptions();
 		// We always want to include players, even if they aren't a valid "create account" group.
-		$this->set('groups', $this->People->Groups->find('options', ['Groups.require_player' => true])->toArray());
+		$this->set('groups', $this->People->UserGroups->find('options', ['UserGroups.require_player' => true])->toArray());
 		$this->_loadAffiliateOptions();
 
-		$users_table = $this->loadModel(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
+		$users_table = $this->fetchTable(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		try {
-			$contain = $associated = ['Affiliates', 'Skills', 'Groups'];
+			$contain = $associated = ['Affiliates', 'Skills', 'UserGroups'];
 			if ($users_table->manageUsers) {
 				$contain[] = Configure::read('Security.authModel');
 				$associated[] = Configure::read('Security.authModel');
@@ -698,10 +715,7 @@ class PeopleController extends AppController {
 			}
 			$person->skills = $skills;
 			$person->setDirty('skills', false);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -779,7 +793,7 @@ class PeopleController extends AppController {
 	/**
 	 * add_account method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add_account() {
 		$id = $this->getRequest()->getQuery('person');
@@ -817,14 +831,16 @@ class PeopleController extends AppController {
 			// TODO: Need to fix the new user_id being set in the person record
 			if ($this->People->save($person)) {
 				$this->Flash->success(__('Your account has been created.'));
-				Cache::delete("person/{$id}", 'long_term');
+				Cache::delete("person_{$id}", 'long_term');
 				return $this->redirect('/');
 			}
 
 			$this->Flash->warning(__('The account could not be saved. Please correct the errors below and try again.'));
 
 			// Force the various rules checks to run, for better feedback to the user
-			$users_table->checkRules($person->user, RulesChecker::CREATE);
+			if ($person->user) {
+				$users_table->checkRules($person->user, RulesChecker::CREATE);
+			}
 			$this->People->checkRules($person, RulesChecker::UPDATE);
 		}
 
@@ -834,16 +850,13 @@ class PeopleController extends AppController {
 	/**
 	 * Deactivate profile method
 	 *
-	 * @return void|\Cake\Network\Response Redirects
+	 * @return void|\Cake\Http\Response Redirects
 	 */
 	public function deactivate() {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -879,16 +892,13 @@ class PeopleController extends AppController {
 	/**
 	 * Reactivate profile method
 	 *
-	 * @return void|\Cake\Network\Response Redirects
+	 * @return void|\Cake\Http\Response Redirects
 	 */
 	public function reactivate() {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -923,7 +933,7 @@ class PeopleController extends AppController {
 			$this->Flash->success(__("Profile details have been confirmed, thank you.\nYou will be reminded about this again periodically."));
 		} else {
 			$this->Flash->info(__("Failed to update profile details.\nYou will likely be prompted about this again very soon.\n\nIf problems persist, contact your system administrator."));
-			$this->log($person->getErrors());
+			$this->log(print_r($person->getErrors(), true));
 			return $this->redirect('/');
 		}
 	}
@@ -938,10 +948,7 @@ class PeopleController extends AppController {
 				]);
 
 				$this->Authorization->authorize($note, 'edit_person');
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid note.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid note.'));
 				return $this->redirect('/');
 			}
@@ -949,14 +956,11 @@ class PeopleController extends AppController {
 		} else {
 			try {
 				$person = $this->People->get($this->getRequest()->getQuery('person'));
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
-			$note = $this->People->Notes->newEntity();
+			$note = $this->People->Notes->newEmptyEntity();
 			$note->person_id = $person->id;
 		}
 
@@ -968,11 +972,11 @@ class PeopleController extends AppController {
 			if (empty($note->note)) {
 				if ($note->isNew()) {
 					$this->Flash->warning(__('You entered no text, so no note was added.'));
-					return $this->redirect(['action' => 'view', 'person' => $person->id]);
+					return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 				} else {
 					if ($this->People->Notes->delete($note)) {
 						$this->Flash->success(__('The note has been deleted.'));
-						return $this->redirect(['action' => 'view', 'person' => $person->id]);
+						return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 					} else if ($note->getError('delete')) {
 						$this->Flash->warning(current($note->getError('delete')));
 					} else {
@@ -981,7 +985,7 @@ class PeopleController extends AppController {
 				}
 			} else if ($this->People->Notes->save($note)) {
 				$this->Flash->success(__('The note has been saved.'));
-				return $this->redirect(['action' => 'view', 'person' => $person->id]);
+				return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 			} else {
 				$this->Flash->warning(__('The note could not be saved. Please correct the errors below and try again.'));
 			}
@@ -997,10 +1001,7 @@ class PeopleController extends AppController {
 
 		try {
 			$note = $this->People->Notes->get($note_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid note.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid note.'));
 			return $this->redirect('/');
 		}
@@ -1015,7 +1016,7 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'person' => $note->person_id]);
+		return $this->redirect(['action' => 'view', '?' => ['person' => $note->person_id]]);
 	}
 
 	public function preferences() {
@@ -1080,14 +1081,14 @@ class PeopleController extends AppController {
 	public function add_relative() {
 		$this->Authorization->authorize($this);
 		$this->_loadAffiliateOptions();
-		$person = $this->People->newEntity();
+		$person = $this->People->newEmptyEntity();
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$data = $this->getRequest()->getData();
 			$data['is_child'] = true;
 			$person = $this->People->patchEntity($person, $data, [
 				'validate' => 'create',
-				'associated' => ['Affiliates', 'Groups', 'Skills'],
+				'associated' => ['Affiliates', 'UserGroups', 'Skills'],
 			]);
 
 			if ($this->People->getConnection()->transactional(function () use ($person) {
@@ -1112,7 +1113,7 @@ class PeopleController extends AppController {
 				return true;
 			})) {
 				if ($data['action'] == 'continue') {
-					$person = $this->People->newEntity();
+					$person = $this->People->newEmptyEntity();
 				} else {
 					return $this->redirect('/');
 				}
@@ -1126,10 +1127,7 @@ class PeopleController extends AppController {
 		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($person_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -1144,10 +1142,7 @@ class PeopleController extends AppController {
 			} else {
 				try {
 					$relative = $this->People->get($relative_id);
-				} catch (RecordNotFoundException $ex) {
-					$this->Flash->info(__('Invalid person.'));
-					return $this->redirect('/');
-				} catch (InvalidPrimaryKeyException $ex) {
+				} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 					$this->Flash->info(__('Invalid person.'));
 					return $this->redirect('/');
 				}
@@ -1181,7 +1176,7 @@ class PeopleController extends AppController {
 						return $this->redirect('/');
 					} else {
 						$this->Flash->warning(__('Failed to link {0} as relative.', $relative->full_name));
-						return $this->redirect(['action' => 'link_relative', 'person' => $person_id]);
+						return $this->redirect(['action' => 'link_relative', '?' => ['person' => $person_id]]);
 					}
 				}
 			}
@@ -1197,7 +1192,7 @@ class PeopleController extends AppController {
 		$relative_id = $this->getRequest()->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		// The relation being updated is in the current user's Related list
@@ -1212,7 +1207,7 @@ class PeopleController extends AppController {
 		$people_people_table = TableRegistry::getTableLocator()->get('PeoplePeople');
 		if (!$people_people_table->save($relation->_joinData)) {
 			$this->Flash->warning(__('Failed to approve the relative request.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		$this->Flash->success(__('Approved the relative request.'));
@@ -1229,7 +1224,7 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('Error sending email to {0}.', $person->full_name));
 		}
 
-		return $this->redirect(['action' => 'view', 'person' => $relative_id]);
+		return $this->redirect(['action' => 'view', '?' => ['person' => $relative_id]]);
 	}
 
 	public function remove_relative() {
@@ -1239,7 +1234,7 @@ class PeopleController extends AppController {
 		$relative_id = $this->getRequest()->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		// The relation being updated is in the relative's Related list
@@ -1252,7 +1247,7 @@ class PeopleController extends AppController {
 		// If the relative is only a profile, and this is the only remaining relation, don't allow it
 		if (empty($relative->user_id) && count($relations) == 1) {
 			$this->Flash->info(__('Youth profiles must always have a relative.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		// Either side of the relation may grant permission for this
@@ -1305,7 +1300,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Error sending email.'));
 			}
 
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 	}
 
@@ -1446,7 +1441,7 @@ class PeopleController extends AppController {
 		if ($upload) {
 			$old_filename = $upload->filename;
 		} else {
-			$upload = $this->People->Uploads->newEntity();
+			$upload = $this->People->Uploads->newEmptyEntity();
 		}
 
 		$this->set(compact('person', 'upload'));
@@ -1498,7 +1493,7 @@ class PeopleController extends AppController {
 				'approved' => false,
 				'type_id IS' => null,
 			]);
-		if ($photos->isEmpty()) {
+		if ($photos->all()->isEmpty()) {
 			$this->Flash->info(__('There are no photos to approve.'));
 			return $this->redirect('/');
 		}
@@ -1517,10 +1512,7 @@ class PeopleController extends AppController {
 					'Uploads.type_id IS' => null,
 				])
 				->firstOrFail();
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid photo.'));
-			return $this->redirect(['action' => 'approve_photos']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid photo.'));
 			return $this->redirect(['action' => 'approve_photos']);
 		}
@@ -1558,10 +1550,7 @@ class PeopleController extends AppController {
 					'Uploads.type_id IS' => null,
 				])
 				->firstOrFail();
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid photo.'));
-			return $this->redirect(['action' => 'approve_photos']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid photo.'));
 			return $this->redirect(['action' => 'approve_photos']);
 		}
@@ -1586,10 +1575,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People', 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1621,10 +1607,7 @@ class PeopleController extends AppController {
 		if ($id) {
 			try {
 				$person = $this->People->get($id);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
@@ -1638,13 +1621,14 @@ class PeopleController extends AppController {
 			->contain(['Affiliates'])
 			->where(['UploadTypes.affiliate_id IN' => $affiliates])
 			->order(['Affiliates.name', 'UploadTypes.name'])
+			->all()
 			->combine('id', 'name', 'affiliate.name')
 			->toArray();
 		if (count($affiliates) == 1) {
 			$types = current($types);
 		}
 
-		$upload = $this->People->Uploads->newEntity();
+		$upload = $this->People->Uploads->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			// Add some configuration that the upload behaviour will use
@@ -1653,12 +1637,12 @@ class PeopleController extends AppController {
 				'filename' => [
 					// Callbacks for adjusting the file name before saving. Both are required. :-(
 					'nameCallback' => function (Table $table, Entity $entity, $data, $field, $settings) use ($filename) {
-						$f = new File($data['name']);
+						$f = new File($data->getClientFilename());
 						return $filename . '.' . strtolower($f->ext());
 					},
 					'transformer' => function (Table $table, Entity $entity, $data, $field, $settings) use ($filename) {
-						$f = new File($data['name']);
-						return [$data['tmp_name'] => $filename . '.' . strtolower($f->ext())];
+						$f = new File($data->getClientFilename());
+						return [$data->getStream()->getMetadata('uri') => $filename . '.' . strtolower($f->ext())];
 					},
 				],
 			]);
@@ -1667,7 +1651,7 @@ class PeopleController extends AppController {
 
 			if ($this->People->Uploads->save($upload)) {
 				$this->Flash->success(__('Document saved, you will receive an email when it has been approved.'));
-				return $this->redirect(['action' => 'view', 'person' => $person->id]);
+				return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 			} else {
 				$this->Flash->warning(__('Failed to save your document.'));
 			}
@@ -1699,10 +1683,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1740,10 +1721,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1767,7 +1745,7 @@ class PeopleController extends AppController {
 				{
 					$this->Flash->warning(__('Error sending email to {0}.', $document->person->full_name));
 				}
-				return $this->redirect(['action' => 'view', 'person' => $document->person->id]);
+				return $this->redirect(['action' => 'view', '?' => ['person' => $document->person->id]]);
 			} else {
 				$this->Flash->warning(__('Failed to update the document.'));
 			}
@@ -1783,10 +1761,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1821,7 +1796,7 @@ class PeopleController extends AppController {
 			if (empty($this->getRequest()->getData('badge'))) {
 				$this->Flash->warning(__('You must select a badge!'));
 			} else {
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $this->getRequest()->getData('badge')]);
+				return $this->redirect(['action' => 'nominate_badge', '?' => ['badge' => $this->getRequest()->getData('badge')]]);
 			}
 		}
 
@@ -1874,10 +1849,7 @@ class PeopleController extends AppController {
 			$badge = $this->People->Badges->get($badge_id, [
 				'contain' => ['Affiliates'],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
@@ -1916,10 +1888,7 @@ class PeopleController extends AppController {
 					'Affiliates',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
@@ -1930,19 +1899,16 @@ class PeopleController extends AppController {
 			if ($badge->active) {
 				// TODO: Allow multiple copies of the badge?
 				$this->Flash->info(__('This person already has this badge.'));
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $badge_id]);
+				return $this->redirect(['action' => 'nominate_badge', '?' => ['badge' => $badge_id]]);
 			} else {
 				$this->Flash->info(__('This person has already been nominated for this badge.'));
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $badge_id]);
+				return $this->redirect(['action' => 'nominate_badge', '?' => ['badge' => $badge_id]]);
 			}
 		}
 
 		try {
 			$person = $this->People->get($person_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
@@ -2012,7 +1978,7 @@ class PeopleController extends AppController {
 				'BadgesPeople.approved' => false,
 				'Badges.affiliate_id IN' => $affiliates,
 			]);
-		if ($badges->isEmpty()) {
+		if ($badges->all()->isEmpty()) {
 			$this->Flash->info(__('There are no badges to approve.'));
 			return $this->redirect('/');
 		}
@@ -2032,10 +1998,7 @@ class PeopleController extends AppController {
 					'NominatedBy' => [Configure::read('Security.authModel')],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'approve_badges']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		}
@@ -2092,10 +2055,7 @@ class PeopleController extends AppController {
 					'NominatedBy' => [Configure::read('Security.authModel')],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'approve_badges']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		}
@@ -2139,7 +2099,7 @@ class PeopleController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -2149,17 +2109,14 @@ class PeopleController extends AppController {
 			$person = $this->People->get($id, [
 				'contain' => [Configure::read('Security.authModel')]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
 
 		$this->Authorization->authorize($person);
 
-		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions', 'CreatedNotes']);
+		$dependencies = $this->People->dependencies($id, ['Affiliates', 'UserGroups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions', 'CreatedNotes']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this person, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect('/');
@@ -2188,7 +2145,7 @@ class PeopleController extends AppController {
 
 		if (Configure::read('feature.affiliates') && $this->UserCache->read('Person.status') != 'locked') {
 			$affiliates_table = TableRegistry::getTableLocator()->get('Affiliates');
-			$affiliates = $affiliates_table->find('active')->indexBy('id')->toArray();
+			$affiliates = $affiliates_table->find('active')->all()->indexBy('id')->toArray();
 			if ($this->Authorization->can(current($affiliates), 'add_manager')) {
 				$unmanaged = $affiliates_table->find('active')
 					->contain([
@@ -2400,9 +2357,9 @@ class PeopleController extends AppController {
 		foreach ($people as $person_id) {
 			$teams = array_merge($teams, $this->UserCache->read('Teams', $person_id));
 		}
-		$teams = collection($teams)->indexBy('id')->toArray();
+		$team_ids = collection($teams)->extract('id')->toList();
 
-		$items = $this->_schedule($people, array_keys($teams));
+		$items = $this->_schedule($people, $team_ids);
 		$this->set(compact('id', 'items', 'relatives', 'teams'));
 	}
 
@@ -2415,7 +2372,7 @@ class PeopleController extends AppController {
 			} else {
 				$this->Authorization->authorize($target);
 
-				$user = $this->Authentication->getIdentity()->actAs($this->getRequest(), $this->getResponse(), $target);
+				$user = $this->Authentication->getIdentity()->actAs($this->getRequest(), $target);
 				if ($user->real_person) {
 					$this->Flash->success(__('You are now acting as {0}.', $target->full_name));
 				} else {
@@ -2467,8 +2424,8 @@ class PeopleController extends AppController {
 	public function league_search() {
 		$this->Authorization->authorize($this);
 		[$params, $url] = $this->_extractSearchParams();
-		unset($url['league_id']);
-		unset($url['include_subs']);
+		unset($url['?']['league_id']);
+		unset($url['?']['include_subs']);
 		if (array_key_exists('league_id', $params)) {
 			if (!empty($params['include_subs'])) {
 				$subs = ',include_subs';
@@ -2558,8 +2515,8 @@ class PeopleController extends AppController {
 						$admins = $this->People->find()
 							->enableHydration(false)
 							->select(['People.id'])
-							->matching('Groups', function (Query $q) {
-								return $q->where(['Groups.id' => GROUP_ADMIN]);
+							->matching('UserGroups', function (Query $q) {
+								return $q->where(['UserGroups.id' => GROUP_ADMIN]);
 							})
 							->extract('id')
 							->toArray();
@@ -2583,7 +2540,7 @@ class PeopleController extends AppController {
 	protected function _handleRuleSearch($params, $url) {
 		$affiliates = $this->Authentication->applicableAffiliates();
 		$this->set(compact('url', 'affiliates'));
-		unset($url['rule']);
+		unset($url['?']['rule']);
 
 		// If a rule has been submitted through the form, ignore whatever might be saved in the URL
 		if (array_key_exists('rule', $params)) {
@@ -2602,7 +2559,7 @@ class PeopleController extends AppController {
 				return false;
 			}
 			if (!array_key_exists('rule64', $params)) {
-				$url['rule64'] = \App\Lib\base64_url_encode($params['rule']);
+				$url['?']['rule64'] = \App\Lib\base64_url_encode($params['rule']);
 			}
 			$this->set(compact('url', 'params'));
 
@@ -2618,13 +2575,13 @@ class PeopleController extends AppController {
 				// Set the default pagination order; query params may override it.
 				// TODO: Multiple default sort fields break pagination links.
 				// https://github.com/cakephp/cakephp/issues/7324 has related info.
-				//$this->paginate['order'] = ['People.last_name', 'People.first_name', 'People.id'];
-				$this->paginate['order'] = ['People.last_name'];
+				//$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
+				$this->paginate['order'] = ['People.last_name' => 'ASC'];
 
 				$query = $this->People->find()
 					->contain([
 						Configure::read('Security.authModel'),
-						'Groups',
+						'UserGroups',
 					])
 					->where(['People.id IN' => $people]);
 
@@ -2693,195 +2650,61 @@ class PeopleController extends AppController {
 		$id = $this->getRequest()->getQuery('person');
 
 		// We don't need to contain Relatives here; those will be handled in the updateAll calls
-		$contain = [Configure::read('Security.authModel'), 'AffiliatesPeople', 'Skills', 'Groups', 'Related', 'Settings'];
+		$user_model = Configure::read('Security.authModel');
+		$contain = [$user_model, 'AffiliatesPeople', 'Skills', 'UserGroups', 'Related', 'Settings'];
 
 		try {
 			/** @var Person $person */
-			$person = $this->People->get($id, ['contain' => $contain]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'list_new']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$person = $this->People->get($id, compact('contain'));
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'list_new']);
 		}
 
 		$this->Authorization->authorize($person);
 
-		$duplicates = $this->People->find('duplicates', compact('person'))
-			->contain($contain);
-
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
-			if (empty($this->getRequest()->getData('disposition'))) {
+			$disposition = $this->getRequest()->getData('disposition');
+			if (empty($disposition)) {
 				$this->Flash->info(__('You must select a disposition for this account.'));
 			} else {
-				if (strpos($this->getRequest()->getData('disposition'), ':') !== false) {
-					[$disposition, $dup_id] = explode(':', $this->getRequest()->getData('disposition'));
-					$duplicate = collection($duplicates)->firstMatch(['id' => $dup_id]);
-					if ($duplicate) {
-						if ($this->_approve($person, $disposition, $duplicate)) {
+				$service = new ApproveService();
+				try {
+					if (strpos($disposition, ':') !== false) {
+						[$disposition, $dup_id] = explode(':', $disposition);
+						try {
+							/** @var Person $duplicate */
+							$duplicate = $this->People->get($dup_id, compact('contain'));
+							try {
+								$service->$disposition($person, $duplicate);
+							} catch (EmailException $ex) {
+								$this->Flash->warning($ex->getMessage());
+							}
 							return $this->redirect(['action' => 'list_new']);
+						} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+							$this->Flash->info(__('You have selected an invalid user!'));
 						}
-						// If this fails, we've messed up the duplicate record. Re-read the duplicates to reset it.
-						$duplicates = $this->People->find('duplicates', compact('person'))
-							->contain($contain);
 					} else {
-						$this->Flash->info(__('You have selected an invalid user!'));
-					}
-				} else {
-					if ($this->_approve($person, $this->getRequest()->getData('disposition'))) {
+						try {
+							$service->$disposition($person);
+						} catch (EmailException $ex) {
+							$this->Flash->warning($ex->getMessage());
+						}
 						return $this->redirect(['action' => 'list_new']);
 					}
+				} catch (ApproveException $ex) {
+					$this->Flash->warning($ex->getMessage());
 				}
 			}
 		}
 
-		$user_model = Configure::read('Security.authModel');
+		$duplicates = $this->People->find('duplicates', compact('person'))
+			->contain($contain);
+
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		$activated = $users_table->activated($person);
 
 		$this->set(compact('person', 'duplicates', 'activated'));
-	}
-
-	protected function _approve(Person $person, $disposition, Person $duplicate = null) {
-		$delete = $save = $fail_message = null;
-
-		// First, take whatever steps are required to prepare the data for saving and/or deleting.
-		// Also prepare the options for sending the notification email, if any.
-		switch($disposition) {
-			case 'approved':
-				$person->status = 'active';
-				$save = $person;
-				$fail_message = __('Couldn\'t save new member activation');
-
-				$mail_opts = [
-					'subject' => function() use ($person) {
-						return __('{0} {1} Activation for {2}',
-							Configure::read('organization.name'),
-							empty($person->user_id) ? __('Profile') : __('Account'),
-							empty($person->user_id) ? $person->full_name : $person->user_name
-						);
-					},
-					'template' => 'account_approved',
-				];
-				break;
-
-			/** @noinspection PhpMissingBreakStatementInspection */
-			case 'delete_duplicate':
-				$mail_opts = [
-					'subject' => function() { return __('{0} Account Update', Configure::read('organization.name')); },
-					'template' => 'account_delete_duplicate',
-				];
-				// Intentionally fall through to the next option
-
-			case 'delete':
-				$delete = $person;
-				break;
-
-			// This is basically the same as delete duplicate, except
-			// that some old information (e.g. user ID) is preserved
-			case 'merge_duplicate':
-				$duplicate->merge($person);
-				$save = $duplicate;
-				$delete = $person;
-				$fail_message = __('Couldn\'t save new member information');
-
-				$mail_opts = [
-					'subject' => function() { return __('{0} Account Update', Configure::read('organization.name')); },
-					'template' => 'account_merge_duplicate',
-				];
-				break;
-		}
-
-		if (!$this->People->getConnection()->transactional(function () use ($disposition, $save, $delete, $fail_message) {
-			// If we are merging, we want to migrate all records that aren't part of the in-memory record.
-			if ($disposition === 'merge_duplicate') {
-				// For anything that we have in memory, we must skip doing a direct query
-				$ignore = ['Affiliates'];
-				$save->setHidden([]);
-				foreach ($save->getVisible() as $prop) {
-					if ($save->isAccessible($prop) && (is_array($delete->$prop))) {
-						$ignore[] = Inflector::camelize($prop);
-					}
-				}
-
-				$associations = $this->People->associations();
-
-				foreach ($associations->getByType('BelongsToMany') as $association) {
-					if (!in_array($association->getName(), $ignore)) {
-						$foreign_key = $association->getForeignKey();
-						$conditions = [$foreign_key => $delete->id];
-						$association_conditions = $association->getConditions();
-						if (!empty($association_conditions)) {
-							$conditions += $association_conditions;
-						}
-						$association->junction()->updateAll([$foreign_key => $save->id], $conditions);
-					}
-
-					// BelongsToMany associations also create HasMany associations for the join tables.
-					// Ignore them when we get there.
-					$ignore[] = $association->junction()->getAlias();
-				}
-
-				foreach ($associations->getByType('HasMany') as $association) {
-					if (!in_array($association->getName(), $ignore)) {
-						$foreign_key = $association->getForeignKey();
-						$conditions = [$foreign_key => $delete->id];
-						$association_conditions = $association->getConditions();
-						if (!empty($association_conditions)) {
-							$conditions += $association_conditions;
-						}
-						$association->getTarget()->updateAll([$foreign_key => $save->id], $conditions);
-					}
-				}
-			}
-
-			if ($delete && !$this->People->delete($delete)) {
-				$this->Flash->warning(__('Failed to delete {0}.', $delete->full_name));
-				return false;
-			}
-
-			if ($save && !$this->People->save($save)) {
-				$this->Flash->warning($fail_message);
-				return false;
-			}
-
-			return true;
-		})) {
-			return false;
-		}
-
-		// Clear any related cached information
-		// TODO: It's conceivable that there could also be stored teams, division, stats, etc. with the deleted person_id in them.
-		// For now, we'll just clear everything whenever this happens...
-		Cache::clear(false, 'long_term');
-		/*
-		Cache::delete("person/{$person->id}", 'long_term');
-		foreach ($person->related as $relative) {
-			$this->UserCache->clear('Relatives', $relative->id);
-			$this->UserCache->clear('RelativeIDs', $relative->id);
-		}
-		if (isset($duplicate)) {
-			Cache::delete("person/{$duplicate->id}", 'long_term');
-			foreach ($duplicate->related as $relative) {
-				$this->UserCache->clear('Relatives', $relative->id);
-				$this->UserCache->clear('RelativeIDs', $relative->id);
-			}
-		}
-		*/
-
-		// Take care of any required notifications
-		if (isset($mail_opts)) {
-			if (!$this->_sendMail(array_merge($mail_opts, [
-				'to' => isset($duplicate) ? [$person, $duplicate] : $person,
-				'sendAs' => 'both',
-				'viewVars' => compact('person', 'duplicate'),
-			]))) {
-				$this->Flash->warning(__('Error sending email to {0}.', $person->full_name));
-			}
-		}
-
-		return true;
 	}
 
 	public function vcf() {
@@ -2908,7 +2731,6 @@ class PeopleController extends AppController {
 	 * @throws \Cake\Http\Exception\GoneException When record not found.
 	 */
 	public function ical($id) {
-		$this->viewBuilder()->setLayout('ical');
 		$id = intval($id);
 
 		// Check that the person has enabled this option
@@ -2922,9 +2744,7 @@ class PeopleController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			throw new GoneException();
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			throw new GoneException();
 		}
 
@@ -2967,7 +2787,7 @@ class PeopleController extends AppController {
 		$this->set('calendar_type', 'Player Schedule');
 		$this->set('calendar_name', "{$person->full_name}'s schedule");
 		$this->setResponse($this->getResponse()->withDownload("$id.ics"));
-		$this->RequestHandler->ext = 'ics';
+		$this->viewBuilder()->setLayoutPath('ics')->setClassName('Ical');
 	}
 
 	public function registrations() {
@@ -3014,10 +2834,7 @@ class PeopleController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -3057,10 +2874,7 @@ class PeopleController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}

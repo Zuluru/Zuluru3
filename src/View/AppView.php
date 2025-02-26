@@ -10,12 +10,15 @@ use App\View\Helper\ZuluruGameHelper;
 use App\View\Helper\ZuluruHtmlHelper;
 use App\View\Helper\ZuluruTimeHelper;
 use Authentication\View\Helper\IdentityHelper;
-use BootstrapUI\View\Helper\FlashHelper;
 use BootstrapUI\View\Helper\PaginatorHelper;
+use BootstrapUI\View\UIViewTrait;
+use Cake\Event\EventManager;
+use Cake\Http\Response;
+use Cake\Http\ServerRequest;
 use Cake\View\Helper\NumberHelper;
 use Cake\View\Helper\TextHelper;
 use Cake\View\View;
-use ZuluruBootstrap\View\Helper\AccordionHelper;
+use ZuluruBootstrap\View\Helper\BootstrapHelper;
 use ZuluruJquery\View\Helper\JqueryHelper;
 
 /**
@@ -32,38 +35,50 @@ use ZuluruJquery\View\Helper\JqueryHelper;
  * @property ZuluruBreadcrumbsHelper $Breadcrumbs
  * @property ZuluruTimeHelper $Time
  * @property ZuluruGameHelper $Game
- * @property FlashHelper $Flash
  * @property PaginatorHelper $Paginator
- * @property AccordionHelper $Accordion
+ * @property BootstrapHelper $Bootstrap
  * @property JqueryHelper $Jquery
  */
 class AppView extends View {
 
+	use UIViewTrait;
+
+	public function __construct(?ServerRequest $request = null, ?Response $response = null, ?EventManager $eventManager = null, array $viewOptions = [])
+	{
+		parent::__construct($request, $response, $eventManager, $viewOptions);
+
+		// The default "fade" class that Bootstrap wants to use conflicts with other things sometimes, making flash messages invisible.
+		// Can't do this with default configuration in the initialize function, because that merges provided config with the default,
+		// which allows adding more classes, but not removing default ones.
+		$this->Flash->setConfig('class', ['alert', 'alert-dismissible', 'show', 'd-flex', 'align-items-center'], false);
+	}
+
 	/**
 	 * Initialization hook method.
-	 *
-	 * For e.g. use this method to load a helper for all views:
-	 * `$this->loadHelper('Html');`
-	 *
-	 * @return void
 	 */
-	public function initialize() {
-		$this->loadHelper('Authentication.Identity');
-		$this->loadHelper('Authorize');
-		$this->loadHelper('UserCache');
-		$this->loadHelper('Number');
-		$this->loadHelper('Text');
-		$this->loadHelper('Selector');
-		$this->loadHelper('Html', ['className' => 'ZuluruHtml']);
-		$this->loadHelper('Form', ['className' => 'ZuluruForm']);
-		$this->loadHelper('Breadcrumbs', ['className' => 'ZuluruBreadcrumbs']);
-		$this->loadHelper('Time', ['className' => 'ZuluruTime']);
-		$this->loadHelper('Game', ['className' => 'ZuluruGame']);
-		$this->loadHelper('BootstrapUI.Flash');
-		$this->loadHelper('BootstrapUI.Paginator', ['templates' => 'paginator-templates']);
-		$this->loadHelper('ZuluruBootstrap.Accordion');
-		$this->loadHelper('ZuluruJquery.Jquery');
-		//$this->loadHelper('Less.Less'); // required for parsing less files
+	public function initialize(): void {
+		parent::initialize();
+
+		$this->helpers = [
+			'Identity' => ['className' => 'Authentication.Identity'],
+			'Authorize',
+			'UserCache',
+			'Number',
+			'Text',
+			'Selector',
+			'Html' => ['className' => 'ZuluruHtml'],
+			'Form' => ['className' => 'ZuluruForm'],
+			'Breadcrumbs' => ['className' => 'ZuluruBreadcrumbs'],
+			'Time' => ['className' => 'ZuluruTime'],
+			'Game' => ['className' => 'ZuluruGame'],
+			'Paginator' => ['className' => 'BootstrapUI.Paginator', 'config' => ['templates' => 'paginator-templates']],
+			'Bootstrap' => ['className' => 'ZuluruBootstrap.Bootstrap'],
+			'Jquery' => ['className' => 'ZuluruJquery.Jquery'],
+			//'Less' => ['className' => 'Less.Less'], // required for parsing less files
+		];
+
+		// Call the initializeUI method from UIViewTrait
+		$this->initializeUI(['layout' => false]);
 	}
 
 }

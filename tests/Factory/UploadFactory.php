@@ -30,7 +30,7 @@ class UploadFactory extends BaseFactory
 				'filename' => $faker->word() . '.png',
 				'approved' => true,
 				'valid_from' => FrozenDate::now(),
-				'valid_until' => FrozenDate::now()->addYear(),
+				'valid_until' => FrozenDate::now()->addYears(1),
 			];
 		});
 	}

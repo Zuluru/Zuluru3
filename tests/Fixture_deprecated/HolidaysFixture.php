@@ -20,7 +20,7 @@ class HolidaysFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'date' => new FrozenDate('December 25'),

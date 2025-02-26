@@ -15,10 +15,8 @@ abstract class CMSSessionAuthenticator extends AbstractAuthenticator implements 
 
 	/**
 	 * Session authenticator to use
-	 *
-	 * @var SessionAuthenticator
 	 */
-	protected $_sessionAuth;
+	protected SessionAuthenticator $_sessionAuth;
 
 	public function __construct(IdentifierInterface $identifiers, $config) {
 		parent::__construct($identifiers, $config);
@@ -28,14 +26,14 @@ abstract class CMSSessionAuthenticator extends AbstractAuthenticator implements 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity) {
+	public function persistIdentity(ServerRequestInterface $request, ResponseInterface $response, $identity): array {
 		return $this->_sessionAuth->persistIdentity($request, $response, $identity);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response) {
+	public function clearIdentity(ServerRequestInterface $request, ResponseInterface $response): array {
 		return $this->_sessionAuth->clearIdentity($request, $response);
 	}
 

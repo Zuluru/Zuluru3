@@ -4,21 +4,22 @@ namespace App\Model\Entity;
 use App\Model\Results\DivisionResults;
 use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
-use Cake\I18n\I18n;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
+use InvalidArgumentException;
 
 /**
  * Division Entity.
  *
  * @property int $id
  * @property string $name
- * @property \Cake\I18n\FrozenTime $open
- * @property \Cake\I18n\FrozenTime $close
+ * @property \Cake\I18n\FrozenDate $open
+ * @property \Cake\I18n\FrozenDate $close
  * @property string $ratio
  * @property string $current_round
- * @property \Cake\I18n\FrozenTime $roster_deadline
+ * @property \Cake\I18n\FrozenDate $roster_deadline
  * @property string $roster_rule
  * @property bool $is_open
  * @property string $schedule_type
@@ -142,14 +143,19 @@ class Division extends Entity {
 
 	protected function _getPlayoffDivisions() {
 		if ($this->_playoff_divisions === false) {
-			$this->_playoff_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
-				->select('id')
-				->where([
-					'league_id' => $this->league_id,
-					'current_round' => 'playoff',
-				])
-				->extract('id')
-				->toArray();
+			try {
+				$this->_playoff_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
+					->select('id')
+					->where([
+						'league_id' => $this->league_id,
+						'current_round' => 'playoff',
+					])
+					->all()
+					->extract('id')
+					->toArray();
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
+				$this->_playoff_divisions = [];
+			}
 		}
 
 		if ($this->current_round === 'playoff') {
@@ -161,13 +167,17 @@ class Division extends Entity {
 
 	protected function _getSeasonDivisions() {
 		if ($this->_season_divisions === false) {
-			$this->_season_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
-				->contain(['Days'])
-				->where([
-					'league_id' => $this->league_id,
-					'current_round !=' => 'playoff',
-				])
-				->toArray();
+			try {
+				$this->_season_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
+					->contain(['Days'])
+					->where([
+						'league_id' => $this->league_id,
+						'current_round !=' => 'playoff',
+					])
+					->toArray();
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
+				$this->_season_divisions = [];
+			}
 		}
 
 		if ($this->current_round === 'playoff') {

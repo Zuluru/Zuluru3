@@ -39,7 +39,7 @@ class UserZikulaTable extends UsersTable {
 	 */
 	public $hashMethod = 'sha256';
 
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('nuke_users');
@@ -58,7 +58,7 @@ class UserZikulaTable extends UsersTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return bool
 	 */
-	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// TODOLATER: Delete nuke_group_membership record too
 	}
 

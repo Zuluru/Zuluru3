@@ -24,32 +24,27 @@ abstract class Rule {
 
 	/**
 	 * Parse error text, to give help to rule writers
-	 *
-	 * @var string
 	 */
-	public $parse_error = null;
+	public ?string $parse_error = null;
 
 	/**
 	 * Reason why the rule passed or failed
 	 *
-	 * @var string
+	 * @var string|array
 	 */
 	public $reason = 'Unknown reason!';
-	public $reason_type = REASON_TYPE_PLAYER_ACTIVE;
+
+	public int $reason_type = REASON_TYPE_PLAYER_ACTIVE;
 
 	/**
 	 * Indication of whether the rule can ever be expected to pass
-	 *
-	 * @var bool
 	 */
-	public $invariant = false;
+	public bool $invariant = false;
 
 	/**
 	 * Where to redirect to for prerequisite completion, if applicable
-	 *
-	 * @var array
 	 */
-	public $redirect = null;
+	public ?array $redirect = null;
 
 	/**
 	 * Return a description of the rule, not required for all rules
@@ -188,7 +183,7 @@ abstract class Rule {
 
 		if ($this->buildQuery($query, $affiliate)) {
 			try {
-				$people = $query->extract('id')->toArray();
+				$people = $query->all()->extract('id')->toArray();
 				return array_unique($people);
 			} catch (PDOException $ex) {
 				throw new RuleException(__('Database query error: Probably an invalid attribute.'));

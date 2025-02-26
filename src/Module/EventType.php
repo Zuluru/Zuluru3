@@ -6,7 +6,6 @@
  */
 namespace App\Module;
 
-use App\Event\FlashTrait;
 use App\Exception\ForbiddenRedirectException;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -16,10 +15,9 @@ use App\Core\ModuleRegistry;
 use App\Model\Entity\Event;
 use App\Model\Entity\Question;
 use App\Model\Entity\Registration;
+use Cake\Routing\Router;
 
 class EventType {
-
-	use FlashTrait;
 
 	/**
 	 * Return the list of field names used for configuration.
@@ -102,7 +100,7 @@ class EventType {
 		// Get everything from the user record that the decisions below might need
 		$cache = UserCache::getInstance();
 		$person = $cache->read('Person', $registration->person_id);
-		$person->group_ids = $cache->read('GroupIDs', $registration->person_id);
+		$person->group_ids = $cache->read('UserGroupIDs', $registration->person_id);
 		$person->teams = $cache->read('AllTeams', $registration->person_id);
 		$person->preregistrations = $cache->read('Preregistrations', $registration->person_id);
 		$person->registrations = array_merge(
@@ -169,9 +167,9 @@ class EventType {
 		// Default payment status to change the unreserved registration to. This may be updated later by processWaitingList.
 		// TODOTESTING: Can this bit go away? Is the payment status set correctly everywhere that might call this?
 		if (empty($options['from_expire_reservations']) && empty($options['from_unregister_dependencies']) && $registration->payment != 'Cancelled' && $registration->payment != 'Unpaid' && $registration->payment != 'Reserved' && $registration->total_amount > 0) {
-			\Cake\Log\Log::write('error', $registration);
+			\Cake\Log\Log::write('error', (string)$registration);
 			throw new ForbiddenRedirectException('This registration is not marked as unpaid. There is an unresolved issue around this. Details have been logged to assist with correcting it.',
-				['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id], 'error');
+				['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $registration->id]], 'error');
 		}
 
 		return true;
@@ -188,7 +186,7 @@ class EventType {
 		if (Configure::read('feature.badges')) {
 			$badge_obj = ModuleRegistry::getInstance()->load('Badge');
 			if (!$badge_obj->update('registration', $registration, true)) {
-				$this->Flash('warning', __('Failed to update badge information!'));
+				Router::getRequest()->getFlash()->warning(__('Failed to update badge information!'));
 				return false;
 			}
 		}
@@ -207,7 +205,7 @@ class EventType {
 		if (Configure::read('feature.badges')) {
 			$badge_obj = ModuleRegistry::getInstance()->load('Badge');
 			if (!$badge_obj->update('registration', $registration, false)) {
-				$this->Flash('warning', __('Failed to update badge information!'));
+				Router::getRequest()->getFlash()->warning(__('Failed to update badge information!'));
 				return false;
 			}
 		}

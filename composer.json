@@ -9,49 +9,57 @@
         "forum": "https://zuluru.org/forums/",
         "source": "https://github.com/Zuluru/Zuluru3"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Zuluru/authorization"
-        }
-    ],
     "require": {
-        "php": ">=7.2.0",
-        "cakephp/cakephp": "3.10.*",
+        "php": ">=7.4.0",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "cakephp/cakephp": "4.3",
+        "cakephp/plugin-installer": "^1.3",
         "mobiledetect/mobiledetectlib": "2.*",
-        "cakephp/migrations": "~1.0",
-        "dereuromark/cakephp-ajax": "dev-cake3",
-        "elboletaire/twbs-cake-plugin": "master",
-        "cakephp/bake": "1.1.*",
+        "cakephp/migrations": "^3.1",
+        "dereuromark/cakephp-ajax": "^2.1",
+        "elboletaire/twbs-cake-plugin": "^3.0",
+        "cakephp/bake": "^2.2",
         "giggsey/libphonenumber-for-php": "^8.13",
         "commerceguys/addressing": "~0.8",
         "commerceguys/intl": "~0.7",
         "symfony/validator": "~2.8",
-        "muffin/footprint": "dev-master",
-        "josegonzalez/cakephp-upload": "~4",
+        "muffin/footprint": "^3.0",
+        "josegonzalez/cakephp-upload": "^5.0",
         "league/flysystem-aws-s3-v3": "^1.0",
         "soundasleep/html2text": "~0.2",
-        "zuluru/cakephp-jquery": "dev-master",
-        "zuluru/cakephp-bootstrap": "dev-master",
+        "zuluru/cakephp-jquery": "dev-cake4",
+        "zuluru/cakephp-bootstrap": "dev-cake4",
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
-        "cakephp-app-installer/installer": "dev-master#de2ce42",
-        "ozee31/cakephp-cors": "^1.1",
-        "cakephp/authentication": "^1.0",
-        "cakephp/authorization": "dev-master",
-        "firebase/php-jwt": "^5.0",
-        "dereuromark/cakephp-transifex": "^2.0",
+        "cakephp-app-installer/installer": "^4.0",
+        "ozee31/cakephp-cors": "^2.0",
+        "cakephp/authentication": "^2.9",
+        "cakephp/authorization": "^2.4",
+        "firebase/php-jwt": "^6",
         "stripe/stripe-php": "^7.39",
         "symfony/yaml": "3.4.37",
-        "cakephp/plugin-installer": "^1.3"
+        "boronczyk/localization-middleware": "^2.0",
+        "friendsofcake/bootstrap-ui": "^4.0",
+        "dereuromark/cakephp-calendar": "^1.5"
     },
     "require-dev": {
-        "cakephp/debug_kit": "~3",
+        "cakephp/debug_kit": "^4.2",
         "psy/psysh": "@stable",
-        "phpunit/phpunit": "^5.3",
-        "vierge-noire/cakephp-fixture-factories": "^1.0",
-        "vierge-noire/cakephp-test-migrator": "^1.0"
+        "phpunit/phpunit": "^9",
+        "vierge-noire/cakephp-fixture-factories": "^2.5",
+        "vierge-noire/cakephp-test-migrator": "^2.5"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:Zuluru/cakephp-jquery.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:Zuluru/cakephp-bootstrap.git"
+        }
+    ],
     "suggest": {
         "phpunit/phpunit": "Allows automated tests to be run without system-wide install.",
         "cakephp/cakephp-codesniffer": "Allows to check the code against the coding standards used in CakePHP."
@@ -66,8 +74,8 @@
             "StripePayment\\": "./plugins/StripePayment/src"
         },
         "files": [
-            "vendor/zuluru/compatibility/stats.php",
-            "vendor/zuluru/zuluru/lib.php"
+            "src/Lib/stats.php",
+            "src/Lib/lib.php"
         ]
     },
     "autoload-dev": {
@@ -88,7 +96,13 @@
     "prefer-stable": true,
     "config": {
         "allow-plugins": {
-            "cakephp/plugin-installer": false
+            "cakephp/plugin-installer": true,
+            "composer/installers": true
         }
+    },
+    "extra": {
+        "installer-disable": [
+            "cakephp"
+        ]
     }
 }

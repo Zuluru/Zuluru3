@@ -8,8 +8,11 @@ use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\TestSuite\TestCase;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 
 class ModuleTestCase extends TestCase {
+
+	use TruncateDirtyTables;
 
 	/**
 	 * setUp method
@@ -26,9 +29,9 @@ class ModuleTestCase extends TestCase {
 
 	public function tearDown(): void {
 		parent::tearDown();
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		FrozenTime::setTestNow();
-		FrozenDate::setTestNow();
+		$this->clearPlugins();
 	}
 
 }

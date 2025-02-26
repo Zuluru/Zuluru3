@@ -33,11 +33,15 @@ class GamePolicy extends AppPolicy {
 		$ratings_obj = $resource->ratings_obj;
 		if (!$ratings_obj->perGameRatings()) {
 			throw new ForbiddenRedirectException(__('The ratings calculator in use for this division does not support per-game ratings.'),
-				['action' => 'view', 'game' => $game->id]);
+				['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		$division = $resource->division;
-		$preliminary = ($game->home_team_id === null || ($division->schedule_type != 'competition' && $game->away_team_id === null));
+		if ($division->schedule_type === 'competition') {
+			throw new ForbiddenRedirectException(__('Ratings table does not apply to competition divisions.'),
+				['action' => 'view', '?' => ['game' => $game->id]]);
+		}
+		$preliminary = ($game->home_team_id === null || $game->away_team_id === null);
 
 		return !$preliminary && $division->schedule_type != 'roundrobin' && $ratings_obj->perGameRatings() && !$game->isFinalized() && $identity && $identity->isLoggedIn();
 	}
@@ -89,7 +93,7 @@ class GamePolicy extends AppPolicy {
 		}
 
 		throw new ForbiddenRedirectException(__('You are not on the roster of a team playing in this game.'),
-			['action' => 'view', 'game' => $game->id]);
+			['action' => 'view', '?' => ['game' => $game->id]]);
 	}
 
 	public function canDelete(IdentityInterface $identity, Game $game) {
@@ -120,7 +124,7 @@ class GamePolicy extends AppPolicy {
 		}
 
 		throw new ForbiddenRedirectException(__('You are not on the roster of a team playing in this game.'),
-			['action' => 'view', 'game' => $game->id]);
+			['action' => 'view', '?' => ['game' => $game->id]]);
 	}
 
 	protected function _canLive_score(IdentityInterface $identity, ContextResource $resource, $message) {
@@ -174,7 +178,7 @@ class GamePolicy extends AppPolicy {
 		}
 
 		$game = $resource->resource();
-		if ($game->game_slot->end_time->subHour()->isFuture()) {
+		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
 			throw new ForbiddenRedirectException(__('That game has not yet occurred!'));
 		}
 
@@ -185,7 +189,7 @@ class GamePolicy extends AppPolicy {
 			} else if ($team_id == $game->away_team_id) {
 				$team = $game->away_team;
 			} else {
-				throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', 'game' => $game->id]);
+				throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 			}
 
 			if (!$identity->isManagerOf($game) && !$identity->isCoordinatorOf($game) && !$identity->isCaptainOf($team)) {
@@ -194,7 +198,7 @@ class GamePolicy extends AppPolicy {
 
 			if (!$game->isFinalized() && !array_key_exists($team_id, $game->score_entries)) {
 				throw new ForbiddenRedirectException(__('You must submit a score for this game before you can submit stats.'),
-					['action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
+					['action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 			}
 		} else {
 			// Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
@@ -211,43 +215,43 @@ class GamePolicy extends AppPolicy {
 		$game = $resource->resource();
 
 		if (!$resource->league->hasStats()) {
-			throw new ForbiddenRedirectException(__('This league does not have stat tracking enabled.'), ['action' => 'view', 'game' => $game->id]);
+			throw new ForbiddenRedirectException(__('This league does not have stat tracking enabled.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		if (!$game->isFinalized()) {
-			throw new ForbiddenRedirectException(__('The score of this game has not yet been finalized.'), ['action' => 'view', 'game' => $game->id]);
+			throw new ForbiddenRedirectException(__('The score of this game has not yet been finalized.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		if ($game->game_slot->start_time->isFuture()) {
-			throw new ForbiddenRedirectException(__('This game has not yet started.'), ['action' => 'view', 'game' => $game->id]);
+			throw new ForbiddenRedirectException(__('This game has not yet started.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		$team_id = $resource->team_id;
 
 		if ($team_id !== null && $team_id != $game->home_team_id && $team_id != $game->away_team_id) {
-			throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', 'game' => $game->id]);
+			throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		if (empty($game->stats)) {
 			// Default redirect, if nothing better presents itself
-			$redirect = ['controller' => 'Games', 'action' => 'view', 'game' => $game->id];
+			$redirect = ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]];
 
 			// Redirect coordinators to the stats entry page with whatever parameters were used here
 			if ($identity && $identity->isCoordinatorOf($game)) {
-				$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $team_id];
+				$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $team_id]];
 			} else if (!$team_id) {
 				// If there was no team ID given, check if one of the two teams is captained by the current user
 				if ($game->home_team && $identity && $identity->isCaptainOf($game->home_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
 				} else if ($game->away_team && $identity && $identity->isCaptainOf($game->away_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->away_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->away_team_id]];
 				}
 			} else {
 				// If there was a team ID given, check if that team is captained by the current user
 				if ($team_id == $game->home_team_id && $identity && $identity->isCaptainOf($game->home_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
 				} else if ($team_id == $game->away_team_id && $identity && $identity->isCaptainOf($game->away_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->away_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->away_team_id]];
 				}
 			}
 

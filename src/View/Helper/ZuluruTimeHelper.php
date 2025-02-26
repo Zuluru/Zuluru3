@@ -14,7 +14,11 @@ use Cake\Core\Configure;
 use Cake\View\Helper\TimeHelper;
 
 class ZuluruTimeHelper extends TimeHelper {
-	public static function time(ChronosInterface $date) {
+	public static function time(?ChronosInterface $date) {
+		if (!$date) {
+			return '???';
+		}
+
 		$time_format = Configure::read('personal.time_format');
 		if (empty($time_format)) {
 			$time_format = current(Configure::read('options.time_formats'));
@@ -116,7 +120,7 @@ class ZuluruTimeHelper extends TimeHelper {
 	}
 
 	public static function iCal(ChronosInterface $time) {
-		return $time->timezone('UTC')->i18nFormat("yyyyMMdd'T'HHmmss'Z'");
+		return $time->setTimezone('UTC')->i18nFormat("yyyyMMdd'T'HHmmss'Z'");
 	}
 
 	public static function iCalDateTimeRange($obj) {

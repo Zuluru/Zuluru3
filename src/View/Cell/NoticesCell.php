@@ -24,28 +24,30 @@ class NoticesCell extends Cell {
 			return;
 		}
 
-		$this->loadModel('Notices');
-		$this->loadModel('NoticesPeople');
+		$this->Notices = $this->fetchTable('Notices');
+		$this->NoticesPeople = $this->fetchTable('NoticesPeople');
 
 		// Delete any old reminder requests
 		$this->NoticesPeople->deleteAll([
 			'NoticesPeople.remind' => true,
-			'NoticesPeople.created <' => FrozenDate::now()->subMonth(),
+			'NoticesPeople.created <' => FrozenDate::now()->subMonths(1),
 		]);
 
 		// Delete any annual recurring notices that are too old
 		$annual = $this->Notices->find()
 			->where(['Notices.repeat_on' => 'annual'])
+			->all()
 			->combine('id', 'id')
 			->toArray();
 		$this->NoticesPeople->deleteAll([
-			'NoticesPeople.created <' => FrozenDate::now()->subYear(),
+			'NoticesPeople.created <' => FrozenDate::now()->subYears(1),
 			'NoticesPeople.notice_id IN' => $annual,
 		]);
 
 		// Find the list of all notices the user has seen
 		$notices = $this->NoticesPeople->find()
 			->where(['NoticesPeople.person_id' => $identity->getIdentifier()])
+			->all()
 			->combine('notice_id', 'created')
 			->toArray();
 

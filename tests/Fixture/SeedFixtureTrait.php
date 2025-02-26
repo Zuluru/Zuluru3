@@ -8,7 +8,7 @@ trait SeedFixtureTrait {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		require_once(CONFIG . DS . 'Seeds' . DS . $this->seed . '.php');
 		/** @var AbstractSeed $seed */
 		$seed = new $this->seed;

@@ -17,6 +17,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
+use InvalidArgumentException;
 
 /**
  * Users Model
@@ -75,7 +76,7 @@ class UsersTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('users');
@@ -95,9 +96,10 @@ class UsersTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric($this->getPrimaryKey())
+
 			->allowEmptyString($this->getPrimaryKey(), null, 'create')
 
 			->requirePresence($this->userField, 'create', __('Username must not be blank.'))
@@ -223,7 +225,7 @@ class UsersTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		// TODO: Add a system configuration requiring unique email addresses
 		//$rules->add($rules->isUnique([$this->emailField]));
 		$rules->add($rules->isUnique([$this->userField], __('That username is already taken')));
@@ -250,7 +252,7 @@ class UsersTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Delete the cached data, so it's reloaded next time it's needed
 		$cache = UserCache::getInstance();
 		if ($entity->has('person')) {
@@ -258,7 +260,7 @@ class UsersTable extends AppTable {
 		} else {
 			try {
 				$person_id = $this->People->field('id', ['People.user_id' => $entity->id]);
-			} catch (RecordNotFoundException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 				// If there's no person record, then there's no cache to clear.
 				return;
 			}
@@ -281,7 +283,7 @@ class UsersTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.User.afterDelete', $this, [$entity]);
 		$this->getEventManager()->dispatch($event);
@@ -306,7 +308,7 @@ class UsersTable extends AppTable {
 			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
 			'complete' => false,
 			'gender' => '',
-			'groups' => ['_ids' => [GROUP_PLAYER]],
+			'user_groups' => ['_ids' => [GROUP_PLAYER]],
 			'affiliates' => ['_ids' => [AFFILIATE_DUMMY]],
 		];
 		if (!empty($this->nameField)) {

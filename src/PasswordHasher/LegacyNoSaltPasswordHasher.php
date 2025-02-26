@@ -16,12 +16,9 @@ use Cake\Utility\Security;
 class LegacyNoSaltPasswordHasher extends LegacyPasswordHasher {
 
 	/**
-	 * Generates password hash.
-	 *
-	 * @param string $password Plain text password to hash.
-	 * @return string Password hash
+     * @inheritDoc
 	 */
-	public function hash($password) {
+	public function hash($password): string {
 		return Security::hash($password, $this->_config['hashType'], false);
 	}
 }

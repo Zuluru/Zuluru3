@@ -13,17 +13,21 @@ use App\Test\Factory\PeoplePersonFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\SettingFactory;
 use App\Test\Factory\SkillFactory;
+use App\Test\Factory\TaskFactory;
 use App\Test\Factory\UploadFactory;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\LeagueWithRostersScenario;
 use App\Test\Scenario\SingleGameScenario;
+use App\TestSuite\ZuluruEmailTrait;
 use Cake\Core\Configure;
+use Cake\Database\TypeFactory;
 use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use Josegonzalez\Upload\Database\Type\FileType;
 
 /**
  * App\Controller\PeopleController Test Case
@@ -31,6 +35,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 class PeopleControllerTest extends ControllerTestCase {
 
 	use EmailTrait;
+	use ZuluruEmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -40,7 +45,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.Countries',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Provinces',
 		'app.RosterRoles',
 		'app.Settings',
@@ -179,20 +184,20 @@ class PeopleControllerTest extends ControllerTestCase {
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $relative->id])->persist();
 
 		// Admins are allowed to see all data
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseContains('Birthdate');
 
 		// Admins are allowed to see and manipulate relatives
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertResponseContains('/people/remove_relative?person=' . $player->id . '&amp;relative=' . $relative->id);
 		$this->assertResponseRegExp('#<td>' . $player->first_name . ' can control <a[^>]*>' . $relative->full_name . '</a></td>\s*<td>Yes</td>#ms');
 		$this->assertResponseNotContains('/people/remove_relative?person=' . $relative->id . '&amp;relative=' . $player->id);
 		$this->assertResponseNotRegExp('#<td><a[^>]*>' . $relative->full_name . '</a> can control ' . $player->first_name . '</td>\s*<td>No</td>#ms');
 
 		// Managers are allowed to see all data, including manipulating relatives, for people in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $manager->id);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseContains('Birthdate');
@@ -200,70 +205,70 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp('#<td>' . $player->first_name . ' can control <a[^>]*>' . $relative->full_name . '</a></td>\s*<td>Yes</td>#ms');
 
 		// But only regular data for people not in their own
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $relative->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $relative->id]], $manager->id);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// Coordinators are allowed to see contact info for their captains
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $captain->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $captain->id]], $volunteer->id);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...but not regular players
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $volunteer->id);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// Captains are allowed to see contact info for their players
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $captain->id);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...and their coordinator
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $volunteer->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $volunteer->id]], $captain->id);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 
 		// ...but not people who haven't confirmed the invite
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $invited->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $invited->id]], $captain->id);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 
 		// ...and not others
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $manager->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $manager->id]], $captain->id);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 
 		// Players are allowed to see contact info for their captains
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $captain->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $captain->id]], $player->id);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...but not others
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $volunteer->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $volunteer->id]], $player->id);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...and this is still true if it's an admin acting as the player
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $volunteer->id], [$admin->id, $player->id]);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $volunteer->id]], [$admin->id, $player->id]);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...or if it's a player acting as a (presumably related, though that's not checked here) admin
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $volunteer->id], [$player->id, $admin->id]);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $volunteer->id]], [$player->id, $admin->id]);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// Others are allowed to view
-		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]]);
 		$this->assertResponseNotContains('Phone');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
@@ -299,26 +304,26 @@ class PeopleControllerTest extends ControllerTestCase {
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $relative->id])->persist();
 
 		// Admins are allowed to view person tooltips, and have all information and options
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $player->id], $admin->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertResponseContains('mailto:' . $player->email);
 		$this->assertResponseContains($player->home_phone . ' (home)');
 		$this->assertResponseContains('/people\\/vcf?person=' . $player->id);
 		$this->assertResponseContains('/people\\/note?person=' . $player->id);
 		$this->assertResponseContains('/people\\/act_as?person=' . $player->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $relative->id], $admin->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $relative->id]], $admin->id);
 		$this->assertResponseContains('mailto:' . $relative->email);
 		$this->assertResponseContains($relative->home_phone . ' (home)');
 		$this->assertResponseContains('/people\\/vcf?person=' . $relative->id);
 		$this->assertResponseContains('/people\\/note?person=' . $relative->id);
 		$this->assertResponseContains('/people\\/act_as?person=' . $relative->id);
 
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'People', 'action' => 'tooltip', 'person' => 10000],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => 10000]],
 			$admin->id, '/',
 			'Invalid person.');
 
 		// Managers are allowed to view person tooltips, and have all information and options
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $player->id], $manager->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $player->id]], $manager->id);
 		$this->assertResponseContains('mailto:' . $player->email);
 		$this->assertResponseContains($player->home_phone . ' (home)');
 		$this->assertResponseContains('/people\\/vcf?person=' . $player->id);
@@ -326,7 +331,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/people\\/act_as?person=' . $player->id);
 
 		// But are restricted when viewing tooltip of people not in their affiliate
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $relative->id], $manager->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $relative->id]], $manager->id);
 		$this->assertResponseNotContains('mailto');
 		$this->assertResponseNotContains('(home)');
 		$this->assertResponseNotContains('(work)');
@@ -336,7 +341,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/people\\/act_as?person=' . $relative->id);
 
 		// Coordinator gets to see contact info for their captains
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $captain->id], $volunteer->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $captain->id]], $volunteer->id);
 		$this->assertResponseContains('mailto:' . $captain->email);
 		$this->assertResponseContains($captain->home_phone . ' (home)');
 		$this->assertResponseContains('/people\\/vcf?person=' . $captain->id);
@@ -344,7 +349,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/people\\/act_as?person=' . $captain->id);
 
 		// Captain gets to see contact info for their players
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $player->id], $captain->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $player->id]], $captain->id);
 		$this->assertResponseContains('mailto:' . $player->email);
 		$this->assertResponseContains($player->home_phone . ' (home)');
 		$this->assertResponseContains('/people\\/vcf?person=' . $player->id);
@@ -352,7 +357,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/people\\/act_as?person=' . $player->id);
 
 		// ...but not people who haven't confirmed the invite
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $invited->id], $captain->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $invited->id]], $captain->id);
 		$this->assertResponseNotContains('mailto');
 		$this->assertResponseNotContains('(home)');
 		$this->assertResponseNotContains('(work)');
@@ -360,7 +365,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/people\\/vcf');
 
 		// And for their coordinator
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $volunteer->id], $captain->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $volunteer->id]], $captain->id);
 		$this->assertResponseContains('mailto:' . $volunteer->email);
 		$this->assertResponseContains($volunteer->home_phone . ' (home)');
 		$this->assertResponseContains('/people\\/vcf?person=' . $volunteer->id);
@@ -368,7 +373,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/people\\/act_as?person=' . $volunteer->id);
 
 		// Player gets to see contact info for their own captain
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $captain->id], $player->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $captain->id]], $player->id);
 		$this->assertResponseContains('mailto:' . $captain->email);
 		$this->assertResponseContains($captain->homme_phone . ' (home)');
 		$this->assertResponseContains('/people\\/vcf?person=' . $captain->id);
@@ -376,12 +381,12 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/people\\/act_as?person=' . $captain->id);
 
 		// And are allowed to act as their relatives
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $relative->id], $player->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $relative->id]], $player->id);
 		$this->assertResponseContains('/people\\/note?person=' . $relative->id);
 		$this->assertResponseContains('/people\\/act_as?person=' . $relative->id);
 
 		// But sees less about other people
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $invited->id], $player->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $invited->id]], $player->id);
 		$this->assertResponseNotContains('mailto');
 		$this->assertResponseNotContains('(home)');
 		$this->assertResponseNotContains('(work)');
@@ -396,7 +401,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			'publish_home_phone' => true,
 			'publish_email' => true,
 		])->persist();
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $inactive->id], $player->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $inactive->id]], $player->id);
 		$this->assertResponseNotContains('mailto');
 		$this->assertResponseNotContains('(home)');
 		$this->assertResponseNotContains('(work)');
@@ -405,7 +410,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/people\\/note?person=' . $inactive->id);
 		$this->assertResponseNotContains('/people\\/act_as?person=' . $inactive->id);
 
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => $player->id]);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'People', 'action' => 'tooltip', '?' => ['person' => $player->id]]);
 	}
 
 	/**
@@ -416,7 +421,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', '?' => ['person' => $player->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -429,7 +434,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', '?' => ['person' => $player->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -442,7 +447,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Coordinators are allowed to edit themselves only
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => $player->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', '?' => ['person' => $player->id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -451,7 +456,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit method as a player
 	 */
 	public function testEditAsPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -469,8 +473,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'edit'],
 			$player->id, ['shirt_size' => 'Mens Large'], '/', 'Your profile has been saved.');
 
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => $relative->id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => $volunteer->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', '?' => ['person' => $relative->id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', '?' => ['person' => $volunteer->id]], $player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -483,7 +487,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to edit people
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit']);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => $player->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit', '?' => ['person' => $player->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -492,14 +496,14 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test deactivate method as an admin
 	 */
 	public function testDeactivateAsAdmin(): void {
+		$this->enableSecurityToken();
+
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Admins are allowed to deactivate people
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate'], $admin->id);
 
-		$this->enableCsrfToken();
-		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
 			$admin->id, [], '/', 'Your profile has been deactivated; sorry to see you go. If you ever change your mind, you can just return to the site and reactivate your profile; we\'ll be happy to have you back!');
 
@@ -513,7 +517,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
 
 		// Managers are allowed to deactivate people
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', '?' => ['person' => $player->id]], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate'], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -531,7 +535,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		]);
 
 		// Coordinators are not allowed to deactivate others, or themselves while they're actively running a league
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', '?' => ['person' => $player->id]], $volunteer->id);
 		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
 			$volunteer->id, '/',
 			'You cannot deactivate your account while you are coordinating an active division.');
@@ -551,7 +555,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$player = $team->people[LeagueWithRostersScenario::$PLAYER1];
 
 		// Players are not allowed to deactivate others, or themselves while they're on an active team
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => $captain->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', '?' => ['person' => $captain->id]], $player->id);
 		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
 			$player->id, '/',
 			'You cannot deactivate your account while you are on an active team.');
@@ -567,7 +571,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to deactivate people
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate']);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate', '?' => ['person' => $player->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -583,7 +587,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to reactivate
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', '?' => ['person' => $inactive->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -599,7 +603,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to reactivate
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', '?' => ['person' => $inactive->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -616,16 +620,16 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Coordinators are not allowed to reactivate others
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', '?' => ['person' => $inactive->id]], $volunteer->id);
 
 		// Players are not allowed to reactivate others
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', '?' => ['person' => $inactive->id]], $player->id);
 
 		// Anyone lot logged in is not allowed to reactivate people
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'reactivate', '?' => ['person' => $inactive->id]]);
 
 		// Inactive accounts are allowed to reactivate themselves
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $inactive->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', '?' => ['person' => $inactive->id]], $inactive->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -658,91 +662,90 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method as an admin
 	 */
 	public function testNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		// Admins are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]], $admin->id);
 
 		// Empty notes don't get added
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$admin->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => '',
-			], ['action' => 'view', 'person' => $player->id], 'You entered no text, so no note was added.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'You entered no text, so no note was added.');
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$admin->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'person' => $player->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$admin->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'person' => $player->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the manager can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $manager->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Empty notes don't get added
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$admin->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => '',
-			], ['action' => 'view', 'person' => $player->id], 'You entered no text, so no note was added.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'You entered no text, so no note was added.');
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$admin->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'person' => $player->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$admin->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'person' => $player->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the manager can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $manager->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -751,42 +754,42 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method as a manager
 	 */
 	public function testNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		// Managers are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]], $manager->id);
+
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$manager->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'person' => $player->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$manager->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'person' => $player->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $manager->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the admin can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -795,27 +798,26 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method as a coordinator
 	 */
 	public function testNoteAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Coordinators are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $player->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]], $volunteer->id);
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$volunteer->id, [
 				'person_id' => $player->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'person' => $player->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['person' => $player->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $volunteer->id);
 		$this->assertResponseContains('This is a private note.');
 	}
 
@@ -826,7 +828,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Players are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $volunteer->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', '?' => ['person' => $volunteer->id]], $player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -838,7 +840,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		// Others are not allowed to add notes
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'note', 'person' => $player->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -847,7 +849,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method as an admin
 	 */
 	public function testDeleteNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -880,16 +881,16 @@ class PeopleControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to delete admin notes
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[0]->id],
-			$admin->id, [], ['controller' => 'People', 'action' => 'view', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[0]->id]],
+			$admin->id, [], ['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[1]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[1]->id]],
 			$admin->id);
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[2]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[2]->id]],
 			$admin->id);
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[3]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[3]->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -899,7 +900,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a manager
 	 */
 	public function testDeleteNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -932,19 +932,19 @@ class PeopleControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to delete admin notes
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[0]->id],
-			$manager->id, [], ['controller' => 'People', 'action' => 'view', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[0]->id]],
+			$manager->id, [], ['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]],
 			'The note has been deleted.');
 
 		// And private notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[1]->id],
-			$manager->id, [], ['controller' => 'People', 'action' => 'view', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[1]->id]],
+			$manager->id, [], ['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[2]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[2]->id]],
 			$manager->id);
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[3]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[3]->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -954,7 +954,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a player
 	 */
 	public function testDeleteNoteAsPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -987,16 +986,16 @@ class PeopleControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Players are only allowed to delete notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[3]->id],
-			$player->id, [], ['controller' => 'People', 'action' => 'view', 'person' => $admin->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[3]->id]],
+			$player->id, [], ['controller' => 'People', 'action' => 'view', '?' => ['person' => $admin->id]],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[0]->id]],
 			$player->id);
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[1]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[1]->id]],
 			$player->id);
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[2]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $notes[2]->id]],
 			$player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1006,7 +1005,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method without being logged in
 	 */
 	public function testDeleteNoteAsAnonymous(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -1019,7 +1017,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to delete notes
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $note->id]);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_note', '?' => ['note' => $note->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1041,9 +1039,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Players are allowed to edit their preferences
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], $player->id);
-		$this->assertCookieNotSet('ZuluruLocale');
+		$this->assertCookie('en', 'ZuluruLocale');
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$this->assertPostAsAccessOk(['controller' => 'People', 'action' => 'preferences'],
@@ -1062,7 +1059,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// A request for some other person doesn't set the cookie
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], $admin->id);
-		$this->assertCookieNotSet('ZuluruLocale');
+		$this->assertCookie('en', 'ZuluruLocale');
 
 		// Another request for the person with the preference does set it
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], $player->id);
@@ -1077,7 +1074,7 @@ class PeopleControllerTest extends ControllerTestCase {
 					'value' => '',
 				],
 			]);
-		$this->assertCookieNotSet('ZuluruLocale');
+		$this->assertCookie('en', 'ZuluruLocale');
 		$this->assertResponseContains('The preferences have been saved.');
 
 		// Others are allowed to edit their preferences
@@ -1090,7 +1087,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test add_relative method
 	 */
 	public function testAddRelative(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		/** @var Person $parent */
@@ -1100,7 +1096,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'add_relative'],
 			$parent->id, [
-				'groups' => ['_ids' => [GROUP_PLAYER]],
+				'user_groups' => ['_ids' => [GROUP_PLAYER]],
 				'affiliates' => [['id' => $parent->affiliates[0]->id]],
 				'first_name' => 'Young',
 				'last_name' => 'Test',
@@ -1134,17 +1130,17 @@ class PeopleControllerTest extends ControllerTestCase {
 		/** @var Person $child */
 		$child = TableRegistry::getTableLocator()->get('People')->get($parent->id + 1, ['contain' => [
 			'Affiliates',
-			'Groups',
+			'UserGroups',
 			'Skills',
 		]]);
 		$this->assertEquals('Young', $child->first_name);
 		$this->assertEquals('new', $child->status);
-		$this->assertEquals(true, $child->complete);
+		$this->assertTrue($child->complete);
 		$this->assertEquals(FrozenDate::now(), $child->modified);
 		$this->assertCount(1, $child->affiliates);
 		$this->assertEquals($parent->affiliates[0]->id, $child->affiliates[0]->id);
-		$this->assertCount(1, $child->groups);
-		$this->assertEquals(GROUP_PLAYER, $child->groups[0]->id);
+		$this->assertCount(1, $child->user_groups);
+		$this->assertEquals(GROUP_PLAYER, $child->user_groups[0]->id);
 		$this->assertCount(2, $child->skills);
 		$this->assertEquals('baseball', $child->skills[0]->sport);
 		$this->assertFalse($child->skills[0]->enabled);
@@ -1158,7 +1154,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test link_relative method
 	 */
 	public function testLinkRelative(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1179,16 +1174,16 @@ class PeopleControllerTest extends ControllerTestCase {
 		);
 		$this->assertResponseContains('/people/link_relative?relative=' . $volunteer->id . '&amp;person=' . $player->id);
 
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'link_relative', 'relative' => $volunteer->id, 'person' => $player->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'link_relative', '?' => ['relative' => $volunteer->id, 'person' => $player->id]],
 			$player->id, '/',
 			"Linked {$volunteer->full_name} as relative; you will not have access to their information until they have approved this.");
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($volunteer->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('You have been linked as a relative', 'Subject');
 		$this->assertMailContains("{$player->full_name} has indicated on the Test Zuluru Affiliate web site that you are related to them.");
 		$this->assertMailContains("If you accept, {$player->first_name} will be granted access");
@@ -1220,25 +1215,25 @@ class PeopleControllerTest extends ControllerTestCase {
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $volunteer->id, 'approved' => false])->persist();
 
 		// The person that sent the request is not allowed to approve the request
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_relative', 'person' => $player->id, 'relative' => $volunteer->id],
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_relative', '?' => ['person' => $player->id, 'relative' => $volunteer->id]],
 			$player->id);
 
 		// The invited relative is allowed to approve the request
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', 'person' => $player->id, 'relative' => $volunteer->id],
-			$volunteer->id, ['controller' => 'People', 'action' => 'view', 'person' => $volunteer->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', '?' => ['person' => $player->id, 'relative' => $volunteer->id]],
+			$volunteer->id, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $volunteer->id]],
 			'Approved the relative request.');
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$volunteer->email => $volunteer->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$volunteer->email => $volunteer->full_name], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$volunteer->full_name} approved your relative request", 'Subject');
 		$this->assertMailContains("Your relative request to {$volunteer->full_name} on the Test Zuluru Affiliate web site has been approved.");
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $player->id);
 		$this->assertResponseRegExp('#<td>You can control <a[^>]*>' . $volunteer->full_name . '</a></td>\s*<td>Yes</td>#ms');
 		$this->assertResponseNotRegExp('#<td><a[^>]*>' . $volunteer->full_name . '</a> can control you</td>\s*<td>Yes</td>#ms');
 
@@ -1255,21 +1250,21 @@ class PeopleControllerTest extends ControllerTestCase {
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $volunteer->id])->persist();
 
 		// A person is allowed to remove their relations
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => $player->id, 'relative' => $volunteer->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $player->id, 'relative' => $volunteer->id]],
 			$player->id, ['controller' => 'People', 'action' => 'view'],
 			'Removed the relation.');
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($volunteer->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$player->full_name} removed your relation", 'Subject');
 		$this->assertMailContains("{$player->full_name} has removed you as a relative on the Test Zuluru Affiliate web site.");
 
 		// Make sure they were removed successfully
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $player->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]], $player->id);
 		$this->assertResponseNotRegExp('#<td>You can control <a[^>]*>' . $volunteer->full_name . '</a></td>#ms');
 	}
 
@@ -1283,21 +1278,21 @@ class PeopleControllerTest extends ControllerTestCase {
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $volunteer->id])->persist();
 
 		// A person is allowed to remove relations in either direction
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => $player->id, 'relative' => $volunteer->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $player->id, 'relative' => $volunteer->id]],
 			$volunteer->id, ['controller' => 'People', 'action' => 'view'],
 			'Removed the relation.');
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$volunteer->email => $volunteer->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$volunteer->email => $volunteer->full_name], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$volunteer->full_name} removed your relation", 'Subject');
 		$this->assertMailContains("{$volunteer->full_name} has removed you as a relative on the Test Zuluru Affiliate web site.");
 
 		// Make sure they were removed successfully
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => $volunteer->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', '?' => ['person' => $volunteer->id]], $volunteer->id);
 		$this->assertResponseNotRegExp('#<a[^>]*>' . $volunteer->full_name . '</a> can control you</td>#ms');
 	}
 
@@ -1311,8 +1306,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $manager->id])->persist();
 
 		// Others are not allowed to remove relatives
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => $player->id, 'relative' => $volunteer->id],
-			$volunteer->id, ['controller' => 'People', 'action' => 'view', 'person' => $player->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $player->id, 'relative' => $volunteer->id]],
+			$volunteer->id, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $player->id]],
 			'The authorization code is invalid.');
 
 		$this->markTestIncomplete('Test with codes, and as admin / manager.');
@@ -1425,14 +1420,14 @@ class PeopleControllerTest extends ControllerTestCase {
 		UploadFactory::make(['person_id' => $player->id])->persist();
 
 		// Anyone logged in is allowed to view photos
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertHeader('Content-Type', 'image/png');
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => $player->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => $player->id], $volunteer->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => $player->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', '?' => ['person' => $player->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', '?' => ['person' => $player->id]], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', '?' => ['person' => $player->id]], $player->id);
 
 		// Others are not allowed to view photos
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'photo', 'person' => $player->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'photo', '?' => ['person' => $player->id]]);
 
 		$this->markTestIncomplete('Test viewing of unapproved photos.');
 	}
@@ -1492,7 +1487,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
 		// Admins are allowed to approve photo
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', '?' => ['person' => $player->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1507,7 +1502,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
 		// Managers are allowed to approve photos
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', '?' => ['person' => $player->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1522,11 +1517,11 @@ class PeopleControllerTest extends ControllerTestCase {
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
 		// Others are not allowed to approve photos
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', '?' => ['person' => $player->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', '?' => ['person' => $player->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => $player->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_photo', '?' => ['person' => $player->id]]);
 	}
 
 	/**
@@ -1538,7 +1533,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
 		// Admins are allowed to delete photos
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', '?' => ['person' => $player->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1553,7 +1548,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
 		// Managers are allowed to delete photos
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', '?' => ['person' => $player->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1568,11 +1563,11 @@ class PeopleControllerTest extends ControllerTestCase {
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
 		// Others are not allowed to delete photos
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', '?' => ['person' => $player->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', '?' => ['person' => $player->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => $player->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_photo', '?' => ['person' => $player->id]]);
 	}
 
 	/**
@@ -1581,21 +1576,23 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testDocument(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
+		TypeFactory::map('upload.file', FileType::class);
+
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])
 			->with('UploadTypes', ['affiliate_id' => $admin->affiliates[0]->id])
 			->persist();
 
 		// Admins are allowed to view documents
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document', 'document' => $upload->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document', '?' => ['document' => $upload->id]], $admin->id);
 
 		// Managers are allowed to view documents
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document', 'document' => $upload->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document', '?' => ['document' => $upload->id]], $manager->id);
 
 		// Others are not allowed to view documents
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => $upload->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => $upload->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => $upload->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', '?' => ['document' => $upload->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', '?' => ['document' => $upload->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'document', '?' => ['document' => $upload->id]]);
 	}
 
 	/**
@@ -1681,7 +1678,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to approve documents
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', 'document' => $upload->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', '?' => ['document' => $upload->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1698,7 +1695,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to approve documents
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', 'document' => $upload->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', '?' => ['document' => $upload->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1715,9 +1712,9 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to approve documents
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => $upload->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => $upload->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => $upload->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', '?' => ['document' => $upload->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', '?' => ['document' => $upload->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_document', '?' => ['document' => $upload->id]]);
 	}
 
 	/**
@@ -1732,7 +1729,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to edit documents
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', 'document' => $upload->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', '?' => ['document' => $upload->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1749,7 +1746,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to edit documents
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', 'document' => $upload->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', '?' => ['document' => $upload->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1766,9 +1763,9 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to edit documents
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => $upload->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => $upload->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => $upload->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', '?' => ['document' => $upload->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', '?' => ['document' => $upload->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit_document', '?' => ['document' => $upload->id]]);
 	}
 
 	/**
@@ -1783,7 +1780,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete documents
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', 'document' => $upload->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', '?' => ['document' => $upload->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1801,7 +1798,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete documents
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', 'document' => $upload->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', '?' => ['document' => $upload->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1819,11 +1816,11 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete documents
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => $upload->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', '?' => ['document' => $upload->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => $upload->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', '?' => ['document' => $upload->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => $upload->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_document', '?' => ['document' => $upload->id]]);
 	}
 
 	/**
@@ -1838,8 +1835,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to nominate
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', '?' => ['badge' => $badge->id, 'person' => $player->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1856,8 +1853,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to nominate
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', '?' => ['badge' => $badge->id, 'person' => $player->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1874,8 +1871,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Players are allowed to nominate
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], $player->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id], $player->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', '?' => ['badge' => $badge->id, 'person' => $player->id]], $player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1892,8 +1889,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to nominate
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate']);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge_reason', '?' => ['badge' => $badge->id, 'person' => $player->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1935,7 +1932,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to approve badges
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', 'badge' => $badge->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', '?' => ['badge' => $badge->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1953,7 +1950,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to approve badges
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', 'badge' => $badge->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', '?' => ['badge' => $badge->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1971,18 +1968,18 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to approve badges
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => $badge->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', '?' => ['badge' => $badge->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => $badge->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', '?' => ['badge' => $badge->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => $badge->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_badge', '?' => ['badge' => $badge->id]]);
 	}
 
 	/**
 	 * Test delete_badge method as an admin
 	 */
 	public function testDeleteBadgeAsAdmin(): void {
-		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
@@ -1992,7 +1989,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete badges
-		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', 'badge' => $badge->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', '?' => ['badge' => $badge->id]],
 			$admin->id, ['comment' => 'No badge for you.']);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -2002,7 +1999,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_badge method as a manager
 	 */
 	public function testDeleteBadgeAsManager(): void {
-		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
@@ -2012,7 +2009,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete badges
-		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', 'badge' => $badge->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', '?' => ['badge' => $badge->id]],
 			$manager->id, ['comment' => 'No badge for you.']);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -2022,7 +2019,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_badge method as others
 	 */
 	public function testDeleteBadgeAsOthers(): void {
-		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
@@ -2032,11 +2029,11 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete badges
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => $badge->id],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', '?' => ['badge' => $badge->id]],
 			$volunteer->id, ['comment' => 'No badge for you.']);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => $badge->id],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', '?' => ['badge' => $badge->id]],
 			$player->id, ['comment' => 'No badge for you.']);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => $badge->id],
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_badge', '?' => ['badge' => $badge->id]],
 			['comment' => 'No badge for you.']);
 	}
 
@@ -2044,13 +2041,12 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Admins are allowed to delete people
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', '?' => ['person' => $player->id]],
 			$admin->id, [], '/',
 			'The person has been deleted.');
 
@@ -2061,13 +2057,12 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
 
 		// Managers are allowed to delete people
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', '?' => ['person' => $player->id]],
 			$manager->id, [], '/',
 			'The person has been deleted.');
 
@@ -2078,17 +2073,16 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to delete people
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', '?' => ['person' => $player->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => $volunteer->id],
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', '?' => ['person' => $volunteer->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => $player->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete', '?' => ['person' => $player->id]]);
 	}
 
 	/**
@@ -2135,6 +2129,20 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
+	public function testSplashTasks(): void {
+		[$volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer']);
+		Configure::write('feature.tasks', true);
+		$task = TaskFactory::make()
+			->with('TaskSlots', [
+				'person_id' => $volunteer->id,
+				'approved' => true,
+			])
+			->with('Categories')
+			->persist();
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'], $volunteer->id);
+		$this->assertResponseContains("\\/task_slots\\/ical\\/{$task->task_slots[0]->id}\\/task.ics");
+	}
+
 	/**
 	 * Test schedule method
 	 */
@@ -2167,13 +2175,13 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
 			$player->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule', 'person' => $relative->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule', '?' => ['person' => $relative->id]],
 			$player->id);
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
 			[$player->id, $relative->id]);
 
 		// Others are not allowed to get schedules
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'schedule', 'person' => $player->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'schedule', '?' => ['person' => $player->id]],
 			$admin->id);
 		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'schedule']);
 
@@ -2221,38 +2229,38 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as'],
 			$admin->id, '/',
 			'There is nobody else you can act as.');
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $manager->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $manager->id]],
 			$admin->id, '/',
 			'You are now acting as ' . $manager->full_name . '.');
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $volunteer->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $volunteer->id]],
 			$admin->id, '/',
 			'You are now acting as ' . $volunteer->full_name . '.');
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $player->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $player->id]],
 			$admin->id, '/',
 			'You are now acting as ' . $player->full_name . '.');
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $relative->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $relative->id]],
 			$admin->id, '/',
 			'You are now acting as ' . $relative->full_name . '.');
 
 		// Managers are allowed to act as anyone in their affiliate
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $admin->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $admin->id]],
 			$manager->id, '/',
 			'Managers cannot act as other managers.');
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $volunteer->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $volunteer->id]],
 			$manager->id, '/',
 			'You are now acting as ' . $volunteer->full_name . '.');
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $player->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $player->id]],
 			$manager->id, '/',
 			'You are now acting as ' . $player->full_name . '.');
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => $relative->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $relative->id]], $manager->id);
 
 		// Others are allowed to act as themselves or their relatives only
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => $relative->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $relative->id]],
 			$player->id, '/',
 			'You are now acting as ' . $relative->full_name . '.');
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => $player->id], $relative->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $player->id]], $relative->id);
 
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => $player->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $player->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2263,7 +2271,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testSearch(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		// Anyone logged in is allowed to search
@@ -2405,7 +2412,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to approve
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', 'person' => $new->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2414,7 +2421,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, approving a duplicate
 	 */
 	public function testApproveAsAdminApprove(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2422,29 +2428,29 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Create a duplicate account to approve
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => $new->id],
-			$admin->id, ['disposition' => 'approved'], ['controller' => 'People', 'action' => 'list_new']);
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]],
+			$admin->id, ['disposition' => 'approve'], ['controller' => 'People', 'action' => 'list_new']);
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([], 'ReplyTo');
+		$this->assertMailSentWithArray([], 'ReplyTo');
 		$this->assertMailSentTo($new->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test Zuluru Affiliate Account Activation for ' . $new->user->user_name, 'Subject');
 		$this->assertMailContains('Your TZA account has been approved.');
 
 		// Make sure that everything is still there
 		/** @var Person $person */
 		$person = TableRegistry::getTableLocator()->get('People')->get($new->id, [
-			'contain' => [Configure::read('Security.authModel'), 'Affiliates', 'Groups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+			'contain' => [Configure::read('Security.authModel'), 'Affiliates', 'UserGroups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
 		]);
 		$this->assertEquals('active', $person->status);
 		$this->assertEquals($new->user_id, $person->user_id);
 		$this->assertNotNull($person->user);
 		$this->assertEquals($new->user_id, $person->user->id);
 		$this->assertCount(1, $person->affiliates);
-		$this->assertCount(1, $person->groups);
+		$this->assertCount(1, $person->user_groups);
 		$this->assertCount(2, $person->settings);
 		$this->assertCount(2, $person->skills);
 	}
@@ -2453,7 +2459,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, silently deleting the duplicate
 	 */
 	public function testApproveAsAdminDeleteSilently(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2461,7 +2466,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => $new->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]],
 			$admin->id, ['disposition' => 'delete'], ['controller' => 'People', 'action' => 'list_new']);
 
 		// Confirm there was no notification email
@@ -2483,7 +2488,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, deleting the duplicate with notice
 	 */
 	public function testApproveAsAdminDeleteNotice(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2491,16 +2495,16 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => $new->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]],
 			$admin->id, ['disposition' => 'delete_duplicate:' . $player->id], ['controller' => 'People', 'action' => 'list_new']);
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([], 'ReplyTo');
+		$this->assertMailSentWithArray([], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
 		$this->assertMailSentTo($new->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test Zuluru Affiliate Account Update', 'Subject');
 		$this->assertMailContains('You seem to have created a duplicate TZA account. You already have an account.');
 		$this->assertMailContains('Your second account has been deleted.');
@@ -2521,7 +2525,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, merging the duplicate with another
 	 */
 	public function testApproveAsAdminMerge(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2529,16 +2532,16 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => $new->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]],
 			$admin->id, ['disposition' => 'merge_duplicate:' . $player->id], ['controller' => 'People', 'action' => 'list_new']);
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([], 'ReplyTo');
+		$this->assertMailSentWithArray([], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
 		$this->assertMailSentTo($new->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test Zuluru Affiliate Account Update', 'Subject');
 		$this->assertMailContains('You seem to have created a duplicate TZA account. You already have an account.');
 		$this->assertMailContains('this old account has been merged with your new information');
@@ -2549,7 +2552,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$authModel = Configure::read('Security.authModel');
 		/** @var Person $person */
 		$person = $table->get($player->id, [
-			'contain' => [$authModel, 'Affiliates', 'Groups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+			'contain' => [$authModel, 'Affiliates', 'UserGroups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
 		]);
 		$this->assertEquals($new->last_name, $person->last_name);
 		$this->assertEquals('active', $person->status);
@@ -2563,9 +2566,82 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertNotNull($person->user);
 		$this->assertEquals($player->user_id, $person->user->id);
 		$this->assertCount(1, $person->affiliates);
-		$this->assertCount(1, $person->groups);
+		$this->assertCount(1, $person->user_groups);
 		$this->assertCount(2, $person->settings);
 		$this->assertCount(2, $person->skills);
+
+		// And all the old stuff is gone
+		$this->assertEquals(0, $table->find()->where(['id' => $new->id])->count());
+		$this->assertEquals(0, $table->$authModel->find()->where(['id' => $new->id])->count());
+		$this->assertEquals(0, $table->AffiliatesPeople->find()->where(['person_id' => $new->id])->count());
+		$this->assertEquals(0, $table->GroupsPeople->find()->where(['person_id' => $new->id])->count());
+		$this->assertEquals(0, $table->Settings->find()->where(['person_id' => $new->id])->count());
+		$this->assertEquals(0, $table->Skills->find()->where(['person_id' => $new->id])->count());
+	}
+
+	/**
+	 * Test approve method as an admin, merging the duplicate with another
+	 */
+	public function testApproveAsAdminMergeParentToPlayer(): void {
+		$this->enableSecurityToken();
+
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		SettingFactory::make(['person_id' => $player->id, 'category' => 'cat', 'value' => 'val'])->persist();
+		SkillFactory::make(['person_id' => $player->id])->persist();
+		$shirt = $player->shirt_size;
+		$height = $player->height;
+
+		// Create a duplicate account to delete
+		$new = PersonFactory::make([
+			'first_name' => $player->first_name,
+			'last_name' => $player->last_name,
+			'status' => 'new',
+		])
+			->parent()
+			->with('Affiliates', $admin->affiliates[0])
+			->with('Settings')
+			->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]],
+			$admin->id, ['disposition' => 'merge_duplicate:' . $player->id], ['controller' => 'People', 'action' => 'list_new']);
+
+		// Confirm the notification email
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWithArray([], 'ReplyTo');
+		$this->assertMailSentTo($player->email);
+		$this->assertMailSentTo($new->email);
+		$this->assertMailSentWithArray([], 'CC');
+		$this->assertMailSentWith('Test Zuluru Affiliate Account Update', 'Subject');
+		$this->assertMailContains('You seem to have created a duplicate TZA account. You already have an account.');
+		$this->assertMailContains('this old account has been merged with your new information');
+
+		// Make sure that everything was correctly merged
+		/** @var PeopleTable $table */
+		$table = TableRegistry::getTableLocator()->get('People');
+		$authModel = Configure::read('Security.authModel');
+		/** @var Person $person */
+		$person = $table->get($player->id, [
+			'contain' => [$authModel, 'Affiliates', 'UserGroups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+		]);
+		$this->assertEquals($new->last_name, $person->last_name);
+		$this->assertEquals('active', $person->status);
+		$this->assertFalse($person->publish_email);
+		$this->assertEquals($new->home_phone, $person->home_phone);
+		$this->assertEquals($new->mobile_phone, $person->mobile_phone);
+		$this->assertEquals($new->work_phone, $person->work_phone);
+		$this->assertEquals($new->addr_street, $person->addr_street);
+		$this->assertEquals($shirt, $person->shirt_size);
+		$this->assertEquals($height, $person->height);
+		$this->assertEquals($player->user_id, $person->user_id);
+		$this->assertNotNull($person->user);
+		$this->assertEquals($player->user_id, $person->user->id);
+		$this->assertCount(1, $person->affiliates);
+		$this->assertCount(2, $person->user_groups);
+		$this->assertEquals(GROUP_PLAYER, $person->user_groups[0]->id);
+		$this->assertEquals(GROUP_PARENT, $person->user_groups[1]->id);
+		$this->assertCount(2, $person->settings);
+		$this->assertCount(1, $person->skills);
 
 		// And all the old stuff is gone
 		$this->assertEquals(0, $table->find()->where(['id' => $new->id])->count());
@@ -2588,7 +2664,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
 
 		// Managers are allowed to approve
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', 'person' => $new->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2603,9 +2679,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
 
 		// Others are not allowed to approve
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => $new->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => $new->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => $new->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]]);
 	}
 
 	/**
@@ -2621,38 +2697,38 @@ class PeopleControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Anyone is allowed to download the VCF. Different people have different info available.
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $player->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $inactive->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $player->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $inactive->id]], $admin->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $player->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $inactive->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $player->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $inactive->id]], $manager->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $player->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $player->id]], $volunteer->id);
 		$this->assertResponseNotContains('EMAIL');
 		$this->assertResponseNotContains('TEL;HOME');
 		$this->assertResponseNotContains('TEL;WORK');
 		$this->assertResponseNotContains('TEL;CELL');
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $inactive->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $inactive->id]], $volunteer->id);
 		$this->assertResponseNotContains('EMAIL');
 		$this->assertResponseNotContains('TEL;HOME');
 		$this->assertResponseNotContains('TEL;WORK');
 		$this->assertResponseNotContains('TEL;CELL');
 
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $player->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $player->id]], $player->id);
 		$this->assertResponseContains('EMAIL;PREF;INTERNET:' . $player->email);
 		$this->assertResponseContains('TEL;HOME;VOICE:' . $player->home_phone);
-		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $inactive->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $inactive->id]], $player->id);
 		$this->assertResponseNotContains('EMAIL');
 		$this->assertResponseNotContains('TEL;HOME');
 		$this->assertResponseNotContains('TEL;WORK');
 		$this->assertResponseNotContains('TEL;CELL');
 
-		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $player->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $player->id]]);
 		$this->assertResponseNotContains('EMAIL');
 		$this->assertResponseNotContains('TEL;HOME');
 		$this->assertResponseNotContains('TEL;WORK');
 		$this->assertResponseNotContains('TEL;CELL');
-		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => $inactive->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $inactive->id]]);
 		$this->assertResponseNotContains('EMAIL');
 		$this->assertResponseNotContains('TEL;HOME');
 		$this->assertResponseNotContains('TEL;WORK');
@@ -2749,10 +2825,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		return PersonFactory::make([
 			'first_name' => $player->first_name,
 			'last_name' => $player->last_name,
-			'shirt_size' => 'Womens Large', // required field to save
 			'status' => 'new',
 		])
-			->player()
+			->player(['shirt_size' => 'Womens Large']) // required field to save
 			->with('Affiliates', $affiliate)
 			->with('Skills[2]')
 			->with('Settings[2]')

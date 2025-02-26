@@ -26,7 +26,7 @@ class RuleNot extends RuleMeta {
 		// CakePHP should cache the query results, so there's no overhead
 		// in doing this multiple times in a single ruleset.
 		$query = $this->initializeQuery($affiliate);
-		$this->people = $query->extract('id')->toArray();
+		$this->people = $query->all()->extract('id')->toArray();
 	}
 
 	protected function merge(array $people) {

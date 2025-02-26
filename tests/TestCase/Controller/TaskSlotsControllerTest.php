@@ -19,7 +19,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -47,26 +47,26 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to view task slots, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $slot->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $slot->id]], $admin->id);
 		$this->assertResponseContains('/task_slots/edit?slot=' . $slot->id);
 		$this->assertResponseContains('/task_slots/delete?slot=' . $slot->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $affiliate_slot->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $affiliate_slot->id]], $admin->id);
 		$this->assertResponseContains('/task_slots/edit?slot=' . $affiliate_slot->id);
 		$this->assertResponseContains('/task_slots/delete?slot=' . $affiliate_slot->id);
 
 		// Managers are allowed to view task slots
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $slot->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $slot->id]], $manager->id);
 		$this->assertResponseContains('/task_slots/edit?slot=' . $slot->id);
 		$this->assertResponseContains('/task_slots/delete?slot=' . $slot->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $affiliate_slot->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $affiliate_slot->id]], $manager->id);
 
 		// Others are not allowed to view task slots
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $slot->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $slot->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $slot->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $slot->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $slot->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $slot->id]]);
 	}
 
 	/**
@@ -100,7 +100,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to add task slots
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => $task->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', '?' => ['task' => $task->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -119,7 +119,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to add task slots
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => $task->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', '?' => ['task' => $task->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -138,9 +138,9 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to add task slots
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => $task->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => $task->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => $task->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', '?' => ['task' => $task->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', '?' => ['task' => $task->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', '?' => ['task' => $task->id]]);
 	}
 
 	/**
@@ -158,7 +158,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to edit task slots
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $slot->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', '?' => ['slot' => $slot->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -178,7 +178,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to edit task slots
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $slot->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', '?' => ['slot' => $slot->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -198,16 +198,15 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to edit task slots
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $slot->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $slot->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $slot->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', '?' => ['slot' => $slot->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', '?' => ['slot' => $slot->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', '?' => ['slot' => $slot->id]]);
 	}
 
 	/**
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -221,7 +220,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete task slots
-		$this->assertPostAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $slot->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', '?' => ['slot' => $slot->id]],
 			$admin->id, [], ['controller' => 'Tasks', 'action' => 'index'],
 			'The task slot has been deleted.');
 	}
@@ -230,7 +229,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -253,12 +251,12 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete task slots in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $slot->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', '?' => ['slot' => $slot->id]],
 			$manager->id, [], ['controller' => 'Tasks', 'action' => 'index'],
 			'The task slot has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $affiliate_slot->id],
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', '?' => ['slot' => $affiliate_slot->id]],
 			$manager->id);
 	}
 
@@ -266,7 +264,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -280,18 +277,17 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete task slots
-		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $slot->id],
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', '?' => ['slot' => $slot->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $slot->id],
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', '?' => ['slot' => $slot->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $slot->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', '?' => ['slot' => $slot->id]]);
 	}
 
 	/**
 	 * Test assign method as an admin
 	 */
 	public function testAssignAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -305,7 +301,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to assign task slots
-		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $slot->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', '?' => ['slot' => $slot->id]],
 			$admin->id, ['person' => $player->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -315,7 +311,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test assign method as a manager
 	 */
 	public function testAssignAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
@@ -329,7 +324,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to assign task slots
-		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $slot->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', '?' => ['slot' => $slot->id]],
 			$manager->id, ['person' => $player->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -339,7 +334,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test assign method as others
 	 */
 	public function testAssignAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -353,11 +347,11 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to assign task slots
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $slot->id],
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', '?' => ['slot' => $slot->id]],
 			$volunteer->id, ['person' => $player->id], ['controller' => 'Tasks', 'action' => 'index'], 'Invalid task slot.');
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $slot->id],
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', '?' => ['slot' => $slot->id]],
 			$player->id, ['person' => $player->id], ['controller' => 'Tasks', 'action' => 'index'], 'Invalid task slot.');
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $slot->id],
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'assign', '?' => ['slot' => $slot->id]],
 			['person' => $player->id]);
 	}
 
@@ -376,7 +370,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to approve task slots
-		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $slot->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', '?' => ['slot' => $slot->id]],
 			$admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -397,7 +391,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to approve task slots
-		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $slot->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', '?' => ['slot' => $slot->id]],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -418,11 +412,11 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to approve task slots
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $slot->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', '?' => ['slot' => $slot->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $slot->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', '?' => ['slot' => $slot->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $slot->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', '?' => ['slot' => $slot->id]]);
 	}
 
 }

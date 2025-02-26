@@ -21,21 +21,17 @@ class RuleSignedWaiver extends Rule {
 	 *
 	 * @var int[]
 	 */
-	protected $waiver_ids;
+	protected array $waiver_ids;
 
 	/**
-	 * Waiver name
-	 *
-	 * @var string
+	 * Waiver
 	 */
 	protected $waiver;
 
 	/**
 	 * Date to look at
-	 *
-	 * @var FrozenDate
 	 */
-	protected $date;
+	protected FrozenDate $date;
 
 	public function parse($config) {
 		$config = array_map('trim', explode(',', $config));
@@ -67,9 +63,9 @@ class RuleSignedWaiver extends Rule {
 
 	// Check if the user has signed the required waiver
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
-		$url = ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $this->waiver_ids[0], 'date' => $this->date->toDateString()];
+		$url = ['controller' => 'Waivers', 'action' => 'sign', '?' => ['waiver' => $this->waiver_ids[0], 'date' => $this->date->toDateString()]];
 		if ($this->waiver->expiry_type == 'never' && $this->date->isFuture()) {
-			$url['date'] = FrozenDate::now()->toDateString();
+			$url['?']['date'] = FrozenDate::now()->toDateString();
 		}
 
 		if ($text_reason) {
@@ -78,7 +74,7 @@ class RuleSignedWaiver extends Rule {
 			if ($absolute_url) {
 				$target = Router::url($url, true);
 			} else {
-				$url['return'] = AppController::_return();
+				$url['?']['return'] = AppController::_return();
 				$target = $url;
 			}
 			$this->reason = [

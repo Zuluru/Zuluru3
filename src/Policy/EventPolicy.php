@@ -34,7 +34,7 @@ class EventPolicy extends AppPolicy {
 
 	public function canWizard(IdentityInterface $identity = null, $resource) {
 		if (!$identity || !$identity->isLoggedIn()) {
-			throw new ForbiddenRedirectException(null, ['controller' => 'Events', 'action' => 'index']);
+			throw new ForbiddenRedirectException(__('The registration wizard only works when you are logged in.'), ['controller' => 'Events', 'action' => 'index']);
 		}
 
 		return true;
@@ -144,7 +144,7 @@ class EventPolicy extends AppPolicy {
 					'class' => 'warning-message',
 				]];
 			}
-			$this->_person->group_ids = $userCache->read('GroupIDs', $person_id);
+			$this->_person->group_ids = $userCache->read('UserGroupIDs', $person_id);
 			$this->_person->teams = $userCache->read('AllTeams', $person_id);
 			$this->_person->preregistrations = $userCache->read('Preregistrations', $person_id);
 			$this->_person->registrations = array_merge(
@@ -193,7 +193,7 @@ class EventPolicy extends AppPolicy {
 				'replacements' => [[
 					'type' => 'link',
 					'link' => __('reactivate your profile'),
-					'target' => ['controller' => 'People', 'action' => 'reactivate', 'return' => AppController::_return()],
+					'target' => ['controller' => 'People', 'action' => 'reactivate', '?' => ['return' => AppController::_return()]],
 				]],
 				'class' => 'warning-message',
 			]];
@@ -284,7 +284,7 @@ class EventPolicy extends AppPolicy {
 							'replacements' => [[
 								'type' => 'link',
 								'link' => __('continue with registration'),
-								'target' => ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id, 'waiting' => true],
+								'target' => ['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id, 'waiting' => true]],
 							]],
 							'class' => 'highlight-message'
 						];

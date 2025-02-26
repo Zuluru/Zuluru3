@@ -14,7 +14,7 @@ class HolidaysController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -22,7 +22,7 @@ class HolidaysController extends AppController {
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->paginate['contain'] = ['Affiliates'];
 		$this->paginate['conditions'] = ['Holidays.affiliate_id IN' => $affiliates];
-		$this->paginate['order'] = ['date'];
+		$this->paginate['order'] = ['date' => 'ASC'];
 		$holidays = $this->paginate($this->Holidays);
 
 		$this->set(compact('holidays', 'affiliates'));
@@ -31,10 +31,10 @@ class HolidaysController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$holiday = $this->Holidays->newEntity();
+		$holiday = $this->Holidays->newEmptyEntity();
 		$this->Authorization->authorize($holiday);
 
 		if ($this->getRequest()->is('post')) {
@@ -56,16 +56,15 @@ class HolidaysController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('holiday');
 		try {
-			$holiday = $this->Holidays->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid holiday.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$holiday = $this->Holidays->find('translations')
+				->where(['Holidays.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -90,7 +89,7 @@ class HolidaysController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -98,10 +97,7 @@ class HolidaysController extends AppController {
 		$id = $this->getRequest()->getQuery('holiday');
 		try {
 			$holiday = $this->Holidays->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid holiday.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);
 		}

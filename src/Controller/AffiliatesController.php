@@ -17,7 +17,7 @@ class AffiliatesController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -37,7 +37,7 @@ class AffiliatesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('affiliate');
@@ -51,10 +51,7 @@ class AffiliatesController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid affiliate.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -67,10 +64,10 @@ class AffiliatesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$affiliate = $this->Affiliates->newEntity();
+		$affiliate = $this->Affiliates->newEmptyEntity();
 		$this->Authorization->authorize($affiliate);
 
 		if ($this->getRequest()->is('post')) {
@@ -89,16 +86,15 @@ class AffiliatesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('affiliate');
 		try {
-			$affiliate = $this->Affiliates->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid affiliate.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$affiliate = $this->Affiliates->find('translations')
+				->where(['Affiliates.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -121,7 +117,7 @@ class AffiliatesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -129,10 +125,7 @@ class AffiliatesController extends AppController {
 		$id = $this->getRequest()->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid affiliate.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -159,7 +152,7 @@ class AffiliatesController extends AppController {
 	/**
 	 * Add manager method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_manager() {
 		$id = $this->getRequest()->getQuery('affiliate');
@@ -173,10 +166,7 @@ class AffiliatesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid affiliate.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -196,17 +186,14 @@ class AffiliatesController extends AppController {
 						],
 					],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect(['action' => 'index']);
 			}
 
 			if (!empty($person->affiliates_people) && $person->affiliates_people[0]->position === 'manager') {
 				$this->Flash->info(__('{0} is already a manager of this affiliate.', $person->full_name));
-				return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 			} else {
 				if (!empty($person->affiliates_people)) {
 					$person->affiliates_people[0]->position = 'manager';
@@ -218,7 +205,7 @@ class AffiliatesController extends AppController {
 
 				if ($success) {
 					$this->Flash->success(__('Added {0} as manager.', $person->full_name));
-					return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 				} else {
 					$this->Flash->warning(__('Failed to add {0} as manager.', $person->full_name));
 				}
@@ -231,7 +218,7 @@ class AffiliatesController extends AppController {
 	/**
 	 * Remove manager method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to view.
+	 * @return void|\Cake\Http\Response Redirects to view.
 	 */
 	public function remove_manager() {
 		$this->getRequest()->allowMethod(['post']);
@@ -251,10 +238,7 @@ class AffiliatesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid affiliate.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -263,7 +247,7 @@ class AffiliatesController extends AppController {
 
 		if (empty($affiliate->affiliates_people)) {
 			$this->Flash->warning(__('That person is not a manager of this affiliate!'));
-			return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 		}
 
 		$affiliate->affiliates_people[0]->position = 'player';
@@ -275,7 +259,7 @@ class AffiliatesController extends AppController {
 			$this->Flash->warning(__('Failed to remove manager!'));
 		}
 
-		return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 	}
 
 	public function select() {

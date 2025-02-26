@@ -20,7 +20,7 @@ class DivisionsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'name' => 'Competitive',
@@ -227,11 +227,11 @@ class DivisionsFixture extends TestFixture {
 			],
 			[
 				'name' => 'Ladder',
-				'open' => (new FrozenDate('first Sunday of June'))->subYear(),
-				'close' => (new FrozenDate('first Sunday of September'))->subYear(),
+				'open' => (new FrozenDate('first Sunday of June'))->subYears(1),
+				'close' => (new FrozenDate('first Sunday of September'))->subYears(1),
 				'ratio_rule' => '4/3',
 				'current_round' => '1',
-				'roster_deadline' => (new FrozenDate('last Sunday of August'))->subYear(),
+				'roster_deadline' => (new FrozenDate('last Sunday of August'))->subYears(1),
 				'roster_rule' => '',
 				'is_open' => true,
 				'schedule_type' => 'ratings_ladder',

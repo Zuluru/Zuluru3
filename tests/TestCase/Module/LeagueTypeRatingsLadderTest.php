@@ -115,7 +115,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 		$this->LeagueType->startSchedule($division, $division->_options->start_date);
 		$games = $this->LeagueType->createScheduledSet($division, $division->_options->start_date);
 
-		$this->assertEquals(4, count($games));
+		$this->assertCount(4, $games);
 
 		foreach ($games as $game) {
 			$this->assertEquals(SEASON_GAME, $game->type);
@@ -129,7 +129,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 		}
 
 		// Ensure that different game slots were chosen for each game
-		$this->assertEquals(4, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
+		$this->assertCount(4, array_unique(collection($games)->extract('game_slot_id')->toArray()));
 
 		// Standings coming into this are Red, Blue, Green, Yellow, Purple, Orange, Black, White.
 		// Because of previous matchups, Red/Blue/Green/Yellow can't play, and Purple/Orange/Black/White can't play.

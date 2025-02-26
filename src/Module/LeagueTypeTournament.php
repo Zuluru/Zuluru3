@@ -1117,9 +1117,9 @@ class LeagueTypeTournament extends LeagueType {
 			return $p->stage < $pool->stage;
 		})->extract('id')->toList();
 		if ($separate_days) {
-			$initial = new FrozenDate('0000-00-00');
+			$initial = new FrozenDate('0001-01-01');
 		} else {
-			$initial = new FrozenTime('0000-00-00 00:00:00');
+			$initial = new FrozenTime('0001-01-01 00:00:00');
 		}
 		$last_game = $initial;
 		foreach ($prior_pools as $prior_pool) {
@@ -1150,9 +1150,8 @@ class LeagueTypeTournament extends LeagueType {
 		foreach ($games as $game) {
 			if (empty($game->home_dependency_type) || $game->home_dependency_type != 'copy') {
 				if (is_array($division->_options->start_date)) {
-					// TODO: See discussion of CakePHP bug in Template/Schedules/date.ctp
-					$date = new FrozenDate($division->_options->start_date["round{$game->round}"]);
-					$time = new FrozenTime($division->_options->start_date["round{$game->round}"]);
+					$date = new FrozenDate($division->_options->start_date[$game->round]);
+					$time = new FrozenTime($division->_options->start_date[$game->round]);
 					$game_slot = $this->selectRoundGameslot($division, $date, $time->i18nFormat('HH:mm'), $game->round, false);
 				} else {
 					// '0' is a non-blank string which collection::filter can compare to, but will always be less than any actual time

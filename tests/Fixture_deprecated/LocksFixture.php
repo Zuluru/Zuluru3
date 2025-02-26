@@ -20,7 +20,7 @@ class LocksFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'name' => 'Lorem ipsum dolor sit amet',

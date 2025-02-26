@@ -37,7 +37,7 @@ class PaymentController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index'];
 	}
 
@@ -49,15 +49,15 @@ class PaymentController extends AppController {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->loadModel('Registrations');
+		$this->Registrations = $this->fetchTable('Registrations');
 	}
 
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['index']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['index']);
 		}
 	}
 
@@ -81,6 +81,7 @@ class PaymentController extends AppController {
 			}
 
 			[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($values))->parsePayment($values, false);
+
 			if (!$result) {
 				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 				return;
@@ -129,7 +130,7 @@ class PaymentController extends AppController {
 
 		$matched = preg_match_all('/([\\w\\d_]+) *: (.*)/', $text, $matches, PREG_SET_ORDER);
 		if (!$matched) {
-			$this->Flash('warning', __('Unable to extract payment information from the text provided.'));
+			$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 			return false;
 		}
 
@@ -139,7 +140,7 @@ class PaymentController extends AppController {
 			// https://stackoverflow.com/questions/50110007/regex-to-match-names-and-optional-values/50111862#50111862
 			$matched = preg_match_all('/(\\w+) ?: ?(.*?)(?= ?\\w+ ?:|$)/', $text, $matches, PREG_SET_ORDER);
 			if (!$matched) {
-				$this->Flash('warning', __('Unable to extract payment information from the text provided.'));
+				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 				return false;
 			}
 		}

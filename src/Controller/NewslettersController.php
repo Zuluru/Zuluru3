@@ -23,7 +23,7 @@ class NewslettersController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -64,7 +64,7 @@ class NewslettersController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('newsletter');
@@ -72,10 +72,7 @@ class NewslettersController extends AppController {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -89,10 +86,10 @@ class NewslettersController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$newsletter = $this->Newsletters->newEntity();
+		$newsletter = $this->Newsletters->newEmptyEntity();
 		$this->Authorization->authorize($newsletter);
 
 		if ($this->getRequest()->is('post')) {
@@ -111,6 +108,7 @@ class NewslettersController extends AppController {
 			->contain(['Affiliates'])
 			->where(['MailingLists.affiliate_id IN' => $affiliates])
 			->order(['Affiliates.name', 'MailingLists.name'])
+			->all()
 			->combine('id', 'name', 'affiliate.name')
 			->toArray();
 		if (count($affiliates) == 1) {
@@ -123,18 +121,16 @@ class NewslettersController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('newsletter');
 		try {
-			$newsletter = $this->Newsletters->get($id, [
-				'contain' => ['MailingLists']
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$newsletter = $this->Newsletters->find('translations')
+				->contain(['MailingLists'])
+				->where(['Newsletters.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -164,7 +160,7 @@ class NewslettersController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -172,10 +168,7 @@ class NewslettersController extends AppController {
 		$id = $this->getRequest()->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -205,10 +198,7 @@ class NewslettersController extends AppController {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists', 'Deliveries']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -254,10 +244,7 @@ class NewslettersController extends AppController {
 						'Deliveries',
 					]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid newsletter.'));
-				return $this->redirect(['action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid newsletter.'));
 				return $this->redirect(['action' => 'index']);
 			}
@@ -269,7 +256,7 @@ class NewslettersController extends AppController {
 			$rule_obj = $this->moduleRegistry->load('RuleEngine');
 			if (!$rule_obj->init($newsletter->mailing_list->rule)) {
 				$this->Flash->warning(__('Failed to parse the rule: {0}', $rule_obj->parse_error));
-				return $this->redirect(['action' => 'view', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['newsletter' => $id]]);
 			}
 
 			$user_model = Configure::read('Security.authModel');
@@ -298,7 +285,7 @@ class NewslettersController extends AppController {
 				]);
 			} catch (RuleException $ex) {
 				$this->Flash->info($ex->getMessage());
-				return $this->redirect(['action' => 'view', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['newsletter' => $id]]);
 			}
 
 			if (!empty($people)) {
@@ -320,11 +307,11 @@ class NewslettersController extends AppController {
 
 			if (empty($people)) {
 				$this->Flash->success(__('Finished sending newsletters.'));
-				return $this->redirect(['action' => 'delivery', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'delivery', '?' => ['newsletter' => $id]]);
 			}
 
 			if (!$this->Lock->lock('newsletter', $newsletter->mailing_list->affiliate_id, 'newsletter delivery')) {
-				return $this->redirect(['action' => 'view', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['newsletter' => $id]]);
 			}
 
 			$delay = $newsletter->delay * MINUTE;
@@ -339,10 +326,7 @@ class NewslettersController extends AppController {
 						'Deliveries',
 					]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid newsletter.'));
-				return $this->redirect(['action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid newsletter.'));
 				return $this->redirect(['action' => 'index']);
 			}
@@ -383,7 +367,7 @@ class NewslettersController extends AppController {
 				$params['viewVars'] = compact('newsletter', 'person', 'code');
 
 				if ($newsletter->mailing_list->opt_out) {
-					$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $newsletter->mailing_list->id, 'person' => $person->id, 'code' => $code], true);
+					$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $newsletter->mailing_list->id, 'person' => $person->id, 'code' => $code]], true);
 					$params['header']['List-Unsubscribe'] = "<$url>";
 				}
 
@@ -405,7 +389,7 @@ class NewslettersController extends AppController {
 				$params['to'] = $newsletter->from_email;
 			}
 			if ($newsletter->mailing_list->opt_out) {
-				$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $newsletter->mailing_list->id], true);
+				$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $newsletter->mailing_list->id]], true);
 				$params['header']['List-Unsubscribe'] = "<$url>";
 			}
 			$params['viewVars'] = compact('newsletter');

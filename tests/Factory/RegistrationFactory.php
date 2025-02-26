@@ -27,7 +27,7 @@ class RegistrationFactory extends BaseFactory
 		$this->setDefaultData(function(Generator $faker) {
 			return [
 				// When we run tests with refunds, we need the registration to have been some time in the past
-				'created' => FrozenTime::now()->subDay(),
+				'created' => FrozenTime::now()->subDays(1),
 			];
 		});
 	}

@@ -41,7 +41,7 @@ class FormatterBehavior extends Behavior {
 	 * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
 	 * @return void
 	 */
-	public function beforeSave(CakeEvent $cakeEvent, Entity $entity) {
+	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, Entity $entity) {
 		$this->format($entity);
 	}
 

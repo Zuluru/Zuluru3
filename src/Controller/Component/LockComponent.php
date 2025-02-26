@@ -2,20 +2,16 @@
 namespace App\Controller\Component;
 
 use App\Core\UserCache;
-use App\Event\FlashTrait;
 use Cake\Controller\Component;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event as CakeEvent;
 use Cake\ORM\TableRegistry;
 
 class LockComponent extends Component {
 
-	use FlashTrait;
-
 	private $lock_id = null;
 
-	public function shutdown(CakeEvent $cakeEvent) {
+	public function afterFilter(\Cake\Event\EventInterface $cakeEvent) {
 		$this->unlock();
 	}
 
@@ -34,7 +30,7 @@ class LockComponent extends Component {
 				if ($text === null) {
 					$text = $name;
 				}
-				$this->Flash('info', __('There is currently a {0} in progress. If unsuccessful, it will expire in 15 minutes.', __($text)));
+				$this->getController()->Flash->info(__('There is currently a {0} in progress. If unsuccessful, it will expire in 15 minutes.', __($text)));
 				return false;
 			}
 		}
@@ -53,8 +49,7 @@ class LockComponent extends Component {
 			try {
 				$lock = $this->Locks->get($this->lock_id);
 				$this->Locks->delete($lock);
-			} catch (RecordNotFoundException $ex) {
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			}
 			$this->lock_id = null;
 		}

@@ -25,17 +25,17 @@ class WaiversController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing when we add/edit waivers
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -43,7 +43,7 @@ class WaiversController extends AppController {
 
 		$this->paginate = [
 			'contain' => ['Affiliates'],
-			'order' => ['Waivers.id'],
+			'order' => ['Waivers.id' => 'ASC'],
 			'conditions' => ['Waivers.affiliate_id IN' => $affiliates],
 		];
 		$query = $this->Waivers->find()
@@ -55,7 +55,7 @@ class WaiversController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('waiver');
@@ -63,10 +63,7 @@ class WaiversController extends AppController {
 			$waiver = $this->Waivers->get($id, [
 				'contain' => ['Affiliates']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -81,10 +78,10 @@ class WaiversController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$waiver = $this->Waivers->newEntity();
+		$waiver = $this->Waivers->newEmptyEntity();
 		$this->Authorization->authorize($waiver);
 		if ($this->getRequest()->is('post')) {
 			$waiver = $this->Waivers->patchEntity($waiver, $this->getRequest()->getData());
@@ -104,16 +101,15 @@ class WaiversController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('waiver');
 		try {
-			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$waiver = $this->Waivers->find('translations')
+				->where(['Waivers.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -146,7 +142,7 @@ class WaiversController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -154,10 +150,7 @@ class WaiversController extends AppController {
 		$id = $this->getRequest()->getQuery('waiver');
 		try {
 			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -186,10 +179,7 @@ class WaiversController extends AppController {
 
 		try {
 			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
 		}
@@ -201,7 +191,7 @@ class WaiversController extends AppController {
 		try {
 			$person = $this->Waivers->People->get($person_id, [
 				'contain' => [
-					'Groups',
+					'UserGroups',
 					'WaiversPeople' => [
 						'queryBuilder' => function (Query $q) use ($id) {
 							return $q->where(['WaiversPeople.waiver_id' => $id]);
@@ -209,10 +199,7 @@ class WaiversController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -248,10 +235,7 @@ class WaiversController extends AppController {
 		}
 		try {
 			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
 		}

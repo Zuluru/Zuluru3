@@ -24,15 +24,15 @@ class SettingsController extends AppController {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
-		$this->loadModel('Settings');
+		$this->Settings = $this->fetchTable('Settings');
 	}
 
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function index() {
 		$result = $this->_process(['category' => 'payment']);

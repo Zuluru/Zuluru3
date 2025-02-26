@@ -6,6 +6,7 @@ use Cake\Core\Configure;
 use Cake\Event\EventManager;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 
 /**
  * App\Authentication\ActAsIdentity Test Case
@@ -13,6 +14,7 @@ use Cake\TestSuite\TestCase;
 class ActAsIdentityTest extends TestCase {
 
 	use IntegrationTestTrait;
+	use TruncateDirtyTables;
 
 	/**
 	 * setUp method
@@ -25,7 +27,7 @@ class ActAsIdentityTest extends TestCase {
 	}
 
 	public function tearDown(): void {
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		parent::tearDown();
 	}
 

@@ -21,14 +21,14 @@ class FieldsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index', 'view', 'tooltip'];
 	}
 
 	/**
 	 * This is here to support the many links to this page that are out there.
 	 *
-	 * @return \Cake\Network\Response Redirects
+	 * @return \Cake\Http\Response Redirects
 	 */
 	public function index() {
 		return $this->redirect(['controller' => 'Facilities', 'action' => 'index'], Message::STATUS_MOVED_PERMANENTLY);
@@ -37,7 +37,7 @@ class FieldsController extends AppController {
 	/**
 	 * This is here to support the many links to this page that are out there.
 	 *
-	 * @return \Cake\Network\Response Redirects
+	 * @return \Cake\Http\Response Redirects
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('field');
@@ -48,13 +48,13 @@ class FieldsController extends AppController {
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
-		return $this->redirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => $facility_id], Message::STATUS_MOVED_PERMANENTLY);
+		return $this->redirect(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility_id]], Message::STATUS_MOVED_PERMANENTLY);
 	}
 
 	/**
 	 * Tooltip method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function tooltip() {
 		$this->getRequest()->allowMethod('ajax');
@@ -66,10 +66,7 @@ class FieldsController extends AppController {
 					'Facilities' => ['Regions'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -81,7 +78,7 @@ class FieldsController extends AppController {
 	/**
 	 * Open field method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function open() {
 		$this->getRequest()->allowMethod('ajax');
@@ -89,10 +86,7 @@ class FieldsController extends AppController {
 		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -110,7 +104,7 @@ class FieldsController extends AppController {
 	/**
 	 * Close field method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function close() {
 		$this->getRequest()->allowMethod('ajax');
@@ -118,10 +112,7 @@ class FieldsController extends AppController {
 		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -139,7 +130,7 @@ class FieldsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return \Cake\Network\Response Redirects to index.
+	 * @return \Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -149,10 +140,7 @@ class FieldsController extends AppController {
 			$field = $this->Fields->get($id, [
 				'contain' => ['Facilities' => ['Fields']],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -181,7 +169,7 @@ class FieldsController extends AppController {
 	/**
 	 * Bookings method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function bookings() {
 		$id = $this->getRequest()->getQuery('field');
@@ -193,13 +181,18 @@ class FieldsController extends AppController {
 		} else {
 			$conditions = ['is_open' => true];
 		}
+		$slot_conditions = [];
 
 		$query = TableRegistry::getTableLocator()->get('Divisions')->find();
-		$min_date = $query->select(['min' => $query->func()->min('open')])->where($conditions)->first()->min;
-		$slot_conditions = ['GameSlots.game_date >=' => $min_date];
+		$min_date = $query->select(['min' => $query->func()->min('open', ['date'])])->where($conditions)->first()->min;
+		if ($min_date) {
+			$slot_conditions['GameSlots.game_date >='] = $min_date;
+		}
 		if (!$this->Authentication->getIdentity()->isManager()) {
-			$max_date = $query->select(['max' => $query->func()->max('close')])->where($conditions)->first()->max;
-			$slot_conditions['GameSlots.game_date <='] = $max_date;
+			$max_date = $query->select(['max' => $query->func()->max('close', ['date'])])->where($conditions)->first()->max;
+			if ($max_date) {
+				$slot_conditions['GameSlots.game_date <='] = $max_date;
+			}
 		}
 
 		try {
@@ -226,10 +219,7 @@ class FieldsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}

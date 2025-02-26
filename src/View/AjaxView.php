@@ -16,7 +16,7 @@ class AjaxView extends View {
 	 *
 	 * @return void
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$this->loadHelper('Authentication.Identity');
 		$this->loadHelper('Authorize');
 		$this->loadHelper('Number');
@@ -27,6 +27,7 @@ class AjaxView extends View {
 		$this->loadHelper('Game', ['className' => 'ZuluruGame']);
 		$this->loadHelper('BootstrapUI.Flash');
 		$this->loadHelper('BootstrapUI.Paginator', ['templates' => 'paginator-templates']);
+		$this->loadHelper('Bootstrap', ['className' => 'ZuluruBootstrap.Bootstrap']);
 		$this->loadHelper('ZuluruJquery.Jquery');
 	}
 

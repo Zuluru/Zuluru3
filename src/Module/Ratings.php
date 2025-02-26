@@ -81,6 +81,7 @@ abstract class Ratings {
 	}
 
 	public function recalculateRatings(Division $division) {
+		// TODO: This doesn't work correctly if different divisions in the league have different schedule types
 		if ($division->league_id != $this->leagueId) {
 			$this->leagueId = $division->league_id;
 

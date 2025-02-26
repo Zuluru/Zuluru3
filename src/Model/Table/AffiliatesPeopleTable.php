@@ -22,7 +22,7 @@ class AffiliatesPeopleTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('affiliates_people');
@@ -45,7 +45,7 @@ class AffiliatesPeopleTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -66,7 +66,7 @@ class AffiliatesPeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Delete the cached data, so it's reloaded next time it's needed
 		$cache = UserCache::getInstance();
 		$cache->clear('Affiliates', $entity->person_id);
@@ -83,7 +83,7 @@ class AffiliatesPeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Delete the cached data, so it's reloaded next time it's needed
 		$cache = UserCache::getInstance();
 		$cache->clear('Affiliates', $entity->person_id);
@@ -97,7 +97,7 @@ class AffiliatesPeopleTable extends AppTable {
 		foreach ($new as $affiliate_person) {
 			unset($affiliate_person->id);
 			unset($affiliate_person->person_id);
-			$affiliate_person->isNew(true);
+			$affiliate_person->setNew(true);
 		}
 
 		// Find any old affiliates that aren't present in the new list, and copy them over
@@ -106,7 +106,7 @@ class AffiliatesPeopleTable extends AppTable {
 			if (!$existing) {
 				// Here, we have to clear the id, but the person_id can stay
 				unset($affiliate_person->id);
-				$affiliate_person->isNew(true);
+				$affiliate_person->setNew(true);
 				$new[] = $affiliate_person;
 			} else if ($affiliate_person->position !== 'player') {
 				// TODO: If we ever add more than just "player" and "manager" positions, this will need to change.

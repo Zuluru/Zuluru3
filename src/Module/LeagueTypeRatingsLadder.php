@@ -26,7 +26,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 		$links = parent::links($division, $identity, $controller, $action);
 		if (($controller !== 'Divisions' || $action !== 'ratings') && $identity && $identity->can('edit_schedule', $division)) {
 			$links[__('Adjust Ratings')] = [
-				'url' => ['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id],
+				'url' => ['controller' => 'Divisions', 'action' => 'ratings', '?' => ['division' => $division->id]],
 			];
 		}
 		return $links;
@@ -70,7 +70,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 
 		$rule = new InConfigRule('options.games_before_repeat');
 		if (!$rule($entity, ['errorField' => 'games_before_repeat'])) {
-			$entity->setErrors('current_round', ['validGamesBeforeRepeat' => __('You must select a valid number of games before repeat.')]);
+			$entity->setError('current_round', ['validGamesBeforeRepeat' => __('You must select a valid number of games before repeat.')]);
 			$ret = false;
 		}
 

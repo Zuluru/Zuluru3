@@ -2,37 +2,36 @@
 
 namespace App\View\Helper;
 
+use BootstrapUI\View\Helper\FormHelper as FormHelper;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
-use Cake\View\View;
-use BootstrapUI\View\Helper\FormHelper as FormHelper;
 
 class ZuluruFormHelper extends FormHelper {
 	public $helpers = ['Url', 'Html' => ['className' => 'ZuluruHtml']];
 
-	/**
-	 * An array of optional fields whose values must match if they are included.
-	 * This is for things like IDs of records that might be removed from the
-	 * POSTed data by JavaScript.
-	 *
-	 * @var array
-	 */
-	protected $_optionalFields = [];
+	protected array $formProtectorStack = [];
 
-	public function __construct(View $View, array $config = []) {
-		// Set the date widget to month-day-year instead of year-month-day. TODOSECOND: Locale specific setting.
-		$this->_templateSet['horizontal'] = array_merge($this->_templateSet['horizontal'], [
-			'dateWidget' => '{{month}}{{day}}{{year}}{{hour}}{{minute}}{{second}}{{meridian}}',
-		]);
-
-		parent::__construct($View, $config);
-	}
-
-	public function create($model = null, array $options = []) {
+	public function create($context = null, array $options = []): string {
 		// TODOLATER: Remove this once we're done with validation testing
 		$options['novalidate'] = true;
 
-		return parent::create($model, $options);
+		// We sometimes create forms inside of creating other forms, through blocks, so the two don't get nested
+		// @todo Cake4: sotg_questions is one such place. Are there others? Can we eliminate those?
+		$this->formProtectorStack[] = $this->formProtector;
+
+		return parent::create($context, $options);
+	}
+
+	public function end(array $secureAttributes = []): string {
+		$end = parent::end($secureAttributes);
+
+		$this->formProtector = array_pop($this->formProtectorStack);
+
+		return $end;
+	}
+
+	public function hasFormProtector(): bool {
+		return (bool)$this->formProtector;
 	}
 
 	/**
@@ -41,7 +40,7 @@ class ZuluruFormHelper extends FormHelper {
 	 * Also, add popup help link, if available.
 	 * TODOLATER: Deal with new data format (_joinData, etc.): we don't need it for anything right now?
 	 */
-	public function control($fieldName, array $options = []) {
+	public function control(string $fieldName, array $options = []): string {
 		$options += ['secure' => true];
 
 		// Split into model and field name
@@ -55,7 +54,9 @@ class ZuluruFormHelper extends FormHelper {
 			do {
 				$model = array_pop($parts);
 			} while (is_numeric($model));
-			$model = Inflector::tableize($model);
+			if ($model) {
+				$model = Inflector::tableize($model);
+			}
 		} else {
 			$model = Inflector::tableize($this->getView()->getRequest()->getParam('controller'));
 			$shortFieldName = $fieldName;
@@ -65,7 +66,7 @@ class ZuluruFormHelper extends FormHelper {
 		// If no options were provided, check if there's some configured
 		// TODO: Are there more places that we can use this feature?
 		if (!array_key_exists('type', $options) && !array_key_exists('options', $options) &&
-			Configure::read("options.$model.$shortFieldName") !== null)
+			$model && Configure::read("options.$model.$shortFieldName") !== null)
 		{
 			$options['options'] = Configure::read("options.$model.$shortFieldName");
 		}
@@ -118,31 +119,77 @@ class ZuluruFormHelper extends FormHelper {
 		}
 
 		// Check if there's online help for this field
-		$duplicate = !empty($options['duplicate_help']);
-		unset($options['duplicate_help']);
-		$help_file = APP . 'Template' . DS . 'Element' . DS . 'Help' . DS . $model . DS . 'edit' . DS . strtolower($shortFieldName) . '.ctp';
-		if (file_exists($help_file)) {
-			$help = ' ' . $this->Html->help(['action' => $model, 'edit', strtolower($shortFieldName)], $duplicate);
+		if ($model) {
+			$duplicate = !empty($options['duplicate_help']);
+			unset($options['duplicate_help']);
+			$help_file = ROOT . DS . 'templates' . DS . 'element' . DS . 'Help' . DS . $model . DS . 'edit' . DS . strtolower($shortFieldName) . '.php';
+			if (file_exists($help_file)) {
+				$help = ' ' . $this->Html->help(['action' => $model, 'edit', strtolower($shortFieldName)], $duplicate);
 
-			// If we have some help text, add this at the end of it.
-			if (array_key_exists('help', $options)) {
-				if ($options['help'] !== false) {
-					$options['help'] .= ' ' . $help;
+				// If we have some help text, add this at the end of it.
+				if (array_key_exists('help', $options)) {
+					if ($options['help'] !== false) {
+						$options['help'] .= ' ' . $help;
+					}
+				} else {
+					$options['help'] = $help;
 				}
-			} else {
-				$options['help'] = $help;
 			}
 		}
 
 		return parent::control($fieldName, $options);
 	}
 
-	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []) {
+	public function i18nControls(string $fieldName, array $options = []): string {
+		$locales = Configure::read('App.locales');
+		if (empty($locales) || count($locales) < 2) {
+			return $this->control($fieldName, $options);
+		}
+
+		// Split into model and field name
+		$pos = strrpos($fieldName, '.');
+		if ($pos !== false) {
+			$prefix = substr($fieldName, 0, $pos + 1);
+			$fieldName = substr($fieldName, $pos + 1);
+		} else {
+			$prefix = '';
+		}
+
+		if (isset($options['values'])) {
+			$valueEntity = $options['values'];
+			unset($options['values']);
+		}
+
+		$controls = [];
+		$default = Configure::read('App.defaultLocale');
+		foreach ($locales as $locale => $language) {
+			if ($locale === $default) {
+				$inputName = $prefix . $fieldName;
+				if (isset($valueEntity)) {
+					$options['value'] = $valueEntity->{$fieldName};
+				}
+			} else {
+				$inputName = "{$prefix}_translations.{$locale}.{$fieldName}";
+				if (isset($valueEntity)) {
+					$translation = $valueEntity->translation($locale);
+					if ($translation->{$fieldName}) {
+						$options['value'] = $translation->{$fieldName};
+					}
+				}
+			}
+
+			$controls[] = $this->control($inputName, ['label' => __(Inflector::humanize($fieldName)) . ' (' . $language . ')'] + $options);
+		}
+
+		return implode('', $controls);
+	}
+
+	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []): string {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {
-				$linkOptions[] = 'icon';
+				$linkOptions['class'][] = 'icon';
 			} else {
-				$linkOptions .= ' icon';
+				$linkOptions['class'] .= ' icon';
 			}
 		} else {
 			$linkOptions['class'] = 'icon';

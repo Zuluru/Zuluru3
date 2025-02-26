@@ -20,14 +20,14 @@ class RuleRegistered extends Rule {
 	 *
 	 * @var int[]
 	 */
-	protected $event_ids;
+	protected array $event_ids;
 
 	/**
 	 * Events to look for
 	 *
 	 * @var string[]
 	 */
-	protected $events;
+	protected array $events;
 
 	public function parse($config) {
 		$config = trim($config, '"\'');
@@ -40,6 +40,7 @@ class RuleRegistered extends Rule {
 		$this->events = $model->find()
 			->enableHydration(false)
 			->where(['Events.id IN' => $this->event_ids])
+			->all()
 			->combine('id', 'name')
 			->toArray();
 		if (count($this->events) != count($this->event_ids)) {
@@ -57,11 +58,11 @@ class RuleRegistered extends Rule {
 			$events = array_values($this->events);
 		} else {
 			foreach ($this->events as $key => $event) {
-				$url = ['controller' => 'Events', 'action' => 'view', 'event' => $key];
+				$url = ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $key]];
 				if ($absolute_url) {
 					$url = Router::url($url, true);
 				} else {
-					$url['return'] = AppController::_return();
+					$url['?']['return'] = AppController::_return();
 				}
 				$events[] = [
 					'type' => 'link',

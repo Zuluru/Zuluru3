@@ -87,7 +87,7 @@ class ApiTest extends TestCase
 		$this->assertEquals("xmldata=<txn>\n\t<ssl_merchant_id></ssl_merchant_id>\n\t<ssl_user_id></ssl_user_id>\n\t<ssl_pin></ssl_pin>\n\t<ssl_transaction_type>ccreturn</ssl_transaction_type>\n\t<ssl_txn_id>{$this->transaction_id}</ssl_txn_id>\n\t<ssl_amount>{$this->amount}</ssl_amount>\n</txn>", $data);
 
 		$time = FrozenTime::now()->format('m/d/Y h:i:s A');
-		$exp = FrozenDate::now()->addMonth()->format('mY');
+		$exp = FrozenDate::now()->addMonths(1)->format('mY');
 
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><txn>
 				<ssl_issuer_response>00</ssl_issuer_response>

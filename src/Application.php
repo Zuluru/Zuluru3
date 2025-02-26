@@ -1,42 +1,49 @@
 <?php
 namespace App;
 
-use Ajax\Middleware\AjaxMiddleware;
 use App\Authentication\ActAsIdentity;
 use App\Core\UserCache;
-use App\Event\FlashTrait;
 use App\Exception\ForbiddenRedirectException;
 use App\Exception\LockedIdentityException;
 use App\Http\Middleware\ActAsMiddleware;
-use App\Middleware\AffiliateConfigurationLoader;
-use App\Middleware\ConfigurationLoader;
 use App\Http\Middleware\CookiePathMiddleware;
-use App\Http\Middleware\CsrfProtectionMiddleware;
+use App\Middleware\AffiliateConfigurationLoader;
+use App\Middleware\AjaxMiddleware;
+use App\Middleware\ConfigurationLoader;
+use App\Middleware\LocalizationMiddleware;
+use App\Middleware\NamedRoutingMiddleware;
+use App\Middleware\UnauthorizedHandler\RedirectFlashHandler;
 use App\Policy\TypeResolver;
 use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Authenticator\UnauthenticatedException;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
 use Authorization\AuthorizationService;
+use Authorization\AuthorizationServiceInterface;
 use Authorization\AuthorizationServiceProviderInterface;
+use Authorization\Exception\Exception;
 use Authorization\Exception\ForbiddenException;
 use Authorization\Exception\MissingIdentityException;
 use Authorization\Middleware\AuthorizationMiddleware;
+use Authorization\Middleware\UnauthorizedHandler\HandlerInterface;
 use Authorization\Policy\OrmResolver;
 use Authorization\Policy\ResolverCollection;
-use App\Middleware\LocalizationMiddleware;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\Core\Exception\MissingPluginException;
+use Cake\Core\ContainerInterface;
+use Cake\Datasource\FactoryLocator;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\Middleware\EncryptedCookieMiddleware;
+use Cake\Http\Middleware\SessionCsrfProtectionMiddleware;
+use Cake\Http\MiddlewareQueue;
 use Cake\Http\Response;
-use Cake\Http\ServerRequest;
+use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
-use Cake\I18n\Time;
+use Cake\ORM\Locator\TableLocator;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
@@ -45,6 +52,7 @@ use Cake\Utility\Inflector;
 use Cake\Utility\Security;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Application setup class.
@@ -54,12 +62,10 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class Application extends BaseApplication implements AuthenticationServiceProviderInterface, AuthorizationServiceProviderInterface {
 
-	use FlashTrait;
-
 	/**
 	 * {@inheritDoc}
 	 */
-	public function bootstrap() {
+	public function bootstrap(): void {
 		if (!defined('DOMAIN_PLUGIN') && !empty(env('DOMAIN_PLUGIN'))) {
 			define('DOMAIN_PLUGIN', env('DOMAIN_PLUGIN'));
 		}
@@ -74,17 +80,15 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		if (array_key_exists('REQUEST_URI', $_SERVER) && strpos($_SERVER['REQUEST_URI'], '/installer/') !== false) {
 			Configure::write('Installer.config', ['installer']);
-			$this->addPlugin('Installer', ['bootstrap' => true, 'routes' => true]);
+			$this->addPlugin('CakePHPAppInstaller');
 		} else {
 			if (PHP_SAPI === 'cli') {
-				try {
-					$this->addPlugin('Bake');
-					$this->addPlugin('Transifex');
-				} catch (MissingPluginException $e) {
-					// Do not halt if the plugin is missing
-				}
-
-				$this->addPlugin('Scheduler', ['autoload' => true]);
+				$this->bootstrapCli();
+			} else {
+				FactoryLocator::add(
+					'Table',
+					(new TableLocator())->allowFallbackClass(false)
+				);
 			}
 
 			/*
@@ -92,50 +96,49 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			 * Debug Kit should not be installed on a production system
 			 */
 			if (Configure::read('debug')) {
-				$this->addPlugin('DebugKit', ['bootstrap' => true]);
-				$this->addPlugin('CakephpFixtureFactories');
+				$this->addOptionalPlugin('DebugKit', ['bootstrap' => true]);
 			}
 
+			// Load more plugins here
+			$this->addPlugin('Muffin/Footprint');
 			$this->addPlugin('Authentication');
 			$this->addPlugin('Authorization');
-			$this->addPlugin('Ajax');
+			$this->addPlugin('Ajax', ['bootstrap' => true]);
+			$this->addPlugin('Calendar');
 			$this->addPlugin('Josegonzalez/Upload');
-			$this->addPlugin('Muffin/Footprint');
 			$this->addPlugin('Cors', ['bootstrap' => true, 'routes' => false]);
 
 			$this->addPlugin('ZuluruBootstrap');
 			$this->addPlugin('ZuluruJquery');
 
-			if (Configure::read('App.theme') && (!defined('DOMAIN_PLUGIN') || Configure::read('App.theme') != DOMAIN_PLUGIN)) {
+			if (Configure::read('App.theme') && (!defined('DOMAIN_PLUGIN') || Configure::read('App.theme') !== DOMAIN_PLUGIN)) {
 				$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
 			}
-		}
 
-		$this->addPlugin('Bootstrap', ['bootstrap' => true]);
-		$this->addPlugin('Migrations');
-
-		try {
-			foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
-				$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
+			try {
+				foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
+					$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
+				}
+			} catch (\Exception $ex) {
+				// The plugins table may not exist, if the migration hasn't run.
 			}
-		} catch (\Exception $ex) {
-			// The plugins table may not exist, if the migration hasn't run.
 		}
+
+		$this->addPlugin('BootstrapUI', ['bootstrap' => true]);
 	}
 
 	/**
 	 * Returns a service provider instance.
 	 *
 	 * @param \Psr\Http\Message\ServerRequestInterface $request Request
-	 * @param \Psr\Http\Message\ResponseInterface $response Response
 	 * @return \Authentication\AuthenticationServiceInterface
 	 */
-	public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response) {
+	public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface {
 		// TODO: Read these from site configuration
 		if (Configure::read('feature.authenticate_through') == 'Zuluru') {
 			$loginAction = Router::url(Configure::read('App.urls.login'), true);
 		} else {
-			$loginAction = Router::url(['controller' => 'Leagues', 'action' => 'index'], true);
+			$loginAction = Router::url(['plugin' => null, 'controller' => 'Leagues', 'action' => 'index'], true);
 		}
 
 		$service = new AuthenticationService([
@@ -153,23 +156,26 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		if (empty($authenticators)) {
 			// If Zuluru is managing authentication alone, handle old passwords and migrate them
-			$hashMethod = Configure::read('Security.hashMethod', 'sha256');
-			$hasher = [
-				'className' => 'Authentication.Fallback',
-				'hashers' => [
-					[
-						'className' => 'Authentication.Default',
+			$hasher = Configure::read('Security.hashers');
+			if (empty($hasher)) {
+				$hashMethod = Configure::read('Security.hashMethod', 'sha256');
+				$hasher = [
+					'className' => 'Authentication.Fallback',
+					'hashers' => [
+						[
+							'className' => 'Authentication.Default',
+						],
+						[
+							'className' => 'Authentication.Legacy',
+							'hashType' => $hashMethod,
+						],
+						[
+							'className' => 'LegacyNoSalt',
+							'hashType' => $hashMethod,
+						],
 					],
-					[
-						'className' => 'Authentication.Legacy',
-						'hashType' => $hashMethod,
-					],
-					[
-						'className' => 'LegacyNoSalt',
-						'hashType' => $hashMethod,
-					],
-				],
-			];
+				];
+			}
 
 			// Load the session-based authenticator
 			$service->loadAuthenticator('Authentication.Session');
@@ -180,7 +186,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				'fields' => $fields,
 				'cookie' => [
 					'name' => 'ZuluruAuth',
-					'expire' => new Time('+1 year'),
+					'expires' => new FrozenTime('+1 year'),
 					'path' => '/' . trim($request->getAttribute('webroot'), '/'),
 				],
 			]);
@@ -238,7 +244,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		return $service;
 	}
 
-	public function getAuthorizationService(ServerRequestInterface $request, ResponseInterface $response) {
+	public function getAuthorizationService(ServerRequestInterface $request): AuthorizationServiceInterface {
 		$resolver = new ResolverCollection([
 			new OrmResolver(),
 			new TypeResolver([
@@ -270,10 +276,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		if (!$translations || !$translation_strings) {
 			$translations = ['en' => 'English'];
 			$translation_strings = ["en: 'English'"];
-			$dir = opendir(APP . 'Locale');
+			$dir = opendir(ROOT . DS . 'resources' . DS . 'locales');
 			if ($dir) {
 				while (false !== ($entry = readdir($dir))) {
-					if (file_exists(APP . 'Locale' . DS . $entry . DS . 'default.po')) {
+					if (file_exists(ROOT . DS . 'resources' . DS . 'locales' . DS . $entry . DS . 'default.po')) {
 						$name = \Locale::getDisplayName($entry, $entry);
 						if ($name != $entry) {
 							$translations[$entry] = $name;
@@ -292,12 +298,12 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	}
 
 	/**
-	 * Setup the middleware queue your application will use.
+	 * Set up the middleware queue your application will use.
 	 *
 	 * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to setup.
 	 * @return \Cake\Http\MiddlewareQueue The updated middleware queue.
 	 */
-	public function middleware($middlewareQueue) {
+	public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue {
 		// We use three copies of the localization middleware.
 		// The first will set it based on the header, but won't update the cookie. It defaults to
 		// English. This is what will be used for anyone who is not logged in.
@@ -320,7 +326,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			}
 		});
 
-		$cookie_localization = new LocalizationMiddleware($this->getLocales(), null);
+		$cookie_localization = new LocalizationMiddleware($this->getLocales(), 'en');
 		$cookie_localization->setSearchOrder([
 			LocalizationMiddleware::FROM_COOKIE,
 		]);
@@ -331,7 +337,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			}
 		});
 
-		$user_localization = new LocalizationMiddleware($this->getLocales(), null);
+		$user_localization = new LocalizationMiddleware($this->getLocales(), 'en');
 		$user_localization->setSearchOrder([
 			LocalizationMiddleware::FROM_COOKIE,
 			LocalizationMiddleware::FROM_CALLBACK,
@@ -347,6 +353,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 					return $preference->value;
 				}
 			}
+
+			return 'en';
 		});
 		$user_localization->setLocaleCallback(function ($locale) {
 			if ($locale) {
@@ -357,7 +365,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		$middlewareQueue
 			// Catch any exceptions in the lower layers,
 			// and make an error page/response
-			->add(ErrorHandlerMiddleware::class)
+			->add(new ErrorHandlerMiddleware(Configure::read('Error')))
 
 			// Handle plugin/theme assets like CakePHP normally does.
 			->add(new AssetMiddleware([
@@ -370,34 +378,42 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			->add($cookie_localization)
 
 			// Add routing middleware.
-			// Routes collection cache enabled by default, to disable route caching
-			// pass null as cacheConfig, example: `new RoutingMiddleware($this)`
-			// you might want to disable this cache in case your routing is extremely simple
+			// If you have a large number of routes connected, turning on routes
+			// caching in production could improve performance. For that when
+			// creating the middleware instance specify the cache config name by
+			// using it's second constructor argument:
+			// `new RoutingMiddleware($this, '_cake_routes_')`
 			->add(new RoutingMiddleware($this))
 
-			// Parse request bodies, allowing for JSON data in authentication
-			->add(BodyParserMiddleware::class)
+			// Backward compatibility with old CakePHP-style named URLs
+			->add(new NamedRoutingMiddleware())
 
-			// Add CSRF protection middleware.
-			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
-				$payment = ($request->getParam('controller') == 'Payment' && $request->getParam('action') == 'index');
-				if (!$payment && !$request->is('json')) {
-					$csrf = new CsrfProtectionMiddleware();
+			// Parse various types of encoded request bodies so that they are
+			// available as array through $request->getData()
+			// https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
+			->add(new BodyParserMiddleware())
 
-					// This will invoke the CSRF middleware's `__invoke()` handler,
-					// just like it would when being registered via `add()`.
-					return $csrf($request, $response, $next);
-				}
-
-				return $next($request, $response);
-			})
+			// Cross Site Request Forgery (CSRF) Protection Middleware
+			// https://book.cakephp.org/4/en/controllers/middleware.html#cross-site-request-forgery-csrf-middleware
+			->add((new SessionCsrfProtectionMiddleware())
+				->skipCheckCallback(function (ServerRequestInterface $request) {
+					$payment = ($request->getParam('controller') === 'Payment' && $request->getParam('action') === 'index');
+					return $payment || $request->is('json');
+				})
+			)
 
 			// Add encrypted cookie middleware.
-			->add(new EncryptedCookieMiddleware(['ZuluruAuth'], Security::getSalt()))
+			->add(function (
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
+				// Do not attempt cookie encryption for the installer
+				if ($request->getParam('plugin') !== 'CakePHPAppInstaller') {
+					return (new EncryptedCookieMiddleware(['ZuluruAuth'], Security::getSalt()))->process($request, $handler);
+				}
+
+				return $handler->handle($request);
+			})
 
 			// Adjust cookie paths
 			->add(CookiePathMiddleware::class)
@@ -407,40 +423,38 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			// Add authentication
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				// Do not attempt authentication for the installer
-				if ($request->getParam('plugin') != 'Installer') {
-					$authentication = new AuthenticationMiddleware($this);
-
-					return $authentication($request, $response, $next);
-				} else {
-					return $next($request, $response);
+				if ($request->getParam('plugin') !== 'CakePHPAppInstaller') {
+					return (new AuthenticationMiddleware($this))->process($request, $handler);
 				}
+
+				return $handler->handle($request);
 			})
+
+			// Add Footprint middleware
+			->add('Muffin/Footprint.Footprint')
 
 			// Add unauthorized flash message
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				try {
-					return $next($request, $response);
+					return $handler->handle($request);
 				} catch (UnauthenticatedException $ex) {
-					$this->Flash('error', __('You must login to access full site functionality.'));
+					$request->getFlash()->error(__('You must login to access full site functionality.'));
 					throw $ex;
 				}
 			})
 
 			// Ensure that the logged in user, if there is one, has a person record
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				$identity = $request->getAttribute('identity');
 				if ($identity) {
 					$user = $identity->getOriginalData();
@@ -456,43 +470,44 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 						}
 
 						// We need to update the identity, so that the new person ID is in the in-memory record
-						$result = $request->getAttribute('authentication')->persistIdentity($request, $response, $user);
+						// The Response object is not used; the Authentication middleware takes care of adding anything
+						// that's needed in there.
+						$result = $request->getAttribute('authentication')->persistIdentity($request, new Response(), $user);
 						$request = $result['request'];
-						$response = $result['response'];
 					}
 				}
 
-				return $next($request, $response);
+				return $handler->handle($request);
 			})
 
 			->add($user_localization)
 
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				// Do not attempt authorization for the installer
-				if ($request && $request->getParam('plugin') != 'Installer') {
+				if ($request->getParam('plugin') !== 'CakePHPAppInstaller') {
 					// We wrap this in a function, so that by the time the Router::url calls below happen,
 					// the router has been initialized by its middleware, and the base path is set.
 					$authorization = new AuthorizationMiddleware($this, [
 						'identityDecorator' => ActAsIdentity::class,
 						'requireAuthorizationCheck' => Configure::read('debug'),
 						'unauthorizedHandler' => [
-							'className' => 'RedirectFlash',
+							'className' => RedirectFlashHandler::class,
 							'unauthenticatedUrl' => Router::url(Configure::read('App.urls.login')),
 							'unauthorizedUrl' => Router::url('/'),
 							'exceptions' => [
-								MissingIdentityException::class => function($subject, $request, $response, $exception, $options) {
-									$subject->Flash('error', __('You must login to access full site functionality.'));
+								MissingIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
+									$request->getFlash()->error(__('You must login to access full site functionality.'));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => true, 'unauthenticated' => true]));
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)
 										->withStatus($options['statusCode']);
 								},
-								ForbiddenRedirectException::class => function($subject, $request, $response, $exception, $options) {
+								ForbiddenRedirectException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
 									$url = $exception->getUrl();
 									if (empty($url)) {
 										$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
@@ -500,27 +515,32 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 										$url = Router::url($url);
 									}
 									if ($exception->getMessage()) {
-										$subject->Flash($exception->getClass(), $exception->getMessage(), $exception->getOptions());
+										$flashOptions = $exception->getOptions();
+										$flashOptions['element'] = $exception->getClass();
+										$request->getFlash()->set($exception->getMessage(), $flashOptions);
 									}
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)
 										->withStatus($options['statusCode']);
 								},
-								LockedIdentityException::class => function($subject, $request, $response, $exception, $options) {
-									$subject->Flash('error', __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
+								LockedIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
+									$request->getFlash()->error(__('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
 										__(UserCache::getInstance()->read('Person.status')),
 										__('contact {0}', Configure::read('email.admin_name'))
 									));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)
 										->withStatus($options['statusCode']);
 								},
-								ForbiddenException::class => function($subject, $request, $response, $exception, $options) {
-									$subject->Flash('error', __('You do not have permission to access that page.'));
+								ForbiddenException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
+									$request->getFlash()->error(__('You do not have permission to access that page.'));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)
@@ -529,10 +549,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 							],
 						],
 					]);
-					return $authorization($request, $response, $next);
-				} else {
-					return $next($request, $response);
+					return $authorization->process($request, $handler);
 				}
+
+				return $handler->handle($request);
 			})
 
 			// Handle "act as" parameters in the URL
@@ -541,16 +561,40 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			->add(AffiliateConfigurationLoader::class)
 		;
 
+		return $middlewareQueue;
+	}
+
+	/**
+	 * Register application container services.
+	 *
+	 * @param \Cake\Core\ContainerInterface $container The Container to update.
+	 * @return void
+	 * @link https://book.cakephp.org/4/en/development/dependency-injection.html#dependency-injection
+	 */
+	public function services(ContainerInterface $container): void
+	{
+	}
+
+	/**
+	 * Bootstrapping for CLI application.
+	 *
+	 * That is when running commands.
+	 *
+	 * @return void
+	 */
+	protected function bootstrapCli(): void
+	{
+		$this->addOptionalPlugin('Cake/Repl');
+		$this->addOptionalPlugin('Bake');
+
 		if (Configure::read('debug')) {
-			// Disable authz for debugkit
-			$middlewareQueue->add(function ($req, $res, $next) {
-				if ($req->getParam('plugin') === 'DebugKit') {
-					$req->getAttribute('authorization')->skipAuthorization();
-				}
-				return $next($req, $res);
-			});
+			$this->addOptionalPlugin('CakephpFixtureFactories');
 		}
 
-		return $middlewareQueue;
+		$this->addPlugin('Migrations');
+
+		// Load more plugins here
+		$this->addOptionalPlugin('Transifex');
+		$this->addPlugin('Scheduler', ['autoload' => true]);
 	}
 }

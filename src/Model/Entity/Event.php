@@ -121,8 +121,8 @@ class Event extends Entity {
 	// TODO: Simpler method, like Game entity?
 	private function _getCustomField($field) {
 		// Can't use "has" or getters on custom fields, as it will go recursive
-		if (array_key_exists($field, $this->_properties)) {
-			return $this->_properties[$field];
+		if (array_key_exists($field, $this->_fields)) {
+			return $this->_fields[$field];
 		}
 		if ($this->has('custom')) {
 			$custom = unserialize($this->get('custom'));

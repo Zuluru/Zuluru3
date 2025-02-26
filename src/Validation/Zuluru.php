@@ -108,7 +108,7 @@ class Zuluru extends Validation {
 	}
 
 	public static function franchiseOwner($franchise_id) {
-		$groups = UserCache::getInstance()->read('Groups');
+		$groups = UserCache::getInstance()->read('UserGroups');
 		// TODO: This should be a policy or an identity check
 		if (collection($groups)->firstMatch(['id' => GROUP_ADMIN])) {
 			// Admins need to be considered franchise owner for registration edit purposes
@@ -124,9 +124,7 @@ class Zuluru extends Validation {
 					}
 				]]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			return false;
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			return false;
 		}
 

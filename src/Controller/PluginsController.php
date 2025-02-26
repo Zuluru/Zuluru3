@@ -1,12 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
-use Cake\ORM\Entity;
-use Cake\ORM\Query;
 
 /**
  * Plugins Controller
@@ -18,7 +14,7 @@ class PluginsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -33,7 +29,7 @@ class PluginsController extends AppController {
 	 * normal page load, and redirect to the index afterwards. If a clean method can be found for loading plugins
 	 * from within a controller action, then Ajax can come back to this.
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function activate() {
 		$id = $this->getRequest()->getQuery('plugin_id');
@@ -41,10 +37,7 @@ class PluginsController extends AppController {
 			$plugin = $this->Plugins->get($id, [
 				'contain' => []
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid plugin.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid plugin.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -62,7 +55,7 @@ class PluginsController extends AppController {
 	/**
 	 * Deactivate method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function deactivate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -72,10 +65,7 @@ class PluginsController extends AppController {
 			$plugin = $this->Plugins->get($id, [
 				'contain' => []
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid plugin.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid plugin.'));
 			return $this->redirect(['action' => 'index']);
 		}

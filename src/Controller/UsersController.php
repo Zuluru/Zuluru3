@@ -7,7 +7,6 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RulesChecker;
 use Cake\Http\Cookie\Cookie;
 use Cake\I18n\FrozenTime;
-use Cake\I18n\Time;
 use Cake\Http\Exception\UnauthorizedException;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Security;
@@ -25,7 +24,7 @@ class UsersController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['login', 'logout', 'create_account', 'reset_password'];
 	}
 
@@ -48,10 +47,10 @@ class UsersController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing of logins
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['login']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['login', 'token']);
 		}
 	}
 
@@ -60,10 +59,7 @@ class UsersController extends AppController {
 
 		// Regardless of POST or GET, redirect if user is logged in
 		if ($result->isValid()) {
-			$redirect = $this->Authentication->getLoginRedirect();
-			if (!$redirect) {
-				$redirect = '/';
-			}
+			$redirect = $this->Authentication->getLoginRedirect() ?? '/';
 			return $this->redirect($redirect);
 		}
 
@@ -90,7 +86,7 @@ class UsersController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function create_account() {
 		if (!Configure::read('feature.control_account_creation')) {
@@ -107,7 +103,7 @@ class UsersController extends AppController {
 		$this->_loadAddressOptions();
 		$this->_loadAffiliateOptions();
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
-		$groups = $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray();
+		$groups = $users_table->People->UserGroups->find('options', ['UserGroups.min_level' => 3])->toArray();
 
 		$this->set([
 			'user_field' => $users_table->userField,
@@ -115,7 +111,7 @@ class UsersController extends AppController {
 			'groups' => $groups,
 		]);
 
-		$user = $users_table->newEntity();
+		$user = $users_table->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			// Handle affiliations
@@ -132,11 +128,11 @@ class UsersController extends AppController {
 			$user = $users_table->patchEntity($user, $data, [
 				'associated' => [
 					'People' => ['validate' => 'create'],
-					'People.Groups',
+					'People.UserGroups',
 					'People.Affiliates',
 					'People.Skills',
 					'People.Relatives' => ['validate' => 'create'],
-					'People.Relatives.Groups',
+					'People.Relatives.UserGroups',
 					'People.Relatives.Affiliates',
 					'People.Relatives.Skills',
 				],
@@ -178,12 +174,12 @@ class UsersController extends AppController {
 		} else {
 			// By default, select the first group
 			$user = $users_table->patchEntity($user, [
-				'person' => ['groups' => ['_ids' => [current(array_keys($groups))]]]
+				'person' => ['user_groups' => ['_ids' => [current(array_keys($groups))]]]
 			], [
 				'validate' => false,
 				'associated' => [
 					'People' => ['validate' => false],
-					'People.Groups',
+					'People.UserGroups',
 				],
 			]);
 		}
@@ -192,7 +188,7 @@ class UsersController extends AppController {
 
 	public function TODOLATER_import() {
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
-		$this->set('groups', $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray());
+		$this->set('groups', $users_table->People->UserGroups->find('options', ['UserGroups.min_level' => 3])->toArray());
 
 		// TODO: Centralize checking of profile fields
 		$columns = $this->Users->People->getSchema()->columns();
@@ -222,7 +218,7 @@ class UsersController extends AppController {
 		$columns['user_name'] = true;
 		$columns['email'] = true;
 
-		$user = $users_table->newEntity();
+		$user = $users_table->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$continue = true;
@@ -463,11 +459,11 @@ class UsersController extends AppController {
 			'data' => [
 				'token' => JWT::encode([
 					'sub' => $user[TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->getPrimaryKey()],
-					'exp' =>  FrozenTime::now()->addWeek()->toUnixString()
-				], Security::getSalt())
+					'exp' =>  FrozenTime::now()->addWeeks(1)->toUnixString(),
+				], Security::getSalt(), 'HS256')
 			],
-			'_serialize' => ['success', 'data']
 		]);
+		$this->viewBuilder()->setOption('serialize', ['success', 'data']);
 	}
 
 	public function change_password() {
@@ -482,10 +478,7 @@ class UsersController extends AppController {
 			$user = $users_table->get($id, [
 				'contain' => ['People']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid user.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid user.'));
 			return $this->redirect('/');
 		}
@@ -505,7 +498,7 @@ class UsersController extends AppController {
 							'user_name' => $user->{$users_table->userField},
 							'password' => $data[$users_table->pwdField],
 						],
-						FrozenTime::now()->addYear(),
+						FrozenTime::now()->addYears(1),
 						'/' . trim($this->getRequest()->getAttribute('webroot'), '/'),
 					)));
 				}
@@ -527,16 +520,13 @@ class UsersController extends AppController {
 
 		$user_model = Configure::read('Security.authModel');
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
-		$user = $users_table->newEntity();
+		$user = $users_table->newEmptyEntity();
 		if ($code !== null) {
 			try {
 				$user = $users_table->get($id, [
 					'contain' => ['People']
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid user.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid user.'));
 				return $this->redirect('/');
 			}
@@ -553,12 +543,13 @@ class UsersController extends AppController {
 				}
 			}
 		} else if ($this->getRequest()->is(['patch', 'post', 'put'])) {
-			// Remove any empty fields
+			// Remove any empty or unexpected fields
 			foreach ($this->getRequest()->getData() as $field => $value) {
-				if (empty($value)) {
+				if (empty($value) || !in_array($field, [$users_table->userField, $users_table->emailField])) {
 					$this->setRequest($this->getRequest()->withoutData($field));
 				}
 			}
+			$this->setRequest($this->getRequest()->withoutData('_Token'));
 			if (!empty($this->getRequest()->getData())) {
 				// Find the user and send the email
 				$matches = $users_table->find()

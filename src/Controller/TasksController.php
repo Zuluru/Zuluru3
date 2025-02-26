@@ -4,7 +4,6 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 
 /**
@@ -17,7 +16,7 @@ class TasksController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -46,17 +45,18 @@ class TasksController extends AppController {
 				->toArray();
 			$this->setResponse($this->getResponse()->withDownload('Tasks.csv'));
 		} else {
-			$conditions = ['Categories.affiliate_id IN' => $affiliates];
-			if (!$this->Authentication->getIdentity()->isManager()) {
-				$conditions['Tasks.allow_signup'] = true;
-			}
 			$tasks = $this->Tasks->find()
 				->contain([
 					'Categories',
 					'People',
 				])
-				->where($conditions)
-				->order(['Categories.name', 'Tasks.name'])
+				->where(['Categories.affiliate_id IN' => $affiliates]);
+
+			if (!$this->Authentication->getIdentity()->isManager()) {
+				$tasks->where(['Tasks.allow_signup' => true]);
+			}
+
+			$tasks = $tasks->order(['Categories.name', 'Tasks.name'])
 				->toArray();
 		}
 
@@ -66,7 +66,7 @@ class TasksController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('task');
@@ -84,10 +84,7 @@ class TasksController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -96,13 +93,14 @@ class TasksController extends AppController {
 		$affiliates = $this->Authentication->applicableAffiliates(true);
 		if ($this->Authorization->can($task, 'assign')) {
 			$people = $this->Tasks->People->find()
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
 				})
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 				})
 				->order(['People.first_name', 'People.last_name'])
+				->all()
 				->combine('id', 'full_name')
 				->toArray();
 		}
@@ -112,10 +110,10 @@ class TasksController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$task = $this->Tasks->newEntity();
+		$task = $this->Tasks->newEmptyEntity();
 		$this->Authorization->authorize($this);
 
 		if ($this->getRequest()->is('post')) {
@@ -130,15 +128,18 @@ class TasksController extends AppController {
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliates(true);
-		$categories = $this->Tasks->Categories->find('list', ['order' => 'Categories.name']);
+		$categories = $this->Tasks->Categories->find('list')
+			->where(['Categories.type' => 'Tasks'])
+			->order(['Categories.name']);
 		$people = $this->Tasks->People->find()
-			->matching('Groups', function (Query $q) {
-				return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
+			->matching('UserGroups', function (Query $q) {
+				return $q->where(['UserGroups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
 			})
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 			})
 			->order(['People.first_name', 'People.last_name'])
+			->all()
 			->combine('id', 'full_name')
 			->toArray();
 		$this->set(compact('task', 'affiliates', 'categories', 'people'));
@@ -148,18 +149,16 @@ class TasksController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('task');
 		try {
-			$task = $this->Tasks->get($id, [
-				'contain' => ['Categories']
-			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+			$task = $this->Tasks->find('translations')
+				->contain(['Categories'])
+				->where(['Tasks.id' => $id])
+				->firstOrFail();
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -177,15 +176,18 @@ class TasksController extends AppController {
 			}
 		}
 		$affiliates = $this->Authentication->applicableAffiliates(true);
-		$categories = $this->Tasks->Categories->find('list', ['order' => 'Categories.name']);
+		$categories = $this->Tasks->Categories->find('list')
+			->where(['Categories.type' => 'Tasks'])
+			->order(['Categories.name']);
 		$people = $this->Tasks->People->find()
-			->matching('Groups', function (Query $q) {
-				return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
+			->matching('UserGroups', function (Query $q) {
+				return $q->where(['UserGroups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
 			})
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 			})
 			->order(['People.first_name', 'People.last_name'])
+			->all()
 			->combine('id', 'full_name')
 			->toArray();
 		$this->set(compact('task', 'affiliates', 'categories', 'people'));
@@ -194,7 +196,7 @@ class TasksController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -202,10 +204,7 @@ class TasksController extends AppController {
 		$id = $this->getRequest()->getQuery('task');
 		try {
 			$task = $this->Tasks->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task.'));
 			return $this->redirect(['action' => 'index']);
 		}

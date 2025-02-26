@@ -22,6 +22,8 @@ class UpdateGenderRatio extends AbstractMigration {
 				'limit' => 11,
 				'null' => true,
 			])
+			->update();
+		$this->table('score_entries')
 			->renameColumn('gender_ratio', 'women_present')
 			->update();
 

@@ -1,6 +1,8 @@
 <?php
 namespace App\Model\Table;
 
+use App\Model\Entity\Event;
+use App\Model\Entity\Price;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -11,6 +13,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Core\ModuleRegistry;
+use InvalidArgumentException;
 
 /**
  * Events Model
@@ -33,7 +36,7 @@ class EventsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('events');
@@ -41,7 +44,10 @@ class EventsTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description'],
+		]);
 
 		$this->belongsTo('EventTypes', [
 			'foreignKey' => 'event_type_id',
@@ -60,9 +66,11 @@ class EventsTable extends AppTable {
 
 		$this->hasMany('Preregistrations', [
 			'foreignKey' => 'event_id',
+			'dependent' => true,
 		]);
 		$this->hasMany('Prices', [
 			'foreignKey' => 'event_id',
+			'dependent' => true,
 		]);
 		$this->hasMany('Registrations', [
 			'foreignKey' => 'event_id',
@@ -127,7 +135,7 @@ class EventsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -202,10 +210,10 @@ class EventsTable extends AppTable {
 		$validator = $this->validationDefault($validator);
 
 		$validator
-			->date('membership_begins', __('You must select a valid beginning date.'))
+			->date('membership_begins', ['ymd'], __('You must select a valid beginning date.'))
 			->notEmptyDate('membership_begins', __('You must select a valid beginning date.'))
 
-			->date('membership_ends', __('You must select a valid ending date.'))
+			->date('membership_ends', ['ymd'], __('You must select a valid ending date.'))
 			->notEmptyDate('membership_ends', __('You must select a valid ending date.'))
 
 			->notEmptyString('membership_type', __('You must select a valid membership type.'))
@@ -252,12 +260,46 @@ class EventsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
-		$rules->add($rules->isUnique(['name'], __('An event with that name already exists.')));
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['event_type_id'], 'EventTypes', __('You must select a valid event type.')));
 		$rules->add($rules->existsIn(['questionnaire_id'], 'Questionnaires', __('You must select a valid questionnaire.')));
 		$rules->add($rules->existsIn(['division_id'], 'Divisions', __('You must select a valid division.')));
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
+
+		$rules->add(function (EntityInterface $entity, array $options) {
+			/** @var Event $entity */
+			$others = $this->find()
+				->where([
+					'name' => $entity->name,
+					'event_type_id' => $entity->event_type_id,
+					'close >=' => $entity->open,
+					'open <=' => $entity->close,
+				]);
+
+			if (!$entity->isNew()) {
+				$others->where(['id !=' => $entity->id]);
+			}
+
+			return $others->count() === 0;
+		}, 'validName', [
+			'errorField' => 'name',
+			'message' => __('There is already an event of this type open at the same time with the same name.'),
+		]);
+
+		$rules->add(function (EntityInterface $entity, array $options) {
+			/** @var Event $entity */
+			if ($entity->open_cap == CAP_UNLIMITED) {
+				return true;
+			}
+
+			return collection($entity->prices ?? [])
+				->every(function (Price $price) {
+					return $price->allow_reservations;
+				});
+		}, 'validReservation', [
+			'errorField' => 'open_cap',
+			'message' => __('Any event with a cap must enable reservations on all price points.'),
+		]);
 
 		return $rules;
 	}
@@ -289,6 +331,32 @@ class EventsTable extends AppTable {
 	}
 
 	/**
+	 * Modifies the entity before rules are run. Updates done in here rely on the earlier games in the set already
+	 * having been saved so their ID is available, so they can't be done in beforeMarshal.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The beforeRules event that was fired
+	 * @param Registration $entity The entity that is going to be saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @param mixed $operation The operation (e.g. create, delete) about to be run
+	 * @return void
+	 */
+	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+		if (empty($entity->prices)) {
+			return;
+		}
+
+		// Update this price's event open and close dates, if required
+		$open = collection($entity->prices)->min('open')->open;
+		if ($open != $entity->open) {
+			$entity->open = $open;
+		}
+		$close = collection($entity->prices)->max('close')->close;
+		if ($close != $entity->close) {
+			$entity->close = $close;
+		}
+	}
+
+	/**
 	 * Perform post-processing to ensure that any required event-type-specific steps are taken.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
@@ -296,7 +364,7 @@ class EventsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// There might be unpaid registrations now to be moved to the waiting list, or if the cap has risen we can
 		// invite some people fom the waiting list.
 		$entity->processWaitingList();
@@ -350,7 +418,7 @@ class EventsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->field('affiliate_id', ['Events.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -358,7 +426,7 @@ class EventsTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->field('division_id', ['Events.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

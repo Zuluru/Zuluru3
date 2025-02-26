@@ -23,7 +23,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 
@@ -98,7 +98,7 @@ class CreditsControllerTest extends ControllerTestCase {
 		])->with('People')->persist();
 
 		// Admins are allowed to transfer credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credits[0]->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -117,10 +117,10 @@ class CreditsControllerTest extends ControllerTestCase {
 		])->with('People')->persist();
 
 		// Managers are allowed to transfer credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credits[0]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credits[1]->id]], $manager->id);
 	}
 
 	/**
@@ -135,8 +135,8 @@ class CreditsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// People are allowed to transfer their own credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id], $source->id);
-		$this->assertGetAsAccessRedirect(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id, 'person' => $target->id],
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credit->id]], $source->id);
+		$this->assertGetAsAccessRedirect(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credit->id, 'person' => $target->id]],
 			$source->id,
 			'/', 'The credit has been transferred.'
 		);
@@ -172,10 +172,10 @@ class CreditsControllerTest extends ControllerTestCase {
 		])->with('People')->persist();
 
 		// Others are not allowed to transfer credits
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[1]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[1]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credits[0]->id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credits[1]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credits[0]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credits[1]->id]]);
 	}
 
 	/**

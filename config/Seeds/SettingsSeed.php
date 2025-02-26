@@ -43,11 +43,6 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'site',
-				'name' => 'gmaps_key',
-				'value' => 'AIzaSyC4fShMJLl4rGuxZi15mMzqgfB0hBFVgUU',
-			],
-			[
-				'category' => 'site',
 				'name' => 'name',
 				'value' => 'Zuluru',
 			],

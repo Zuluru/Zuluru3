@@ -9,7 +9,7 @@ trait SettingsTrait {
 	/**
 	 * Process settings from any source
 	 *
-	 * @return bool|\Cake\Network\Response Redirects on certain failures, returns indication of whether settings saved otherwise.
+	 * @return bool|\Cake\Http\Response Redirects on certain failures, returns indication of whether settings saved otherwise.
 	 */
 	private function _process($conditions = []) {
 		$settings = $this->Settings->find()->where(['person_id IS' => null]);
@@ -21,10 +21,7 @@ trait SettingsTrait {
 		if ($affiliate_id) {
 			try {
 				$affiliate = $this->Settings->Affiliates->get($affiliate_id);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid affiliate.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid affiliate.'));
 				return $this->redirect('/');
 			}
@@ -46,7 +43,7 @@ trait SettingsTrait {
 		if (!empty($conditions)) {
 			$defaults = $defaults->andWhere($conditions);
 		}
-		$defaults->indexBy('id')->toArray();
+		$defaults->all()->indexBy('id')->toArray();
 		$this->set(compact('affiliate', 'settings', 'defaults'));
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
@@ -82,7 +79,7 @@ trait SettingsTrait {
 				return $setting->has('id') && in_array($setting->id, $to_delete);
 			})->toArray();
 
-			if ($this->Settings->getConnection()->transactional(function () use ($settings, $to_delete, $affiliate_id) {
+			if ($this->Settings->getConnection()->transactional(function () use ($settings, $data, $to_delete, $affiliate_id) {
 				if (!empty($data)) {
 					$settings = $this->Settings->patchEntities($settings, $data, ['validate' => false]);
 					foreach ($settings as $setting) {
@@ -105,7 +102,7 @@ trait SettingsTrait {
 				// Reload the configuration right away, so it affects any rendering we do now,
 				// and rebuild the menu based on any changes.
 				if ($affiliate_id) {
-					Cache::delete("config/affiliate/$affiliate_id", 'long_term');
+					Cache::delete("config_affiliate_$affiliate_id", 'long_term');
 					$this->Configuration->loadAffiliate($affiliate_id);
 				} else {
 					Cache::delete('config', 'long_term');

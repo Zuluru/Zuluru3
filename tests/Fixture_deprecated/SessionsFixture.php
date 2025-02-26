@@ -19,7 +19,7 @@ class SessionsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'id' => '4bd8f5ec-3188-4840-a933-90796a2c136c',

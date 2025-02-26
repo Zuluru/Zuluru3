@@ -11,21 +11,17 @@ class RuleAttribute extends Rule {
 
 	/**
 	 * Attribute to look at
-	 *
-	 * @var string
 	 */
-	protected $attribute;
+	protected string $attribute;
 
 	/**
 	 * Path to attribute to look at
-	 *
-	 * @var string[]
 	 */
-	protected $attribute_path;
+	protected array $attribute_path;
 
-	public $invariant = true;
+	public bool $invariant = true;
 
-	private $invariant_attributes = ['People.first_name', 'People.last_name', 'People.birthdate', 'People.gender', 'People.roster_designation', 'People.height'];
+	private array $invariant_attributes = ['People.first_name', 'People.last_name', 'People.birthdate', 'People.gender', 'People.roster_designation', 'People.height'];
 
 	public function parse($config) {
 		$this->attribute_path = explode('.', trim($config, '"\''));
@@ -65,9 +61,9 @@ class RuleAttribute extends Rule {
 
 	protected function buildQuery(Query $query, $affiliate) {
 		// Add some more possible joins based on the attribute being queried
-		if (strpos($this->attribute, 'Groups.') !== false) {
-			$query->leftJoin(['GroupsPeople' => 'groups_people'], 'People.id = GroupsPeople.person_id');
-			$query->leftJoin(['Groups' => 'groups'], 'Groups.id = GroupsPeople.group_id');
+		if (strpos($this->attribute, 'UserGroups.') !== false) {
+			$query->innerJoin(['GroupsPeople' => 'groups_people'], 'People.id = GroupsPeople.person_id');
+			$query->innerJoin(['UserGroups' => 'user_groups'], 'UserGroups.id = GroupsPeople.group_id');
 		}
 
 		return $this->attribute;

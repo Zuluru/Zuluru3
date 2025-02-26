@@ -8,7 +8,7 @@ use Cake\ORM\TableRegistry;
 
 class ConfigurationTable extends AppTable {
 
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('settings');
@@ -106,7 +106,7 @@ class ConfigurationTable extends AppTable {
 			return;
 		}
 
-		$config = Cache::remember("config/affiliate/$id", function () use ($id) {
+		$config = Cache::remember("config_affiliate_$id", function () use ($id) {
 			return $this->format($this->find()->where(['affiliate_id' => $id])->toArray());
 		}, 'long_term', I18n::getLocale());
 		Configure::write($config);

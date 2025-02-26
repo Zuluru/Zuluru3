@@ -11,18 +11,18 @@ use Cake\ORM\Entity;
  * @property int $team_id
  * @property int $game_id
  * @property int $person_id
- * @property int $entered_sotg
+ * @property float $entered_sotg
  * @property int $score_entry_penalty
- * @property int $q1
- * @property int $q2
- * @property int $q3
- * @property int $q4
- * @property int $q5
- * @property int $q6
- * @property int $q7
- * @property int $q8
- * @property int $q9
- * @property int $q10
+ * @property float $q1
+ * @property float $q2
+ * @property float $q3
+ * @property float $q4
+ * @property float $q5
+ * @property float $q6
+ * @property float $q7
+ * @property float $q8
+ * @property float $q9
+ * @property float $q10
  * @property string $comments
  * @property string $highlights
  * @property int $most_spirited_id

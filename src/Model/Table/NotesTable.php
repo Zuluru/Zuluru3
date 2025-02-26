@@ -4,6 +4,7 @@ namespace App\Model\Table;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Notes Model
@@ -23,7 +24,7 @@ class NotesTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('notes');
@@ -71,7 +72,7 @@ class NotesTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -99,8 +100,8 @@ class NotesTable extends AppTable {
 			} else if ($note->field_id) {
 				return $this->Fields->affiliate($note->field_id);
 			}
-			throw new \InvalidArgumentException('Note does not have a valid record associated.');
-		} catch (RecordNotFoundException $ex) {
+			throw new InvalidArgumentException('Note does not have a valid record associated.');
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -113,7 +114,7 @@ class NotesTable extends AppTable {
 			} else if ($note->team_id) {
 				return $this->Teams->division($note->team_id);
 			}
-			throw new \InvalidArgumentException('Note does not have a valid record associated.');
+			throw new InvalidArgumentException('Note does not have a valid record associated.');
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

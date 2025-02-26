@@ -2,8 +2,8 @@
 namespace App\View\Helper;
 
 use App\Controller\AppController;
-use Cake\Core\Configure;
 use BootstrapUI\View\Helper\HtmlHelper as HtmlHelper;
+use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 class ZuluruHtmlHelper extends HtmlHelper {
@@ -19,7 +19,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Extend the default link function by allowing for shortening link titles.
 	 */
-	public function link($title, $url = null, array $options = []) {
+	public function link($title, $url = null, array $options = []): string {
 		if (is_array($options) && array_key_exists('max_length', $options)) {
 			$max = $options['max_length'];
 			unset($options['max_length']);
@@ -33,13 +33,16 @@ class ZuluruHtmlHelper extends HtmlHelper {
 
 	/**
 	 * Add a "buffer" option, which will result in the provided script being included in the jQuery ".ready" block
+	 * Just using 'block' => 'footer_script' would wrap it in an extra <script> tag that we don't want.
 	 */
-	public function scriptBlock($script, array $options = []) {
+	public function scriptBlock(string $script, array $options = []): ?string {
 		if (!empty($options['buffer'])) {
 			if ($options['buffer'] === true) {
 				$options['buffer'] = 'footer_script';
 			}
 			$this->_View->append($options['buffer'], $script);
+
+			return null;
 		} else {
 			return parent::scriptBlock($script, $options);
 		}
@@ -48,7 +51,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Create links from images.
 	 */
-	public function imageLink($img, $url, array $imgOptions = [], array $linkOptions = []) {
+	public function imageLink($img, $url, array $imgOptions = [], array $linkOptions = []): string {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {
 				$linkOptions['class'][] = 'icon';
@@ -66,7 +69,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Use local settings to select an icon.
 	 */
-	public function iconImg($img, array $imgOptions = []) {
+	public function iconImg($img, array $imgOptions = []): string {
 		$base_folder = Configure::read('App.paths.imgBase');
 
 		$icon_pack = Configure::read('App.iconPack');
@@ -83,7 +86,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Create links from icons.
 	 */
-	public function iconLink($img, $url, array $imgOptions = [], array $linkOptions = []) {
+	public function iconLink($img, $url, array $imgOptions = [], array $linkOptions = []): string {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {
 				$linkOptions['class'][] = 'icon';
@@ -185,7 +188,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 					if ($absolute_url) {
 						$url = Router::url($url, true);
 					} else {
-						$url['return'] = AppController::_return();
+						$url['?']['return'] = AppController::_return();
 					}
 					$message = str_replace($text, $this->link($text, $url), $message);
 				}

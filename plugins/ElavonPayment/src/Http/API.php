@@ -15,8 +15,9 @@ class API extends \App\Http\API {
 	 */
 	private $client = null;
 
-	public function setClient(Client $client) {
+	public function setClient(Client $client): API {
 		$this->client = $client;
+		return $this;
 	}
 
 	private function client(): Client {
@@ -55,12 +56,12 @@ class API extends \App\Http\API {
 			}
 		}
 
-		if (preg_match('#(\d+/\d+/\d+) (\d+:\d+:\d+ [AP]M)#im', urldecode($data['ssl_txn_time']), $matches)) {
+		if (preg_match('#(\d+/\d+/\d+) (\d+:\d+:\d+ [AP]M)#im', urldecode($data['ssl_txn_time'] ?? ''), $matches)) {
 			$audit['date'] = $matches[1];
 			$audit['time'] = $matches[2];
 		}
 
-		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ssl_description']);
+		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ssl_description'] ?? '');
 
 		return [true, $audit, $registration_ids, $debit_ids];
 	}
