@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d525923e0b5fe52154081dd7fe1eca0",
+    "content-hash": "290197d0d24613ccace71ca4fbc9d8e5",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -209,16 +209,16 @@
         },
         {
             "name": "cakephp-app-installer/installer",
-            "version": "v4.0.1",
+            "version": "v4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/anuj9196/CakePHP-App-Installer.git",
-                "reference": "523e49f002fa0fe98f9e672b3e89501471594a75"
+                "reference": "aafebba9fcb67e486e888900a590f6ee826b8ccd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/anuj9196/CakePHP-App-Installer/zipball/523e49f002fa0fe98f9e672b3e89501471594a75",
-                "reference": "523e49f002fa0fe98f9e672b3e89501471594a75",
+                "url": "https://api.github.com/repos/anuj9196/CakePHP-App-Installer/zipball/aafebba9fcb67e486e888900a590f6ee826b8ccd",
+                "reference": "aafebba9fcb67e486e888900a590f6ee826b8ccd",
                 "shasum": ""
             },
             "require": {
@@ -257,7 +257,7 @@
                 "issues": "https://github.com/anuj9196/CakePHP-App-Installer/issues",
                 "source": "https://github.com/anuj9196/CakePHP-App-Installer"
             },
-            "time": "2024-06-01T03:50:51+00:00"
+            "time": "2025-02-26T18:00:28+00:00"
         },
         {
             "name": "cakephp/authentication",
