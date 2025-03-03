@@ -15,7 +15,7 @@ if ($identity->isOfficial() || $identity->isVolunteer() || $identity->isPlayer()
 			$this->Html->iconLink ('ical.gif',
 				['controller' => 'People', 'action' => 'ical', $id, 'player.ics'],
 				['alt' => __('iCal')]),
-			$this->Html->imageLink ('https://www.google.com/calendar/images/ext/gc_button6.gif',
+			$this->Html->imageLink ('gc_button6.gif',
 				'https://www.google.com/calendar/render?cid=' . Router::url(['_scheme' => 'http', 'controller' => 'People', 'action' => 'ical', $id], true),
 				['alt' => __('Add to Google Calendar')],
 				['target' => 'google'])

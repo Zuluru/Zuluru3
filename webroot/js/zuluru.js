@@ -123,6 +123,13 @@ function selectorChanged(trigger) {
 		all.filter(':input').not('.disabled').removeAttr('disabled');
 
 		all_radio.not('.disabled').removeAttr('disabled');
+
+		// Find anything that's all disabled because of earlier selections and re-enable them.
+		zjQuery('form[data-auto-selected-by-select=1]').each(function() {
+			form = zjQuery(this);
+			form.find('input').removeAttr('disabled').prop('checked', false);
+			form.removeAttr('data-auto-selected-by-select');
+		});
 	} else {
 		var show = zjQuery(show_selector);
 		all.css('display', 'none');
@@ -141,13 +148,15 @@ function selectorChanged(trigger) {
 			not_matches.not('.disabled').attr('disabled', 'disabled');
 			not_matches.not('.disabled').prop('checked', false);
 
-			if (matches.length == 1) {
+			if (matches.length === 1) {
 				// Check the one match, and disable it so reset doesn't have any effect
 				matches.not('.disabled').attr('disabled', 'disabled');
 				zjQuery(matches[0]).prop('checked', true);
+				zjQuery(this).closest('form').attr('data-auto-selected-by-select', 1);
 			} else {
 				// Enable all matching inputs
 				matches.not('.disabled').removeAttr('disabled');
+				zjQuery(this).closest('form').removeAttr('data-auto-selected-by-select');
 			}
 		});
 	}
@@ -163,10 +172,17 @@ function selectorChanged(trigger) {
 function radioChanged(trigger) {
 	// This is only supported right now for radio inputs in tr elements
 	var row = zjQuery(trigger).closest('tr');
-	if (row.length == 0) {
+	if (row.length === 0) {
 		console.log('Unsupported radio selector scenario');
 		return;
 	}
+
+	// Find anything that's all disabled because of earlier selections and re-enable them. This will happen with resets.
+	row.find('form[data-auto-selected-by-radio=1]').each(function() {
+		form = zjQuery(this);
+		form.find('input').removeAttr('disabled').prop('checked', false);
+		form.removeAttr('data-auto-selected-by-radio');
+	});
 
 	var selected_ids = false;
 	row.find('input:checked').each(function() {
@@ -184,17 +200,21 @@ function radioChanged(trigger) {
 		}
 	});
 
+	// Build selectors from the list of matching IDs
 	var show_selector = '';
+	var radio_selector = '';
 	if (selected_ids !== false) {
 		for (i = 0; i < selected_ids.length; ++i) {
 			show_selector += '.option_id_' + selected_ids[i] + ',';
+			radio_selector += '.option_radio_id_' + selected_ids[i] + ',';
 		}
 		if (show_selector === '') {
 			// There were selections made, but they match nothing. Hide it all!
-			show_selector = '.option_no_match';
+			show_selector = radio_selector = '.option_no_match';
 		} else {
 			// Trim the trailing comma.
 			show_selector = show_selector.slice(0, -1);
+			radio_selector = radio_selector.slice(0, -1);
 		}
 	}
 
@@ -212,7 +232,7 @@ function radioChanged(trigger) {
 
 	// Call any local callback function
 	if (typeof radioChangedCallback === 'function') {
-		radioChangedCallback(trigger, row);
+		radioChangedCallback(trigger, row, radio_selector);
 	}
 }
 
@@ -324,7 +344,7 @@ function handleAjaxTrigger(trigger, container, widget, default_disposition, requ
 
 		var submit = dialog.find('[type=submit]');
 		var buttons = {};
-		if (submit.length == 0) {
+		if (submit.length === 0) {
 			buttons[zuluru_save] = function() {
 				dialog.off('keypress');
 
@@ -381,7 +401,7 @@ function handleAjaxTrigger(trigger, container, widget, default_disposition, requ
 
 		// Perhaps initialize the dialog input with the provided data
 		var input = dialog.find(':input');
-		if (input.length != 1) {
+		if (input.length !== 1) {
 			alert('Dialog ' + dialog_id + ' must have exactly one input in it.');
 			return;
 		}
@@ -952,81 +972,6 @@ function initializeStatus() {
 			CKEDITOR.instances[jtextarea.attr('id')] = true;
 		});
 	}
-
-	/**
-	 * Add date picker inputs to any date fields found. First, remove any that already
-	 * exist, so that when this is called a second time because of an Ajax response,
-	 * we don't end up with duplicated picker icons.
-	 */
-	zjQuery('input.datepicker').remove();
-	zjQuery('.ui-datepicker-trigger').remove();
-	zjQuery('div.date').each(function () {
-		zjQuery(this).find('select').last().not('.disabled').after('<input class="datepicker" type="hidden"/>');
-	});
-	zjQuery('div.datetime').each(function () {
-		zjQuery(this).find('select').last().not('.disabled').after('<input class="datepicker" type="hidden"/>');
-	});
-
-	/**
-	 * Enable the date picker inputs and handle their events
-	 */
-	zjQuery('.datepicker').datepicker({
-		dateFormat: 'yy-mm-dd',
-		buttonImage: zuluru_img_path + 'calendar.png',
-		buttonImageOnly: true,
-		duration: '',
-		showOn: 'button',
-		onSelect: function (sel_date) {
-			var newDate = sel_date.split('-');
-
-			// If the date inputs have events on them to trigger Ajax requests, we only want to have one fire.
-			// To accomplish this, we only fire the change event on each one if they *don't* have that ajax_input
-			// class, and then at the end we will fire the first one. Assumption here is that if any of them have
-			// that class, all of them will.
-
-			var inputs = zjQuery(this).siblings('select');
-			inputs.each(function () {
-				var input = zjQuery(this);
-				var name = input.attr('name');
-				if (name.substring(name.length - 5, name.length) == '[day]' && input.val() != newDate[2]) {
-					input.val(newDate[2]);
-					if (!input.hasClass('zuluru_ajax_input')) {
-						input.change();
-					}
-				}
-				else if (name.substring(name.length - 7, name.length) == '[month]' && input.val() != newDate[1]) {
-					input.val(newDate[1]);
-					if (!input.hasClass('zuluru_ajax_input')) {
-						input.change();
-					}
-				}
-				else if (name.substring(name.length - 6, name.length) == '[year]' && input.val() != newDate[0]) {
-					input.val(newDate[0]);
-					if (!input.hasClass('zuluru_ajax_input')) {
-						input.change();
-					}
-				}
-			});
-
-			if (inputs.length > 0 && zjQuery(inputs[0]).hasClass('zuluru_ajax_input')) {
-				zjQuery(inputs[0]).change();
-			}
-		},
-		beforeShow: function () {
-			var year = '';
-			var month = '';
-			var day = '';
-			var name = '';
-			zjQuery(this).siblings('select').each(function () {
-				name = zjQuery(this).attr('name');
-				if (name.substring(name.length - 5, name.length) == '[day]') day = zjQuery(this).val();
-				else if (name.substring(name.length - 7, name.length) == '[month]') month = zjQuery(this).val();
-				else if (name.substring(name.length - 6, name.length) == '[year]') year = zjQuery(this).val();
-			});
-			zjQuery(this).val(year + '-' + month + '-' + day);
-			return {};
-		}
-	});
 
 	/**
 	 * Initialize tooltip behaviour

@@ -60,6 +60,10 @@ if (!empty($event->division_id)):
 		<dt class="col-sm-3 text-end"><?= __('Last Game') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->Time->date($event->division->close) ?></dd>
 <?php
+	if ($event->division->open && $event->division->open->isFuture()) {
+		echo $this->element('Divisions/disclaimer');
+	}
+
 	if (!empty($event->division->days)):
 ?>
 		<dt class="col-sm-3 text-end"><?= __n('Day', 'Days', count($event->division->days)) ?></dt>
