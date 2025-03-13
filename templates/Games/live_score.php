@@ -59,32 +59,6 @@ echo $this->Bootstrap->navPills([
 ]);
 ?>
 </div>
-<?php
-if (Configure::read('feature.twitter')) {
-	if (isset($entry)) {
-		$twitter = "Score update #{$game->division->name}: " . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
-	} else {
-		$twitter = "#{$game->division->name} game between " . $team->twitterName() . ' and ' . $opponent->twitterName() . " is about to start at {$game->game_slot->field->long_code}.";
-	}
-	echo $this->Form->create(null, ['url' => ['controller' => 'Games', 'action' => 'tweet']]);
-	echo $this->Form->hidden('lat', ['value' => $game->game_slot->field->latitude]);
-	echo $this->Form->hidden('long', ['value' => $game->game_slot->field->longitude]);
-	echo $this->Form->control('message', [
-			'div' => 'clear',
-			'cols' => 50,
-			'rows' => 4,
-			'value' => $twitter,
-	]);
-	echo $this->Form->button(__('Tweet'), ['class' => 'btn-success']);
-	echo $this->Form->end();
-
-	$this->Html->scriptBlock("
-		zjQuery(document).ready(function() {
-			zjQuery('#TwitterLiveScoreForm').ajaxForm({target: '#temp_update'});
-		});
-	", ['buffer' => true]);
-}
-?>
 </div>
 
 <?php

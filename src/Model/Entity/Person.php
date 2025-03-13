@@ -41,8 +41,6 @@ use Cake\Routing\Router;
  * @property bool $has_dog
  * @property bool $contact_for_feedback
  * @property bool $complete
- * @property string $twitter_token
- * @property string $twitter_secret
  * @property int $user_id
  * @property bool $show_gravatar
  * @property string $alternate_first_name
@@ -153,8 +151,6 @@ class Person extends Entity {
 		'has_dog',
 		'contact_for_feedback',
 		'complete',
-		'twitter_token',
-		'twitter_secret',
 		'user_id',
 		'show_gravatar',
 		'modified',

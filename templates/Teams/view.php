@@ -34,13 +34,6 @@ if (Configure::read('feature.urls') && !empty($team->website)):
 <?php
 endif;
 
-if (Configure::read('feature.twitter') && !empty($team->twitter_user)):
-?>
-		<dt class="col-sm-3 text-end">Twitter</dt>
-		<dd class="col-sm-9 mb-0"><?= $this->Html->link("@{$team->twitter_user}", "https://twitter.com/{$team->twitter_user}") ?></dd>
-<?php
-endif;
-
 if (Configure::read('feature.shirt_colour')):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Shirt Colour') ?></dt>
@@ -531,12 +524,6 @@ if (!empty($team->teams_people) && $this->Authorize->can('view_roster', \App\Con
 ?>
 
 </div>
-<?php
-endif;
-
-if (Configure::read('feature.flickr') && !empty($team->flickr_user) && !empty($team->flickr_set) && !$team->flickr_ban):
-?>
-<object width="550" height="445"><param name="flashvars" value="offsite=true&lang=es-us&page_show_url=%2Fphotos%2F<?= $team->flickr_user ?>%2Fsets%2F<?= $team->flickr_set ?>%2Fshow%2F&page_show_back_url=%2Fphotos%2F<?= $team->flickr_user ?>%2Fsets%2F<?= $team->flickr_set ?>%2F&set_id=<?= $team->flickr_set ?>&jump_to="></param> <param name="movie" value="https://www.flickr.com/apps/slideshow/show.swf?v=71649"></param> <param name="allowFullScreen" value="true"></param><embed type="application/x-shockwave-flash" src="https://www.flickr.com/apps/slideshow/show.swf?v=71649" allowFullScreen="true" flashvars="offsite=true&lang=es-us&page_show_url=%2Fphotos%2F<?= $team->flickr_user ?>%2Fsets%2F<?= $team->flickr_set ?>%2Fshow%2F&page_show_back_url=%2Fphotos%2F<?= $team->flickr_user ?>%2Fsets%2F<?= $team->flickr_set ?>%2F&set_id=<?= $team->flickr_set ?>&jump_to=" width="550" height="445"></embed></object>
 <?php
 endif;
 

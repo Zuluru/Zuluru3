@@ -1906,23 +1906,6 @@ msgstr "بدأت المباراة"
 msgid "recorded"
 msgstr "تم تسجيله"
 
-#: Controller/GamesController.php:1847
-#: Controller/PeopleController.php:1102
-msgid "Failed to load the {0} library! Contact your system administrator."
-msgstr ""
-
-#: Controller/GamesController.php:1853
-msgid "You have not authorized this site to tweet on your behalf. Configure this in the Profile Preferences page."
-msgstr "لم تسمح لهذا الموقع بالتغريد عنك. قم بالإعدادات في صفحة خيارات ملفك الشخصي."
-
-#: Controller/GamesController.php:1871
-msgid "Your message has been tweeted."
-msgstr "تم إرسال رسالتك كتغريدة."
-
-#: Controller/GamesController.php:1873
-msgid "Failed to send the tweet."
-msgstr "فشل في إرسال التغريدة."
-
 #: Controller/GamesController.php:1956
 msgid "The opponent for that game has not been determined, so a score cannot yet be submitted."
 msgstr "الفريق المنافس لتلك المباراة لم يحدد بعد، لذا النتيجة لا يمكن أن ترسل."
@@ -2243,38 +2226,6 @@ msgstr ""
 #: Controller/PeopleController.php:1088
 msgid "An administrator removed your relation"
 msgstr ""
-
-#: Controller/PeopleController.php:1116
-msgid "The oauth token you started with doesn't match the one you've been redirected with. Do you have multiple tabs open?"
-msgstr "رمز oauth الذي بدأته لا يتطابق مع الرمز الذي تم ارسالك إليه. هل لديك عدة صفحات مفتوحة؟"
-
-#: Controller/PeopleController.php:1121
-msgid "The oauth verifier is missing so we cannot continue. Did you deny the appliction access?"
-msgstr "مدقق oauth ضائع لذلك لا يمكن الاستمرار. هل رفضت التصريح لهذا التطبيق؟"
-
-#: Controller/PeopleController.php:1142
-msgid "Your Twitter authorization has been completed. You can always revoke this at any time through the preferences page."
-msgstr "تم إكمال تصريحك في تويتر. تستطيع دائما إلغائه في أي وقت في صفحة الخيارات."
-
-#: Controller/PeopleController.php:1144
-msgid "Twitter authorization was received, but the database failed to update."
-msgstr "تم استلام تصريح تويتر، ولكن فشل في تحديث قاعدة البيانات."
-
-#: Controller/PeopleController.php:1147;1161
-msgid "There was an error communicating with Twitter."
-msgstr "حصل خطأ في التواصل مع تويتر."
-
-#: Controller/PeopleController.php:1170
-msgid "The callback was not confirmed by Twitter so we cannot continue."
-msgstr "لم يتم تأكيد الرد بواسطة تويتر لذلك لا يمكن الاستمرار."
-
-#: Controller/PeopleController.php:1181
-msgid "Your Twitter authorization has been revoked. You can always re-authorize at any time through the preferences page."
-msgstr "تم إبطال تصريحك لموقع تويتر. تستطيع دائما إعادة التصريح في أي وقت عبر صفحة الخيارات."
-
-#: Controller/PeopleController.php:1183
-msgid "Failed to revoke your Twitter authorization."
-msgstr "فشل في إلغاء تصريحك لموقع تويتر."
 
 #: Controller/PeopleController.php:1211
 msgid "Your temp folder {0} does not exist or is not writable."
@@ -10853,26 +10804,6 @@ msgstr ""
 msgid "Reset Schedule Dependencies"
 msgstr ""
 
-#: Template/Element/Help/settings/feature/twitter.ctp:1
-msgid "To enable {0} integration, you must first install two support libraries into {1}."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:2
-msgid "From {0} you need {1} (renamed to {2}) and {3}."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:6
-msgid "From {0} you need {1} (renamed to {2})."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:10
-msgid "After this, you must set the Consumer Key and Consumer Secret values. You can obtain standard {0} values for these by contacting {1}, or you can acquire your own. If you want your own consumer values, log in to {2}, then go to the {3}, click \"Create a new application\", and follow the steps."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:14
-msgid "Twitter \"My Applications\" page"
-msgstr ""
-
 #: Template/Element/Help/settings/feature/uls.ctp:1
 msgid "{0} is part of {1}, a {2} initiative to provide jQuery implementations of internationalisation features."
 msgstr ""
@@ -14517,10 +14448,6 @@ msgstr ""
 msgid "Finalize"
 msgstr "قم بالإنهاء"
 
-#: Template/Games/live_score.ctp:68
-msgid "Tweet"
-msgstr ""
-
 #: Template/Games/live_score.ctp:83
 msgid "Game Start Details"
 msgstr ""
@@ -16274,22 +16201,6 @@ msgstr "اختر وضع الوقت المفضل لديك"
 msgid "Preferred Language"
 msgstr "اللغة المفضلة"
 
-#: Template/People/preferences.ctp:110
-msgid "You have authorized your account to post updates to {0}. You can {1} if you no longer want to tweet updates."
-msgstr ""
-
-#: Template/People/preferences.ctp:111
-msgid "revoke this authorization"
-msgstr "إلغاء هذا التصريح"
-
-#: Template/People/preferences.ctp:114
-msgid "This system can post certain updates to {0} on your behalf. To enable this, you must {1}. Note that nothing will ever be tweeted automatically; this authorization enables you to tweet directly from this site."
-msgstr ""
-
-#: Template/People/preferences.ctp:115
-msgid "authorize {0} to accept these tweets"
-msgstr ""
-
 #: Template/People/reactivate.ctp:8
 msgid "Reactivate Profile"
 msgstr ""
@@ -17753,30 +17664,6 @@ msgstr ""
 msgid "Default Site Language"
 msgstr ""
 
-#: Template/Settings/feature.ctp:182
-msgid "Enable or disable Twitter integration."
-msgstr "تفعيل او تعطيل تويتر"
-
-#: Template/Settings/feature.ctp:190
-msgid "Consumer key"
-msgstr "مفتاح المستهلك"
-
-#: Template/Settings/feature.ctp:191
-msgid "This application's Twitter consumer key."
-msgstr "مفتاح المستهلك لتويتر المخصص لهذا البرنامج."
-
-#: Template/Settings/feature.ctp:199
-msgid "Consumer secret"
-msgstr "سر المستهلك"
-
-#: Template/Settings/feature.ctp:200
-msgid "This application's Twitter consumer secret."
-msgstr "سر المستهلك التابع لتويتر لهذا البرنامج"
-
-#: Template/Settings/feature.ctp:204
-msgid "Twitter integration requires the cUrl library, which your installation of PHP does not support. Talk to your system administrator or hosting company about enabling cUrl."
-msgstr "ينبغي استعمال cUrl لاستعمال اضافة التويتر."
-
 #: Template/Settings/organization.ctp:13
 #: Template/Settings/payment.ctp:11
 #: Template/Settings/scoring.ctp:11
@@ -18231,10 +18118,6 @@ msgstr "السماح للURL"
 #: Template/Settings/team.ctp:64
 msgid "Enable or disable attachment of URLs to team and franchise records."
 msgstr "تفعيل او تعطيل ربط URL للفرق وامتيازاتها."
-
-#: Template/Settings/team.ctp:74
-msgid "Enable or disable attachment of Flickr slideshows to team records."
-msgstr "تفعيل او تعطيل ربط عرض فليكر للفرق."
 
 #: Template/Settings/team.ctp:81
 msgid "Location Preference Features"
@@ -18697,26 +18580,6 @@ msgstr "لا يوجد خيارات مفضّلة."
 #: Template/Teams/edit.ctp:159
 msgid "Your team's website, if you have one."
 msgstr "صفحة الفريق الرئيسية، إذا لديك واحدة."
-
-#: Template/Teams/edit.ctp:166
-msgid "If selected, this team's Flickr slideshow will no longer be shown. This is for use if teams repeatedly violate this site's terms of service."
-msgstr "إذا تم اختياره، عرض صور فليكر للفريق لن تعرض. هذا الخيار مخصص للفرق اللتي تسيء استخدام خاصية عرض الصور."
-
-#: Template/Teams/edit.ctp:169
-msgid "Your team has been banned from using the Flickr slideshow. Contact an administrator if you believe this was done in error or would like to request a review."
-msgstr "تم منع فريقك من استخدام عرض فليكر. اتصل بمدير الموقع لاصلاح العطل."
-
-#: Template/Teams/edit.ctp:173
-msgid "The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your username."
-msgstr ""
-
-#: Template/Teams/edit.ctp:176
-msgid "The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. 12345678901234567 is your set number."
-msgstr ""
-
-#: Template/Teams/edit.ctp:183
-msgid "Do NOT include the @; it will be automatically added for you."
-msgstr "لا تكتب @، سوف تضاف آليا لك."
 
 #: Template/Teams/index.ctp:9
 #: Template/Teams/letter.ctp:7

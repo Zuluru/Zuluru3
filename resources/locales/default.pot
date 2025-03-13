@@ -2654,23 +2654,6 @@ msgstr ""
 msgid "recorded"
 msgstr ""
 
-#: Controller/GamesController.php:1846
-#: Controller/PeopleController.php:1096
-msgid "Failed to load the {0} library! Contact your system administrator."
-msgstr ""
-
-#: Controller/GamesController.php:1852
-msgid "You have not authorized this site to tweet on your behalf. Configure this in the Profile Preferences page."
-msgstr ""
-
-#: Controller/GamesController.php:1870
-msgid "Your message has been tweeted."
-msgstr ""
-
-#: Controller/GamesController.php:1872
-msgid "Failed to send the tweet."
-msgstr ""
-
 #: Controller/GamesController.php:1955
 msgid "The opponent for that game has not been determined, so a score cannot yet be submitted."
 msgstr ""
@@ -3052,39 +3035,6 @@ msgstr ""
 
 #: Controller/PeopleController.php:1082
 msgid "An administrator removed your relation"
-msgstr ""
-
-#: Controller/PeopleController.php:1110
-msgid "The oauth token you started with doesn't match the one you've been redirected with. Do you have multiple tabs open?"
-msgstr ""
-
-#: Controller/PeopleController.php:1115
-msgid "The oauth verifier is missing so we cannot continue. Did you deny the appliction access?"
-msgstr ""
-
-#: Controller/PeopleController.php:1136
-msgid "Your Twitter authorization has been completed. You can always revoke this at any time through the preferences page."
-msgstr ""
-
-#: Controller/PeopleController.php:1138
-msgid "Twitter authorization was received, but the database failed to update."
-msgstr ""
-
-#: Controller/PeopleController.php:1141
-#: Controller/PeopleController.php:1155
-msgid "There was an error communicating with Twitter."
-msgstr ""
-
-#: Controller/PeopleController.php:1164
-msgid "The callback was not confirmed by Twitter so we cannot continue."
-msgstr ""
-
-#: Controller/PeopleController.php:1175
-msgid "Your Twitter authorization has been revoked. You can always re-authorize at any time through the preferences page."
-msgstr ""
-
-#: Controller/PeopleController.php:1177
-msgid "Failed to revoke your Twitter authorization."
 msgstr ""
 
 #: Controller/PeopleController.php:1205
@@ -12411,26 +12361,6 @@ msgstr ""
 msgid "Reset Schedule Dependencies"
 msgstr ""
 
-#: Template/Element/Help/settings/feature/twitter.ctp:1
-msgid "To enable {0} integration, you must first install two support libraries into {1}."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:2
-msgid "From {0} you need {1} (renamed to {2}) and {3}."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:6
-msgid "From {0} you need {1} (renamed to {2})."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:10
-msgid "After this, you must set the Consumer Key and Consumer Secret values. You can obtain standard {0} values for these by contacting {1}, or you can acquire your own. If you want your own consumer values, log in to {2}, then go to the {3}, click \"Create a new application\", and follow the steps."
-msgstr ""
-
-#: Template/Element/Help/settings/feature/twitter.ctp:14
-msgid "Twitter \"My Applications\" page"
-msgstr ""
-
 #: Template/Element/Help/settings/feature/uls.ctp:1
 msgid "{0} is part of {1}, a {2} initiative to provide jQuery implementations of internationalisation features."
 msgstr ""
@@ -16218,10 +16148,6 @@ msgstr ""
 msgid "Finalize"
 msgstr ""
 
-#: Template/Games/live_score.ctp:68
-msgid "Tweet"
-msgstr ""
-
 #: Template/Games/live_score.ctp:83
 msgid "Game Start Details"
 msgstr ""
@@ -18039,22 +17965,6 @@ msgstr ""
 
 #: Template/People/preferences.ctp:96
 msgid "Preferred Language"
-msgstr ""
-
-#: Template/People/preferences.ctp:110
-msgid "You have authorized your account to post updates to {0}. You can {1} if you no longer want to tweet updates."
-msgstr ""
-
-#: Template/People/preferences.ctp:111
-msgid "revoke this authorization"
-msgstr ""
-
-#: Template/People/preferences.ctp:114
-msgid "This system can post certain updates to {0} on your behalf. To enable this, you must {1}. Note that nothing will ever be tweeted automatically; this authorization enables you to tweet directly from this site."
-msgstr ""
-
-#: Template/People/preferences.ctp:115
-msgid "authorize {0} to accept these tweets"
 msgstr ""
 
 #: Template/People/reactivate.ctp:8
@@ -20057,10 +19967,6 @@ msgstr ""
 msgid "Enable or disable attachment of URLs to team and franchise records."
 msgstr ""
 
-#: Template/Settings/team.ctp:74
-msgid "Enable or disable attachment of Flickr slideshows to team records."
-msgstr ""
-
 #: Template/Settings/team.ctp:81
 msgid "Location Preference Features"
 msgstr ""
@@ -20522,26 +20428,6 @@ msgstr ""
 
 #: Template/Teams/edit.ctp:159
 msgid "Your team's website, if you have one."
-msgstr ""
-
-#: Template/Teams/edit.ctp:166
-msgid "If selected, this team's Flickr slideshow will no longer be shown. This is for use if teams repeatedly violate this site's terms of service."
-msgstr ""
-
-#: Template/Teams/edit.ctp:169
-msgid "Your team has been banned from using the Flickr slideshow. Contact an administrator if you believe this was done in error or would like to request a review."
-msgstr ""
-
-#: Template/Teams/edit.ctp:173
-msgid "The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your username."
-msgstr ""
-
-#: Template/Teams/edit.ctp:176
-msgid "The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. 12345678901234567 is your set number."
-msgstr ""
-
-#: Template/Teams/edit.ctp:183
-msgid "Do NOT include the @; it will be automatically added for you."
 msgstr ""
 
 #: Template/Teams/index.ctp:9
@@ -24916,4 +24802,3 @@ msgstr ""
 #: Seeds/WaiversSeed.php:47
 msgid "Dog"
 msgstr ""
-

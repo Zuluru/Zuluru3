@@ -77,15 +77,6 @@ class TeamTest extends TestCase {
 	}
 
 	/**
-	 * Test twitterName method
-	 */
-	public function testTwitterName(): void {
-		/** @var Team $team */
-		$team = TeamFactory::make(['name' => 'Red', 'twitter_user' => 'redteam'])->getEntity();
-		$this->assertEquals('Red @redteam', $team->twitterName());
-	}
-
-	/**
 	 * Test addGameResult method
 	 */
 	public function testAddGameResult(): void {

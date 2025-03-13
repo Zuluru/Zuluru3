@@ -141,13 +141,6 @@ class GamesTableTest extends TableTestCase {
 	}
 
 	/**
-	 * Test twitterScore method
-	 */
-	public function testTwitterScore(): void {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
