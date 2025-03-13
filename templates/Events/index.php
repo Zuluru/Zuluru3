@@ -31,6 +31,12 @@ if (!$this->Identity->isLoggedIn()) {
 	echo $this->element('Events/not_logged_in');
 }
 
+if (count($events) > 1):
+?>
+	<p><strong><?= __('Select your preferences here to limit the options shown below to only those that match.') ?></strong></p>
+<?php
+endif;
+
 echo $this->element('Events/selectors', compact('events'));
 
 $events = collection($events)->groupBy('affiliate_id')->toArray();

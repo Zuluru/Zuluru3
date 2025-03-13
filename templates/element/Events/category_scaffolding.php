@@ -17,17 +17,19 @@ const formatter = new Intl.NumberFormat('$locale', {
 	currency: '$currency',
 });
 
-function resetRadio(trigger) {
-	table = trigger.closest('table').find('input:checked').not('.disabled').each(function() {
-		i = zjQuery(this);
-		if (i.attr('disabled') === undefined) {
-			i.prop('checked', false);
-			radioChanged(i);
+function resetSelectorForm(trigger) {
+	trigger.closest('table').find('input').not('.disabled').each(function() {
+		input = zjQuery(this);
+		form = input.closest('form');
+
+		if (!form.attr('data-auto-selected-by-select')) {
+			input.prop('checked', false).removeAttr('disabled');
+			radioChanged(input);
 		}
 	});
 }
 
-function radioChangedCallback(trigger, row) {
+function radioChangedCallback(trigger, row, radio_selector) {
 	options = row.find('span.prices:visible');
 	el = row.find('span.final');
 
@@ -58,12 +60,36 @@ function radioChangedCallback(trigger, row) {
 	}
 
 	el.html(html);
+
+	if (zjQuery(trigger).prop('checked')) {
+		// There may now be other radio forms in the same row that have only one valid option. Grey them out.
+		var form_id = zjQuery(trigger).closest('form').attr('id');
+		row.find('form').not('#' + form_id).each(function() {
+			form = zjQuery(this);
+			if (form.attr('data-auto-selected-by-select')) {
+				return;
+			}
+
+			options = form.find(radio_selector);
+			if (options.length === 1) {
+				if (!zjQuery(options[0]).prop('checked')) {
+					form.find('input').attr('disabled', 'disabled');
+					options.removeAttr('disabled');
+					options.prop('checked', true);
+					form.attr('data-auto-selected-by-radio', 1);
+				}
+			} else if (options.length > 1) {
+				form.find('input').attr('disabled', 'disabled');
+				options.removeAttr('disabled');
+			}
+		});
+	}
 }
 
 function initializePrices() {
 	zjQuery('.final').each(function () {
 		row = zjQuery(this).closest('tr');
-		radioChangedCallback(zjQuery(this), row);
+		radioChangedCallback(zjQuery(this), row, '');
 	});
 }
 ");

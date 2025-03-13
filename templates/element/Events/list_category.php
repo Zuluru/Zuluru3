@@ -60,7 +60,7 @@ if (!empty($category->description)) {
 <table class="table table-condensed">
 	<thead>
 		<tr>
-			<th><?= $this->Form->button(__('Reset'), ['class' => 'reset', 'style' => 'padding-top: 1px; padding-bottom: 1px;', 'onclick' => 'resetRadio(zjQuery(this)); return false;']) ?></th>
+			<th><?= $this->Form->button(__('Reset'), ['class' => 'reset', 'style' => 'padding-top: 1px; padding-bottom: 1px;', 'onclick' => 'resetSelectorForm(zjQuery(this)); return false;']) ?></th>
 <?php
 if (count($sports) > 1):
 ?>

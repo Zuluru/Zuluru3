@@ -65,6 +65,10 @@ if ($division->close != null):
 <dd class="col-sm-9 mb-0"><?= $this->Time->date($division->close) ?></dd>
 <?php
 endif;
+
+if ($division->open && $division->open->isFuture()) {
+	echo $this->element('Divisions/disclaimer');
+}
 ?>
 <dt class="col-sm-3 text-end"><?= __('Roster Deadline') ?></dt>
 <dd class="col-sm-9 mb-0"><?= $this->Time->date($division->rosterDeadline()) ?></dd>

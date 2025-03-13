@@ -211,7 +211,7 @@ if (!empty($team->division_id) && $team->division->close > FrozenDate::now()->su
 		['action' => 'ical', $team->id, 'team.ics'],
 		['alt' => __('iCal')]
 	),
-	$this->Html->imageLink('https://www.google.com/calendar/images/ext/gc_button6.gif',
+	$this->Html->imageLink('gc_button6.gif',
 		'https://www.google.com/calendar/render?cid=' . Router::url(['_scheme' => 'http', 'action' => 'ical', $team->id], true),
 		['alt' => __('Add to Google Calendar')],
 		['target' => 'google']
