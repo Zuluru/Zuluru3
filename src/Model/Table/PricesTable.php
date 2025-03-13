@@ -198,7 +198,7 @@ class PricesTable extends AppTable {
 
 	public function event($id) {
 		try {
-			return $this->field('event_id', ['Prices.id' => $id]);
+			return $this->field('event_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

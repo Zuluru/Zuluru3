@@ -417,7 +417,7 @@ class EventsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->field('affiliate_id', ['Events.id' => $id]);
+			return $this->field('affiliate_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
@@ -425,7 +425,7 @@ class EventsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['Events.id' => $id]);
+			return $this->field('division_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

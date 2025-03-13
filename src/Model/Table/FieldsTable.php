@@ -172,7 +172,7 @@ class FieldsTable extends AppTable {
 
 	public function sport($id) {
 		try {
-			return $this->field('sport', ['Fields.id' => $id]);
+			return $this->field('sport', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

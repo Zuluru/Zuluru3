@@ -41,6 +41,7 @@ use InvalidArgumentException;
  * @property \Cake\ORM\Association\HasMany $ScoreEntries
  * @property \Cake\ORM\Association\HasMany $SpiritEntries
  * @property \Cake\ORM\Association\HasMany $Stats
+ * @property \Cake\ORM\Association\BelongsToMany $Officials
  */
 class GamesTable extends AppTable {
 
@@ -146,6 +147,13 @@ class GamesTable extends AppTable {
 		$this->hasMany('Stats', [
 			'foreignKey' => 'game_id',
 			'dependent' => true,
+		]);
+
+		$this->belongsToMany('Officials', [
+			'className' => 'People',
+			'joinTable' => 'games_officials',
+			'foreignKey' => 'game_id',
+			'targetForeignKey' => 'official_id',
 		]);
 	}
 
@@ -1047,6 +1055,21 @@ class GamesTable extends AppTable {
 			->where(['OR' => $conditions]);
 	}
 
+	public function findOfficiatingSchedule(Query $query, array $options) {
+		if (empty($options['official_id'])) {
+			throw new InvalidArgumentException('Official ID must be provided to this finder.');
+		}
+
+		return $query
+			->contain([
+				'GameSlots' => ['Fields' => ['Facilities']],
+			])
+			->distinct('GameSlots.id')
+			->matching('Officials', function (Query $q) use ($options) {
+				return $q->where(['Officials.id' => $options['official_id']]);
+			});
+	}
+
 	public function findWithAttendance(Query $query, array $options) {
 		$contain = [
 			'Attendances' => [
@@ -1671,7 +1694,7 @@ class GamesTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['Games.id' => $id]);
+			return $this->field('division_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

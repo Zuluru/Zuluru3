@@ -66,6 +66,7 @@ use InvalidArgumentException;
  * @property \App\Model\Entity\ActivityLog[] $attendance_summary_emails
  * @property \App\Model\Entity\Note[] $notes
  * @property \App\Model\Entity\Stat[] $stats
+ * @property \App\Model\Entity\Person[] $officials
  *
  * @property string $display_name
  * @property string $home_dependency

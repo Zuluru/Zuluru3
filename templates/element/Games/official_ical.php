@@ -2,7 +2,6 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
- * @var int|int[] $team_id
  * @var string $uid_prefix
  */
 
@@ -14,22 +13,6 @@ use function App\Lib\ical_encode;
 // Get domain URL for signing games
 $domain = Configure::read('App.domain');
 
-if (!is_array($team_id)) {
-	$team_id = [$team_id];
-}
-
-if ($game->home_team && in_array($game->home_team->id, $team_id)) {
-	$my_team = $game->home_team;
-	$my_home_away = __('home');
-	$opponent = $game->away_team;
-	$opp_home_away = __('away');
-} else {
-	$my_team = $game->away_team;
-	$my_home_away = __('away');
-	$opponent = $game->home_team;
-	$opp_home_away = __('home');
-}
-
 $field = "{$game->game_slot->field->long_name} ({$game->game_slot->field->facility->code})";
 $field_address = ical_encode("{$game->game_slot->field->facility->location_street}, {$game->game_slot->field->facility->location_city}, {$game->game_slot->field->facility->location_province}");
 
@@ -37,6 +20,11 @@ $field_address = ical_encode("{$game->game_slot->field->facility->location_stree
 $field_url = Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true);
 
 // output game
+$description = __('Officiating {0} at {1} on {2}',
+	$this->element('Divisions/block', ['division' => $game->division, 'field' => 'long_league_name']),
+	ical_encode($field),
+	$this->Time->iCalDateTimeRange($game->game_slot)
+);
 ?>
 BEGIN:VEVENT
 UID:<?= "{$uid_prefix}{$game->id}@$domain" ?>
@@ -57,40 +45,9 @@ GEO:<?= $game->game_slot->field->latitude ?>;<?= $game->game_slot->field->longit
 
 X-LOCATION-URL:<?= $field_url ?>
 
-SUMMARY:<?php
-if ($opponent) {
-	echo __('{0} vs {1}', ical_encode("{$my_team->name} ($my_home_away)"), ical_encode("{$opponent->name} ($opp_home_away)"));
-} else {
-	echo __('{0}', ical_encode($my_team->name));
-}
-?>
+SUMMARY:<?= $description ?>
 
-DESCRIPTION:<?php
-if ($opponent) {
-	echo __('{0} vs {1} at {2} on {3}',
-		ical_encode("{$my_team->name} ($my_home_away)"),
-		ical_encode("{$opponent->name} ($opp_home_away)"),
-		ical_encode($field),
-		$this->Time->iCalDateTimeRange($game->game_slot)
-	);
-	if (Configure::read('feature.shirt_colour') && !empty($opponent->shirt_colour)) {
-		echo __(' ({0})', __('they wear {0}', ical_encode($opponent->shirt_colour)));
-	}
-} else {
-	echo __('{0} at {1} on {2}',
-		ical_encode($my_team->name),
-		ical_encode($field),
-		$this->Time->iCalDateTimeRange($game->game_slot)
-	);
-}
-
-if ($opponent):
-?>
-
-X-OPPONENT-COLOUR:<?= $opponent->shirt_colour ?>
-<?php
-endif;
-?>
+DESCRIPTION:<?= $description ?>
 
 STATUS:CONFIRMED
 TRANSP:OPAQUE

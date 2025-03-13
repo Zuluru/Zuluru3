@@ -512,7 +512,7 @@ class DivisionsTable extends AppTable {
 
 	public function league($id) {
 		try {
-			return $this->field('league_id', ['Divisions.id' => $id]);
+			return $this->field('league_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

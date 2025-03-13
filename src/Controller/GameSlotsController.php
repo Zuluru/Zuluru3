@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use App\Model\Entity\GameSlot;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -367,30 +368,34 @@ class GameSlotsController extends AppController {
 		return $this->redirect('/');
 	}
 
-	public function TODOLATER_submit_score() {
+	public function submit_score() {
 		$id = $this->getRequest()->getQuery('slot');
-		$this->GameSlot->contain([
-				'Game' => [
-					'HomeTeam',
-					'HomePoolTeam' => 'DependencyPool',
-					'Division' => 'League',
-				],
-				'Field' => ['Facility' => 'Region'],
-		]);
-		$game_slot = $this->GameSlot->read(null, $id);
-		if (!$game_slot) {
+		try {
+			/** @var GameSlot $game_slot */
+			$game_slot = $this->GameSlots->get($id, [
+				'contain' => [
+					'Games' => [
+						'HomeTeam',
+						'HomePoolTeam' => ['DependencyPool'],
+						'Divisions' => ['Leagues'],
+						'Officials',
+					],
+					'Fields' => ['Facilities' => 'Regions'],
+				]
+			]);
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
 
 		$this->Authorization->authorize($game_slot);
 
-		if (empty($game_slot['Game'])) {
+		if (empty($game_slot->games)) {
 			$this->Flash->info(__('This game slot has no games associated with it.'));
 			return $this->redirect('/');
 		}
-		$game = $game_slot['Game'][0];
-		if ($game['Division']['schedule_type'] != 'competition') {
+		$game = $game_slot->games[0];
+		if ($game->division->schedule_type !== 'competition') {
 			$this->Flash->info(__('You can only enter scores for multiple games in "competition" divisions.'));
 			return $this->redirect('/');
 		}
@@ -403,8 +408,8 @@ class GameSlotsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		$this->Configuration->loadAffiliate($game_slot['Field']['Facility']['Region']['affiliate_id']);
-		$ratings_obj = $this->moduleRegistry->load("Ratings:{$game['Division']['rating_calculator']}");
+		$this->Configuration->loadAffiliate($game_slot->field->facility->region->affiliate_id);
+		$ratings_obj = $this->moduleRegistry->load("Ratings:{$game->division->rating_calculator}");
 
 		$this->set(compact('game_slot'));
 
@@ -419,35 +424,35 @@ class GameSlotsController extends AppController {
 			// We use the team_id as the array index, here and in the views,
 			// because order matters, and this is a good way to ensure that
 			// the correct data gets into the correct form.
-			foreach ($game_slot['Game'] as $i => $game) {
-				if (!array_key_exists($game['home_team_id'], $this->getRequest()->getData('Game'))) {
+			foreach ($game_slot->games as $i => $game) {
+				if (!array_key_exists($game->home_team_id, $this->getRequest()->getData('Game'))) {
 					$errors[$game['home_team_id']]['home_score'] = 'Scores must be entered for all teams.';
 				} else {
-					$details = $this->getRequest()->getData("Game.{$game['home_team_id']}");
+					$details = $this->getRequest()->getData("Game.{$game->home_team_id}");
 					if ($unplayed) {
 						$score = $rating = null;
 					} else {
 						$score = $details['home_score'];
 						$rating = $ratings_obj->calculateRatingsChange($details['home_score']);
 						$teams[$game['home_team_id']] = [
-								'id' => $game['home_team_id'],
-								'rating' => $game['HomeTeam']['rating'] + $rating,
+								'id' => $game->home_team_id,
+								'rating' => $game->home_team->rating + $rating,
 								// Any time that this is called, the division seeding might change.
 								// We just reset it here, and it will be recalculated as required elsewhere.
 								'seed' => 0,
 						];
 					}
-					$games[$game['home_team_id']] = [
-							'id' => $game['id'],
+					$games[$game->home_team_id] = [
+							'id' => $game->id,
 							'status' => $this->getRequest()->getData('Game.status'),
 							'home_score' => $score,
 							'rating_points' => $rating,
 							'approved_by_id' => $this->UserCache->currentId(),
 					];
 					if ($details['incident']) {
-						$incidents[$game['home_team_id']] = [
-								'game_id' => $game['id'],
-								'team_id' => $game['home_team_id'],
+						$incidents[$game->home_team_id] = [
+								'game_id' => $game->id,
+								'team_id' => $game->home_team_id,
 								'type' => $details['type'],
 								'details' => $details['details'],
 								'game' => $game,

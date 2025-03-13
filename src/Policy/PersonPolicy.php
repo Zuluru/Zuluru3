@@ -270,6 +270,10 @@ class PersonPolicy extends AppPolicy {
 		return true;
 	}
 
+	public function canOfficiating_schedule(IdentityInterface $identity = null, Person $person) {
+		return $identity->isMe($person) || $identity->isRelative($person) || $identity->isManagerOf($person);
+	}
+
 	public function canAct_as(IdentityInterface $identity, Person $person) {
 		// People can always act as their real id, or as any relative of the current or real user
 		$relatives = UserCache::getInstance()->allActAs();

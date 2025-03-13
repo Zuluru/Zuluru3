@@ -76,7 +76,7 @@ class ContactsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->field('affiliate_id', ['Contacts.id' => $id]);
+			return $this->field('affiliate_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

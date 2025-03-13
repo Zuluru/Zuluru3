@@ -6,8 +6,14 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\View\Helper;
 
+/**
+ * @property \Cake\View\Helper\HtmlHelper $Html
+ * @property ZuluruHtmlHelper $ZuluruHtml
+ * @property UserCacheHelper $UserCache
+ * @property AuthorizeHelper $Authorize
+ */
 class ZuluruGameHelper extends Helper {
-	public $helpers = ['Html', 'ZuluruHtml', 'Session', 'UserCache', 'Authorize'];
+	public $helpers = ['Html', 'ZuluruHtml', 'UserCache', 'Authorize'];
 
 	public function displayScore($game, $division, $league, $show_score_for_team = false): string {
 		$text = '';

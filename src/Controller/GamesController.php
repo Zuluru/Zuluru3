@@ -98,6 +98,7 @@ class GamesController extends AppController {
 						],
 					],
 					'AwayPoolTeam' => ['DependencyPool'],
+					'Officials',
 					'ApprovedBy',
 					'ScoreEntries' => [
 						'People',
@@ -278,6 +279,7 @@ class GamesController extends AppController {
 		// data we display here doesn't come from the form, so we have
 		// to read the whole thing.
 		try {
+			/** @var Game $game */
 			$game = $this->Games->get($id, [
 				'contain' => [
 					'Divisions' => [
@@ -312,6 +314,7 @@ class GamesController extends AppController {
 						],
 					],
 					'AwayPoolTeam' => ['DependencyPool'],
+					'Officials',
 					'ApprovedBy',
 					'ScoreEntries' => [
 						'People',
@@ -338,12 +341,23 @@ class GamesController extends AppController {
 			$this->set(compact('spirit_obj'));
 		}
 
+		if (Configure::read('feature.officials')) {
+			$this->set('officials', $this->Games->Officials->find('officials')
+				->all()
+				->combine('id', 'full_name')
+				->toArray()
+			);
+		}
+
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$data = $this->getRequest()->getData();
-			$data['approved_by_id'] = $this->UserCache->currentId();
+			if (array_key_exists('home_score', $data)) {
+				$data['approved_by_id'] = $this->UserCache->currentId();
+			}
 
+			/** @var Game $game */
 			$game = $this->Games->patchEntity($game, $data, [
-				'associated' => ['ScoreEntries', 'ScoreEntries.Allstars', 'SpiritEntries'],
+				'associated' => ['ScoreEntries', 'ScoreEntries.Allstars', 'SpiritEntries', 'Officials'],
 			]);
 			$game->resetEntryIndices();
 

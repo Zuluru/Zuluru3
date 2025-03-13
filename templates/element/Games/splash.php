@@ -1,10 +1,16 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var int $id
  * @var array $items
+ * @var \App\Model\Entity\Team[] $teams
+ * @var int[] $team_ids
  */
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Game;
+use App\Model\Entity\TaskSlot;
+use App\Model\Entity\TeamEvent;
 use Cake\Core\Configure;
 
 if (!empty($items)):
@@ -22,30 +28,37 @@ if (!empty($items)):
 ?>
 			<tr>
 <?php
-		if (is_a($item, \App\Model\Entity\Game::class)):
+		if (is_a($item, Game::class)):
 ?>
 				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $item->id]]) ?></td>
 				<td class="splash_item"><?php
-					$item->readDependencies();
-					if ($item->home_team_id === null) {
-						echo $item->home_dependency;
+					if (!empty($item->_matchingData['Officials'])) {
+						echo __('Officiating {0} at {1}',
+							$this->element('Divisions/block', ['division' => $item->division, 'field' => 'long_league_name']),
+							$this->element('Fields/block', ['field' => $item->game_slot->field])
+						);
 					} else {
-						echo $this->element('Teams/block', ['team' => $item->home_team, 'options' => ['max_length' => 16]]);
-						if ($item->division->schedule_type != 'competition') {
-							echo __(' ({0})', __('home'));
-						}
-					}
-					if ($item->division->schedule_type != 'competition') {
-						echo __(' vs. ');
-						if ($item->away_team_id === null) {
-							echo $item->away_dependency;
+						$item->readDependencies();
+						if ($item->home_team_id === null) {
+							echo $item->home_dependency;
 						} else {
-							echo $this->element('Teams/block', ['team' => $item->away_team, 'options' => ['max_length' => 16]]) .
-								__(' ({0})', __('away'));
+							echo $this->element('Teams/block', ['team' => $item->home_team, 'options' => ['max_length' => 16]]);
+							if ($item->division->schedule_type !== 'competition') {
+								echo __(' ({0})', __('home'));
+							}
 						}
+						if ($item->division->schedule_type !== 'competition') {
+							echo __(' vs. ');
+							if ($item->away_team_id === null) {
+								echo $item->away_dependency;
+							} else {
+								echo $this->element('Teams/block', ['team' => $item->away_team, 'options' => ['max_length' => 16]]) .
+									__(' ({0})', __('away'));
+							}
+						}
+						echo ' ' . __('at') . ' ';
+						echo $this->element('Fields/block', ['field' => $item->game_slot->field]);
 					}
-					echo ' ' . __('at') . ' ';
-					echo $this->element('Fields/block', ['field' => $item->game_slot->field]);
 				?></td>
 				<td class="actions splash-action"><?php
 					if ($item->home_team && $item->away_team && in_array($item->home_team->id, $team_ids) && in_array($item->away_team->id, $team_ids)) {
@@ -100,7 +113,7 @@ if (!empty($items)):
 					}
 				?></td>
 <?php
-		elseif (is_a($item, \App\Model\Entity\TeamEvent::class)):
+		elseif (is_a($item, TeamEvent::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->date) . ', ' .
@@ -146,7 +159,7 @@ if (!empty($items)):
 					}
 				?></td>
 <?php
-		elseif (is_a($item, \App\Model\Entity\TaskSlot::class)):
+		elseif (is_a($item, TaskSlot::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->task_date) . ', ' .

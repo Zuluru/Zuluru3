@@ -59,7 +59,7 @@ if (isset($id)) {
 		echo $this->element('Teams/splash', compact('id', 'name', 'teams', 'past_teams'));
 
 		// Build a dummy list of items to be displayed as blank lines
-		if (!empty($teams)) {
+		if (!empty($teams) || $this->Authorize->getIdentity()->isOfficial()) {
 			$limit = max(4, ceil(count($teams) * 1.5));
 			$items = array_fill(0, $limit, null);
 			echo $this->element('Games/splash', compact('items'));

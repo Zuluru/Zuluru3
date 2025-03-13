@@ -39,6 +39,7 @@ use App\Model\Rule\InDateConfigRule;
  * @property \Cake\ORM\Association\BelongsToMany $Badges
  * @property \Cake\ORM\Association\BelongsToMany $Divisions
  * @property \Cake\ORM\Association\BelongsToMany $Franchises
+ * @property \Cake\ORM\Association\BelongsToMany $OfficiatedGames
  * @property \Cake\ORM\Association\BelongsToMany $UserGroups
  * @property \Cake\ORM\Association\BelongsToMany $Teams
  * @property \Cake\ORM\Association\BelongsToMany $Waivers
@@ -222,6 +223,12 @@ class PeopleTable extends AppTable {
 			'foreignKey' => 'person_id',
 			'targetForeignKey' => 'franchise_id',
 			'saveStrategy' => 'replace',
+		]);
+		$this->belongsToMany('OfficiatedGames', [
+			'className' => 'Games',
+			'joinTable' => 'games_officials',
+			'foreignKey' => 'person_id',
+			'targetForeignKey' => 'game_id',
 		]);
 		$this->belongsToMany('UserGroups', [
 			'joinTable' => 'groups_people',
@@ -941,14 +948,18 @@ class PeopleTable extends AppTable {
 			$conditions['OR']['People.addr_street'] = $person->addr_street;
 		}
 
-		$duplicates = $query
+		return $query
 			->contain([$user_model])
 			->where($conditions)
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			});
+	}
 
-		return $duplicates;
+	public function findOfficials(Query $query, array $options) {
+		return $query->matching('UserGroups', function (Query $q) {
+			return $q->where(['UserGroups.id' => GROUP_OFFICIAL]);
+		});
 	}
 
 	public function delete(EntityInterface $entity, $options = []): bool {

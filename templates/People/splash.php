@@ -1,6 +1,10 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person[] $relatives
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ * @var \App\Model\Entity\Affiliate[] $unmanaged
+ * @var int[] $applicable_affiliates
  */
 
 use Cake\Core\Configure;

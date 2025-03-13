@@ -114,8 +114,8 @@ class UsersController extends AppController {
 		$user = $users_table->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
-			// Handle affiliations
-			if (Configure::read('feature.affiliates') && Configure::read('Perm.is_manager')) {
+			// Handle affiliations, for accounts being created by a manager. (We already checked that if there's an identity, it's a manager.)
+			if (Configure::read('feature.affiliates') && $identity) {
 				pr($this->getRequest()->getData('person.affiliates'));
 				trigger_error('TODOLATER', E_USER_WARNING);
 				exit;

@@ -153,7 +153,7 @@ class NewslettersController extends AppController {
 
 		$this->set(compact('newsletter'));
 		$this->set('mailingLists', $this->Newsletters->MailingLists->find('list', [
-				'conditions' => ['affiliate_id' => $affiliate],
+			'conditions' => ['affiliate_id' => $affiliate],
 		])->toArray());
 	}
 

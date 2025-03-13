@@ -19,7 +19,11 @@ class GameSlotPolicy extends AppPolicy {
 	}
 
 	public function canSubmit_score(IdentityInterface $identity, GameSlot $game_slot) {
-		return $identity->isCaptainOf($game_slot);
-	}
+		if (empty($game_slot->games)) {
+			return false;
+		}
 
+		$game = current($game_slot->games);
+		return $identity->isCaptainOf($game) || $identity->isOfficialOf($game);
+	}
 }

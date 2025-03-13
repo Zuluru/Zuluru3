@@ -84,6 +84,7 @@ use Cake\Routing\Router;
  * @property \App\Model\Entity\Badge[] $badges
  * @property \App\Model\Entity\Division[] $divisions
  * @property \App\Model\Entity\Franchise[] $franchises
+ * @property \App\Model\Entity\Game[] $officiated_games
  * @property \App\Model\Entity\UserGroup[] $user_groups
  * @property \App\Model\Entity\Person[] $relatives Profiles that this person controls
  * @property \App\Model\Entity\Person[] $related Profiles that control this person

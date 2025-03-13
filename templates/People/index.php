@@ -130,6 +130,11 @@ endif;
 					['action' => 'edit', '?' => ['person' => $person->id]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
 				echo $this->Html->link(__('Act As'), ['action' => 'act_as', '?' => ['person' => $person->id]]);
+				if (in_array(GROUP_OFFICIAL, $this->UserCache->read('UserGroupIDs', $person->id))) {
+					echo $this->Html->iconLink('schedule_24.png',
+						['controller' => 'People', 'action' => 'officiating_schedule', '?' => ['official' => $person->id]],
+						['alt' => __('Officiating Schedule'), 'title' => __('Officiating Schedule')]);
+				}
 				echo $this->Form->iconPostLink('delete_24.png',
 					['action' => 'delete', '?' => ['person' => $person->id]],
 					['alt' => __('Delete'), 'title' => __('Delete')],

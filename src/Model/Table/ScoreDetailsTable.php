@@ -102,7 +102,7 @@ class ScoreDetailsTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('created_team_id', ['ScoreDetails.id' => $id]);
+			return $this->field('created_team_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

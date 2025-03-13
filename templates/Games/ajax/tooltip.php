@@ -25,7 +25,7 @@ use Cake\Core\Configure;
 		}
 	?></dd>
 <?php
-if ($game->division->schedule_type != 'competition'):
+if ($game->division->schedule_type !== 'competition'):
 ?>
 	<dt class="col-sm-3 text-end"><?= __('Away Team') ?></dt>
 	<dd class="col-sm-9 mb-0"><?php

@@ -94,7 +94,7 @@ if ($regions > 1) {
 $team_count = [];
 $facility_count = [];
 $teams = ['home_team_id'];
-if ($division->schedule_type != 'competition') {
+if ($division->schedule_type !== 'competition') {
 	$teams[] = 'away_team_id';
 }
 
@@ -163,7 +163,7 @@ foreach ($division->teams as $team) {
 			array_key_exists($game_start, $facility_count[$game_slot->field->facility->code]))
 		{
 			$avg = $facility_count[$game_slot->field->facility->code][$game_start] / $numteams;
-			if ($division->schedule_type != 'competition') {
+			if ($division->schedule_type !== 'competition') {
 				$avg *= 2;
 			}
 		} else {
@@ -196,7 +196,7 @@ foreach ($game_slots as $game_slot) {
 			$total_row[] = [$region_total, ['class' => 'sub-total']];
 			$overall_total += $region_total;
 			$avg = $region_total / $numteams;
-			if ($division->schedule_type != 'competition') {
+			if ($division->schedule_type !== 'competition') {
 				$avg *= 2;	// Each game has 2 teams participating
 			}
 			$avg_row[] = [sprintf('%0.1f', $avg), ['class' => 'sub-total']];
@@ -216,7 +216,7 @@ foreach ($game_slots as $game_slot) {
 	$region_total += $total;
 	$total_row[] = $total;
 	$avg = $total / $numteams;
-	if ($division->schedule_type != 'competition') {
+	if ($division->schedule_type !== 'competition') {
 		$avg *= 2;
 	}
 	$avg_row[] = sprintf('%0.1f', $avg);
@@ -226,7 +226,7 @@ if ($regions > 1) {
 	$total_row[] = [$region_total, ['class' => 'sub-total']];
 	$overall_total += $region_total;
 	$avg = $region_total / $numteams;
-	if ($division->schedule_type != 'competition') {
+	if ($division->schedule_type !== 'competition') {
 		$avg *= 2;
 	}
 	$avg_row[] = [sprintf('%0.1f', $avg), ['class' => 'sub-total']];
@@ -234,7 +234,7 @@ if ($regions > 1) {
 
 $total_row[] = $overall_total;
 $avg = $overall_total / $numteams;
-if ($division->schedule_type != 'competition') {
+if ($division->schedule_type !== 'competition') {
 	$avg *= 2;
 }
 $avg_row[] = sprintf('%0.1f', $avg);

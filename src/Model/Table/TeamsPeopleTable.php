@@ -222,7 +222,7 @@ class TeamsPeopleTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('team_id', ['TeamsPeople.id' => $id]);
+			return $this->field('team_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

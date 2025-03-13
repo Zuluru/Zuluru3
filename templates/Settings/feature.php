@@ -129,6 +129,16 @@ echo $this->element('Settings/input', [
 ]);
 echo $this->element('Settings/input', [
 	'category' => 'feature',
+	'name' => 'officials',
+	'options' => [
+		'label' => __('Enable Officials'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('Enable or disable the ability to assign officials to games.'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'feature',
 	'name' => 'units',
 	'options' => [
 		'label' => __('Units'),

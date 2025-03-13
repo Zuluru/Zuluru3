@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use App\Authentication\ActAsIdentity;
 use App\Cache\Cache;
 use App\Core\UserCache;
 use App\Core\ModuleRegistry;
@@ -14,6 +15,7 @@ use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
 use Cake\Http\Exception\BadRequestException;
 use Cake\Http\Response;
+use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
 use Cake\I18n\Number;
@@ -43,7 +45,8 @@ use Psr\Log\LogLevel;
  * @property \App\Model\Table\ConfigurationTable $Configuration
  */
 class AppController extends Controller {
-	protected $menu_items = [];
+	protected array $menu_items = [];
+	protected ModuleRegistry $moduleRegistry;
 
 	/**
 	 * Initialization hook method.
@@ -103,8 +106,8 @@ class AppController extends Controller {
 
 		// Set the default format for converting Time and Date objects to strings,
 		// so that it matches the SQL format that we use for comparing.
-		\Cake\I18n\FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss');
-		\Cake\I18n\FrozenDate::setToStringFormat('yyyy-MM-dd');
+		FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss');
+		FrozenDate::setToStringFormat('yyyy-MM-dd');
 
 		$identity = $this->Authentication->getIdentity();
 		if ($identity) {
@@ -413,6 +416,7 @@ class AppController extends Controller {
 		// Initialize the menu
 		$this->menu_items = [];
 
+		/** @var ActAsIdentity $identity */
 		$identity = $this->Authentication->getIdentity();
 		$groups = $this->UserCache->read('UserGroupIDs');
 		if ($identity && $identity->isManager()) {
@@ -427,6 +431,9 @@ class AppController extends Controller {
 			//$this->_addMenuItem(__('My Profile'), ['plugin' => false, 'controller' => 'People', 'action' => 'view']);
 			$this->_addMenuItem(__('View'), ['plugin' => false, 'controller' => 'People', 'action' => 'view'], __('My Profile'));
 			$this->_addMenuItem(__('Edit'), ['plugin' => false, 'controller' => 'People', 'action' => 'edit'], __('My Profile'));
+			if ($identity->isOfficial()) {
+				$this->_addMenuItem(__('Officiating Schedule'), ['plugin' => false, 'controller' => 'People', 'action' => 'officiating_schedule'], __('My Profile'));
+			}
 			if (!$identity->getOriginalData()->person->user_id) {
 				$this->_addMenuItem(__('Create Login'), ['plugin' => false, 'controller' => 'People', 'action' => 'add_account'], __('My Profile'));
 			}

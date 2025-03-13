@@ -16,7 +16,7 @@ $this->Breadcrumbs->add(__('Games'));
 $this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
 $this->Breadcrumbs->add(__('View'));
 
-$preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
+$preliminary = ($game->home_team_id === null || ($game->division->schedule_type !== 'competition' && $game->away_team_id === null));
 
 $division_context = new ContextResource($game->division, ['league' => $game->division->league]);
 $game_context = new ContextResource($game, ['league' => $game->division->league, 'division' => $game->division, 'ratings_obj' => $ratings_obj, 'home_team' => $game->home_team, 'away_team' => $game->away_team]);
@@ -50,14 +50,14 @@ $carbon_flip_options = [
 				}
 				if ($game->division->schedule_type != 'tournament') {
 					echo __(' ({0})', __('currently rated: {0}', $game->home_team->rating));
-					if (!$preliminary && !$game->isFinalized() && $game->division->schedule_type != 'competition' && $game->away_team) {
+					if (!$preliminary && !$game->isFinalized() && $game->division->schedule_type !== 'competition' && $game->away_team) {
 						printf(' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game->home_team->rating, $game->away_team->rating) * 100, __('chance to win'));
 					}
 				}
 			}
 		?></dd>
 <?php
-if ($game->division->schedule_type != 'competition'):
+if ($game->division->schedule_type !== 'competition'):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Away Team') ?></dt>
 		<dd class="col-sm-9 mb-0"><?php
@@ -89,6 +89,13 @@ if ($game->home_dependency_type != 'copy'):
 		<dd class="col-sm-9 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
 		<dt class="col-sm-3 text-end"><?= __('Location') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+<?php
+endif;
+
+if (Configure::read('feature.officials') && !empty($game->officials)):
+?>
+		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Games/officials', ['officials' => $game->officials]) ?></dd>
 <?php
 endif;
 ?>
@@ -205,7 +212,7 @@ if ($game->isFinalized()):
 				}
 			?></dd>
 <?php
-		if ($game->division->schedule_type != 'competition'):
+		if ($game->division->schedule_type !== 'competition'):
 ?>
 			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name ?? '', 28) ?></dt>
 			<dd class="col-sm-9 mb-0"><?php

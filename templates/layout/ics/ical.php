@@ -8,6 +8,7 @@ declare(strict_types=1);
  */
 
 use Cake\Core\Configure;
+use function App\Lib\ical_encode;
 
 // This can happen when an invalid game or team is requested
 if (!isset($calendar_type)) {
@@ -27,7 +28,7 @@ VERSION:2.0
 PRODID:-//Zuluru//<?= $calendar_type ?>//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:<?= \App\Lib\ical_encode($calendar_name) ?> from <?= $short ?>
+X-WR-CALNAME:<?= ical_encode($calendar_name) ?> from <?= $short ?>
 
 <?= $this->fetch('content') ?>
 END:VCALENDAR

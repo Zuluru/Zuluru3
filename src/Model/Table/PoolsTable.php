@@ -112,7 +112,7 @@ class PoolsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['Pools.id' => $id]);
+			return $this->field('division_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

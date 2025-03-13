@@ -211,7 +211,7 @@ class FacilitiesController extends AppController {
 
 		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$regions = $this->Facilities->Regions->find('list', [
-				'conditions' => ['Regions.affiliate_id IN' => array_keys($affiliates)],
+			'conditions' => ['Regions.affiliate_id IN' => array_keys($affiliates)],
 		])->toArray();
 		$this->set(compact('facility', 'regions', 'affiliates'));
 		$this->_loadAddressOptions();

@@ -1,9 +1,12 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var string $download_file_name
  */
 
 // Start the output, let the browser know what type it is
+use Cake\I18n\FrozenTime;
+
 @header('Content-type: text/directory; charset=UTF-8; profile=vCard');
 @header("Content-Disposition: attachment; filename=\"$download_file_name.vcf\"");
 // Prevent caching
@@ -15,6 +18,6 @@
 BEGIN:VCARD
 VERSION:2.1
 <?= $this->fetch('content') ?>
-REV:<?= $this->Time->iCal(\Cake\I18n\FrozenTime::now()) ?>
+REV:<?= $this->Time->iCal(FrozenTime::now()) ?>
 
 END:VCARD

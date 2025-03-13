@@ -166,7 +166,7 @@ class GamePolicy extends AppPolicy {
 	}
 
 	public function canSubmit_score(IdentityInterface $identity, Game $game) {
-		return $identity->isCaptainOf($game);
+		return $identity->isCaptainOf($game) || $identity->isOfficialOf($game);
 	}
 
 	public function canSubmit_stats(IdentityInterface $identity, ContextResource $resource) {
@@ -192,7 +192,7 @@ class GamePolicy extends AppPolicy {
 				throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 			}
 
-			if (!$identity->isManagerOf($game) && !$identity->isCoordinatorOf($game) && !$identity->isCaptainOf($team)) {
+			if (!$identity->isManagerOf($game) && !$identity->isCoordinatorOf($game) && !$identity->isOfficialOf($game) && !$identity->isCaptainOf($team)) {
 				return false;
 			}
 

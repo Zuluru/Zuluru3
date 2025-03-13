@@ -108,7 +108,7 @@ if (!empty($team['games'])):
 			<td><?php
 			if ($is_event) {
 				echo $this->Html->link($game->display_name, ['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $game->id]]);
-			} else if ($team->division->schedule_type != 'competition') {
+			} else if ($team->division->schedule_type !== 'competition') {
 				if ($team->id == $game->home_team_id) {
 					if ($game->away_team_id === null) {
 						echo $game->away_dependency . __(' ({0})', __('away'));

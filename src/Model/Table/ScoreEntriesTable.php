@@ -283,7 +283,7 @@ class ScoreEntriesTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('team_id', ['ScoreEntries.id' => $id]);
+			return $this->field('team_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

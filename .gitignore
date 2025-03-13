@@ -6,7 +6,6 @@
 /config/Migrations/schema-dump-default.lock
 /logs/*
 /tmp/*
-/plugins/*
 /vendor/*
 
 /webroot/debug_kit/*

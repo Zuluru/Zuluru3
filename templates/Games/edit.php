@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
+ * @var string[] $officials
  * @var \App\Module\Spirit $spirit_obj
  */
 
@@ -15,7 +16,7 @@ $this->Breadcrumbs->add(__('Games'));
 $this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
 $this->Breadcrumbs->add(__('Edit'));
 
-$preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
+$preliminary = ($game->home_team_id === null || ($game->division->schedule_type !== 'competition' && $game->away_team_id === null));
 if ($game->division->league->hasCarbonFlip()) {
 	if ($preliminary) {
 		$carbon_flip_options = [
@@ -97,6 +98,30 @@ endif;
 		<dd class="col-sm-9 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
 		<dt class="col-sm-3 text-end"><?= __('Location') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+<?php
+if (Configure::read('feature.officials')):
+?>
+		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
+			echo $this->Form->control('officials._ids', [
+				'label' => false,
+				'options' => $officials,
+				'multiple' => true,
+				'hiddenField' => false,
+				'title' => __('Select the officials for this game'),
+				'secure' => false,
+			]);
+			if ($this->Form->hasFormProtector()) {
+				$this->Form->unlockField('asmSelect0');
+				$this->Form->unlockField('officials._ids');
+			}
+			$this->Html->css('jquery.asmselect.css', ['block' => true]);
+			$this->Html->script('jquery.asmselect.js', ['block' => true]);
+			$this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
+		?></dd>
+<?php
+endif;
+?>
 		<dt class="col-sm-3 text-end"><?= __('Game Status') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->Jquery->toggleInput('status', [
 			'id' => 'Status',
@@ -142,56 +167,6 @@ endif;
 	</dl>
 
 	<fieldset class="normal default">
-<?php
-$homeScoreEntry = $game->getScoreEntry($game->home_team_id);
-$awayScoreEntry = $game->getScoreEntry($game->away_team_id);
-
-if ($homeScoreEntry->id) {
-	echo $this->Form->hidden('score_entries.0.id', [
-		'value' => $homeScoreEntry->id,
-	]);
-	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	if ($this->Form->hasFormProtector()) {
-		$this->Form->unlockField('score_entries.0.id');
-	}
-} else {
-	echo $this->Form->hidden('score_entries.0.game_id', [
-		'value' => $homeScoreEntry->game_id,
-	]);
-	echo $this->Form->hidden('score_entries.0.team_id', [
-		'value' => $homeScoreEntry->team_id,
-	]);
-	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	if ($this->Form->hasFormProtector()) {
-		$this->Form->unlockField('score_entries.0.game_id');
-		$this->Form->unlockField('score_entries.0.team_id');
-	}
-}
-
-if ($awayScoreEntry) {
-	if ($awayScoreEntry->id) {
-		echo $this->Form->hidden('score_entries.1.id', [
-			'value' => $awayScoreEntry->id,
-		]);
-		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-		if ($this->Form->hasFormProtector()) {
-			$this->Form->unlockField('score_entries.1.id');
-		}
-	} else {
-		echo $this->Form->hidden('score_entries.1.game_id', [
-			'value' => $awayScoreEntry->game_id,
-		]);
-		echo $this->Form->hidden('score_entries.1.team_id', [
-			'value' => $awayScoreEntry->team_id,
-		]);
-		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-		if ($this->Form->hasFormProtector()) {
-			$this->Form->unlockField('score_entries.1.game_id');
-			$this->Form->unlockField('score_entries.1.team_id');
-		}
-	}
-}
-?>
 		<legend><?= __('Scoring') ?></legend>
 <?php
 if ($game->isFinalized()):
@@ -219,6 +194,8 @@ else:
 <?php
 endif;
 
+$homeScoreEntry = $game->getScoreEntry($game->home_team_id);
+$awayScoreEntry = $game->getScoreEntry($game->away_team_id);
 if (!empty($game->score_entries)):
 ?>
 		<h3><?= __('Score as entered') ?></h3>
@@ -354,7 +331,52 @@ if (!empty($game->score_entries)):
 <?php
 endif;
 
-if (!$preliminary):
+if (!$preliminary && $game->game_slot->start_time->isPast()):
+	if ($homeScoreEntry->id) {
+		echo $this->Form->hidden('score_entries.0.id', [
+			'value' => $homeScoreEntry->id,
+		]);
+		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('score_entries.0.id');
+		}
+	} else {
+		echo $this->Form->hidden('score_entries.0.game_id', [
+			'value' => $homeScoreEntry->game_id,
+		]);
+		echo $this->Form->hidden('score_entries.0.team_id', [
+			'value' => $homeScoreEntry->team_id,
+		]);
+		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('score_entries.0.game_id');
+			$this->Form->unlockField('score_entries.0.team_id');
+		}
+	}
+
+	if ($awayScoreEntry) {
+		if ($awayScoreEntry->id) {
+			echo $this->Form->hidden('score_entries.1.id', [
+				'value' => $awayScoreEntry->id,
+			]);
+			// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+			if ($this->Form->hasFormProtector()) {
+				$this->Form->unlockField('score_entries.1.id');
+			}
+		} else {
+			echo $this->Form->hidden('score_entries.1.game_id', [
+				'value' => $awayScoreEntry->game_id,
+			]);
+			echo $this->Form->hidden('score_entries.1.team_id', [
+				'value' => $awayScoreEntry->team_id,
+			]);
+			// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+			if ($this->Form->hasFormProtector()) {
+				$this->Form->unlockField('score_entries.1.game_id');
+				$this->Form->unlockField('score_entries.1.team_id');
+			}
+		}
+	}
 ?>
 		<dl class="row">
 			<dt class="col-sm-3 text-end normal default"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>

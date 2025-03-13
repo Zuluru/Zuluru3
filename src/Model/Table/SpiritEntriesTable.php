@@ -115,7 +115,7 @@ class SpiritEntriesTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('created_team_id', ['SpiritEntries.id' => $id]);
+			return $this->field('created_team_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}

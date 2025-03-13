@@ -228,6 +228,11 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'feature',
+				'name' => 'officials',
+				'value' => '0',
+			],
+			[
+				'category' => 'feature',
 				'name' => 'ckeditor',
 				'value' => '1',
 			],

@@ -6,6 +6,11 @@
  * @var \App\Model\Entity\Team[] $teams
  * @var int $id
  */
+
+use App\Model\Entity\Game;
+use App\Model\Entity\TaskSlot;
+use App\Model\Entity\TeamEvent;
+
 ?>
 <div class="schedule table-responsive">
 	<table class="table table-striped table-hover table-condensed">
@@ -30,42 +35,49 @@ foreach ($items as $item):
 ?>
 			<tr>
 <?php
-	if (is_a($item, \App\Model\Entity\Game::class)):
+	if (is_a($item, Game::class)):
 		$home_attendance = $this->Authorize->can('attendance', new \App\Authorization\ContextResource($item, ['home_team' => $item->home_team]));
 		$away_attendance = $this->Authorize->can('attendance', new \App\Authorization\ContextResource($item, ['away_team' => $item->away_team]));
 ?>
 				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $item->id]]) ?></td>
 				<td class="splash_item"><?php
-					$item->readDependencies();
-					if ($item->home_team_id === null) {
-						echo $item->home_dependency;
+					if (!empty($item->_matchingData['Officials'])) {
+						echo __('Officiating {0} at {1}',
+							$this->element('Divisions/block', ['division' => $item->division, 'field' => 'long_league_name']),
+							$this->element('Fields/block', ['field' => $item->game_slot->field])
+						);
 					} else {
-						echo $this->element('Teams/block', ['team' => $item->home_team, 'options' => ['max_length' => 16]]);
-						if ($item->division->schedule_type != 'competition') {
-							echo __(' ({0})', __('home'));
-						}
-						if ($home_attendance && !$item->game_slot->game_date->isPast()) {
-							echo $this->Html->iconLink('attendance_24.png',
-								['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $item->home_team->id, 'game' => $item->id]],
-								['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
-						}
-					}
-					if ($item->division->schedule_type != 'competition') {
-						echo ' ' . __('vs.') . ' ';
-						if ($item->away_team_id === null) {
-							echo $item->away_dependency;
+						$item->readDependencies();
+						if ($item->home_team_id === null) {
+							echo $item->home_dependency;
 						} else {
-							echo $this->element('Teams/block', ['team' => $item->away_team, 'options' => ['max_length' => 16]]) .
-								__(' ({0})', __('away'));
-							if ($away_attendance && !$item->game_slot->game_date->isPast()) {
+							echo $this->element('Teams/block', ['team' => $item->home_team, 'options' => ['max_length' => 16]]);
+							if ($item->division->schedule_type !== 'competition') {
+								echo __(' ({0})', __('home'));
+							}
+							if ($home_attendance && !$item->game_slot->game_date->isPast()) {
 								echo $this->Html->iconLink('attendance_24.png',
-									['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $item->away_team->id, 'game' => $item->id]],
+									['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $item->home_team->id, 'game' => $item->id]],
 									['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
 							}
 						}
+						if ($item->division->schedule_type !== 'competition') {
+							echo ' ' . __('vs.') . ' ';
+							if ($item->away_team_id === null) {
+								echo $item->away_dependency;
+							} else {
+								echo $this->element('Teams/block', ['team' => $item->away_team, 'options' => ['max_length' => 16]]) .
+									__(' ({0})', __('away'));
+								if ($away_attendance && !$item->game_slot->game_date->isPast()) {
+									echo $this->Html->iconLink('attendance_24.png',
+										['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $item->away_team->id, 'game' => $item->id]],
+										['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
+								}
+							}
+						}
+						echo ' ' . __('at') . ' ';
+						echo $this->element('Fields/block', ['field' => $item->game_slot->field]);
 					}
-					echo ' ' . __('at') . ' ';
-					echo $this->element('Fields/block', ['field' => $item->game_slot->field]);
 				?></td>
 				<td class="actions splash_item"><?php
 					if ($home_attendance && !empty($item->attendances)) {
@@ -143,7 +155,7 @@ foreach ($items as $item):
 ?>
 				<td><?= $this->Game->displayScore($item, $item->division, $item->division->league) ?></td>
 <?php
-	elseif (is_a($item, \App\Model\Entity\TeamEvent::class)):
+	elseif (is_a($item, TeamEvent::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->date) . ', ' .
@@ -206,7 +218,7 @@ foreach ($items as $item):
 ?>
 				<td></td>
 <?php
-	elseif (is_a($item, \App\Model\Entity\TaskSlot::class)):
+	elseif (is_a($item, TaskSlot::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->task_date) . ', ' .

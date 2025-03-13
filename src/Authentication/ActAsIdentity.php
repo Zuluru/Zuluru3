@@ -5,6 +5,8 @@ namespace App\Authentication;
 
 use App\Controller\AppController;
 use App\Core\UserCache;
+use App\Model\Entity\Game;
+use App\Model\Entity\Person;
 use App\Model\Entity\User;
 use Authentication\IdentityInterface as AuthenticationInterface;
 use Authorization\AuthorizationService;
@@ -345,6 +347,10 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 	public function isOfficial(): bool {
 		return $this->_isOfficial;
+	}
+
+	public function isOfficialOf(Game $game): bool {
+		return $this->_isOfficial && collection($game->officials ?? [])->some(function (Person $official) { return $official->id === $this->identity->person->id; });
 	}
 
 	public function isVolunteer(): bool {

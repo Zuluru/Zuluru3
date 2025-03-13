@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Core\UserCache;
 use App\Exception\ApproveException;
 use App\Exception\EmailException;
 use App\Service\People\ApproveService;
@@ -2333,6 +2334,28 @@ class PeopleController extends AppController {
 			}
 		}
 
+		if (Configure::read('feature.officials')) {
+			foreach ($people as $id) {
+				if (in_array(GROUP_OFFICIAL, UserCache::getInstance()->read('UserGroupIDs', $id))) {
+					$officiated_games = $this->People->OfficiatedGames
+						->find('officiatingSchedule', ['official_id' => $id])
+						->contain([
+							'Divisions',
+							'Officials',
+						])
+						->where([
+							'OfficiatedGames.published' => true,
+						])
+						->order(['GameSlots.game_date', 'GameSlots.game_start'])
+						->limit($limit)
+						->toArray();
+					if (!empty($officiated_games)) {
+						$items = array_merge($items, $officiated_games);
+					}
+				}
+			}
+		}
+
 		usort($items, [GamesTable::class, 'compareDateAndField']);
 		return $items;
 	}
@@ -2361,6 +2384,39 @@ class PeopleController extends AppController {
 
 		$items = $this->_schedule($people, $team_ids);
 		$this->set(compact('id', 'items', 'relatives', 'teams'));
+	}
+
+	public function officiating_schedule() {
+		$id = $this->getRequest()->getQuery('official');
+		if (!$id) {
+			$id = $this->UserCache->currentId();
+		}
+		$official = $this->UserCache->read('Person', $id);
+		if (empty($official)) {
+			$this->Flash->info(__('Invalid person.'));
+			return $this->redirect('/');
+		}
+
+		$this->Authorization->authorize($official);
+
+		$officiated_games = $this->People->OfficiatedGames
+			->find('officiatingSchedule', ['official_id' => $id])
+			->contain([
+				'Divisions' => ['Leagues'],
+				'Officials',
+			])
+			->where([
+				'OfficiatedGames.published' => true,
+			])
+			->order(['GameSlots.game_date', 'GameSlots.game_start'])
+			->toArray();
+
+		if (empty($officiated_games)) {
+			$this->Flash->info(__('No games on the officiating schedule.'));
+			return $this->redirect('/');
+		}
+
+		$this->set(compact('official', 'officiated_games'));
 	}
 
 	public function act_as() {
@@ -2742,6 +2798,11 @@ class PeopleController extends AppController {
 							return $q->where(['Settings.name' => 'enable_ical']);
 						},
 					],
+					'UserGroups' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->where(['UserGroups.id' => GROUP_OFFICIAL]);
+						},
+					],
 				]
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
@@ -2782,6 +2843,16 @@ class PeopleController extends AppController {
 
 		if (Configure::read('feature.tasks')) {
 			$this->set('tasks', $this->UserCache->read('Tasks', $id));
+		}
+
+		if (Configure::read('feature.officials') && !empty($person->user_groups)) {
+			$this->set('officiated_games', $this->People->OfficiatedGames
+				->find('officiatingSchedule', ['official_id' => $id])
+				->where([
+					'Games.published' => true,
+				])
+				->order(['GameSlots.game_date', 'GameSlots.game_start'])
+				->toArray());
 		}
 
 		$this->set('calendar_type', 'Player Schedule');
