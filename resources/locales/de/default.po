@@ -1902,23 +1902,6 @@ msgstr "Spiel gestartet"
 msgid "recorded"
 msgstr "verzeichnet"
 
-#: Controller/GamesController.php:1847
-#: Controller/PeopleController.php:1102
-msgid "Failed to load the {0} library! Contact your system administrator."
-msgstr "Konnte die zu laden {0} Bibliothek! Kontaktieren Sie Ihren Systemadministrator."
-
-#: Controller/GamesController.php:1853
-msgid "You have not authorized this site to tweet on your behalf. Configure this in the Profile Preferences page."
-msgstr "Sie haben diese Seite nicht in Ihrem Namen zu twittern autorisiert. Konfigurieren Sie diese in der Profileinstellungen Seite."
-
-#: Controller/GamesController.php:1871
-msgid "Your message has been tweeted."
-msgstr "Ihre Nachricht wurde getwittert."
-
-#: Controller/GamesController.php:1873
-msgid "Failed to send the tweet."
-msgstr "Konnte den Tweet zu senden."
-
 #: Controller/GamesController.php:1956
 msgid "The opponent for that game has not been determined, so a score cannot yet be submitted."
 msgstr "Der Gegner für das Spiel wurde nicht bestimmt, so dass eine Punktzahl kann noch nicht abgegeben werden."
@@ -2239,38 +2222,6 @@ msgstr "{0} entfernt Ihre Beziehung"
 #: Controller/PeopleController.php:1088
 msgid "An administrator removed your relation"
 msgstr ""
-
-#: Controller/PeopleController.php:1116
-msgid "The oauth token you started with doesn't match the one you've been redirected with. Do you have multiple tabs open?"
-msgstr "Die OAuth-Token Sie begann entspricht nicht dem, das Sie mit umgeleitet wurden. Haben Sie mehrere Tabs geöffnet haben?"
-
-#: Controller/PeopleController.php:1121
-msgid "The oauth verifier is missing so we cannot continue. Did you deny the appliction access?"
-msgstr "Der oauth Verifizierer fehlt, so können wir nicht weitergehen. Haben verweigern Sie den appliction Zugang?"
-
-#: Controller/PeopleController.php:1142
-msgid "Your Twitter authorization has been completed. You can always revoke this at any time through the preferences page."
-msgstr "Ihre Twitter Genehmigung abgeschlossen. Sie können dies durch die Einstellungsseite jederzeit immer widerrufen."
-
-#: Controller/PeopleController.php:1144
-msgid "Twitter authorization was received, but the database failed to update."
-msgstr "Twitter Genehmigung empfangen wurde, aber die Datenbank zu aktualisieren ist fehlgeschlagen."
-
-#: Controller/PeopleController.php:1147;1161
-msgid "There was an error communicating with Twitter."
-msgstr "Es gab einen Fehler bei Twitter zu kommunizieren."
-
-#: Controller/PeopleController.php:1170
-msgid "The callback was not confirmed by Twitter so we cannot continue."
-msgstr "Der Rückruf wurde nicht von Twitter bestätigt, so können wir nicht weitergehen."
-
-#: Controller/PeopleController.php:1181
-msgid "Your Twitter authorization has been revoked. You can always re-authorize at any time through the preferences page."
-msgstr "Ihr Twitter-Zulassung wurde widerrufen. Sie können jederzeit jederzeit durch die Einstellungsseite erneut genehmigen."
-
-#: Controller/PeopleController.php:1183
-msgid "Failed to revoke your Twitter authorization."
-msgstr "Fehlgeschlagen Ihre Twitter Ermächtigung zu widerrufen."
 
 #: Controller/PeopleController.php:1211
 msgid "Your temp folder {0} does not exist or is not writable."
@@ -10801,26 +10752,6 @@ msgstr "Wenn Sie den Zeitplan-Abhängigkeiten für die Playoffs initialisiert ha
 msgid "Reset Schedule Dependencies"
 msgstr "Reset Schedule Abhängigkeiten"
 
-#: Template/Element/Help/settings/feature/twitter.ctp:1
-msgid "To enable {0} integration, you must first install two support libraries into {1}."
-msgstr "So aktivieren Sie die Integration {0}, müssen Sie zunächst installieren zwei Support - Bibliotheken in {1}."
-
-#: Template/Element/Help/settings/feature/twitter.ctp:2
-msgid "From {0} you need {1} (renamed to {2}) and {3}."
-msgstr "Von {0} Sie müssen {1} (umbenannt in {2}) und {3}."
-
-#: Template/Element/Help/settings/feature/twitter.ctp:6
-msgid "From {0} you need {1} (renamed to {2})."
-msgstr "Von {0} Sie müssen {1} (umbenannt in {2})."
-
-#: Template/Element/Help/settings/feature/twitter.ctp:10
-msgid "After this, you must set the Consumer Key and Consumer Secret values. You can obtain standard {0} values for these by contacting {1}, or you can acquire your own. If you want your own consumer values, log in to {2}, then go to the {3}, click \"Create a new application\", and follow the steps."
-msgstr "Danach müssen Sie die Consumer-Key und geheime Werte gesetzt. Sie können Standard erhalten {0} durch Kontaktaufnahme für diese Werte {1}, oder Sie können Ihre eigene erwerben. Wenn Sie Ihren eigenen Werten der Verbraucher wollen, melden Sie sich bei {2} in, dann gehen Sie auf die {3}, klicken Sie auf \"Erstellen Sie eine neue Anwendung\", und folgen den Schritten."
-
-#: Template/Element/Help/settings/feature/twitter.ctp:14
-msgid "Twitter \"My Applications\" page"
-msgstr "Twitter \"My Applications\" Seite"
-
 #: Template/Element/Help/settings/feature/uls.ctp:1
 msgid "{0} is part of {1}, a {2} initiative to provide jQuery implementations of internationalisation features."
 msgstr "{0} ist ein Teil von {1}, eine {2} Initiative jQuery Implementierungen Merkmale der Internationalisierung zur Verfügung zu stellen."
@@ -14429,10 +14360,6 @@ msgstr "Live-Ergebnisse"
 msgid "Finalize"
 msgstr "zum Abschluss bringen"
 
-#: Template/Games/live_score.ctp:68
-msgid "Tweet"
-msgstr "Tweet"
-
 #: Template/Games/live_score.ctp:83
 msgid "Game Start Details"
 msgstr "Spiel Start Details"
@@ -16186,22 +16113,6 @@ msgstr "Wählen Sie die gewünschte Zeitformat"
 msgid "Preferred Language"
 msgstr "Bevorzugte Sprache"
 
-#: Template/People/preferences.ctp:110
-msgid "You have authorized your account to post updates to {0}. You can {1} if you no longer want to tweet updates."
-msgstr "Sie haben Ihr Konto zu posten Updates zu {0} autorisiert. Sie können {1}, wenn Sie wollen nicht länger Updates zu twittern."
-
-#: Template/People/preferences.ctp:111
-msgid "revoke this authorization"
-msgstr "Widerruf dieser Ermächtigung"
-
-#: Template/People/preferences.ctp:114
-msgid "This system can post certain updates to {0} on your behalf. To enable this, you must {1}. Note that nothing will ever be tweeted automatically; this authorization enables you to tweet directly from this site."
-msgstr "Dieses System kann bestimmte Updates zu {0} in Ihrem Namen posten. Um dies zu ermöglichen, müssen Sie {1}. Beachten Sie, dass nichts jemals automatisch getwittert werden; Diese Ermächtigung ermöglicht es Ihnen, direkt von dieser Seite zu twittern."
-
-#: Template/People/preferences.ctp:115
-msgid "authorize {0} to accept these tweets"
-msgstr "ermächtigen {0} diese Tweets zu akzeptieren"
-
 #: Template/People/reactivate.ctp:8
 msgid "Reactivate Profile"
 msgstr "reaktivieren Profil"
@@ -17657,30 +17568,6 @@ msgstr "Verwenden Sie ULS zur Sprachauswahl für anonyme Benutzer ermöglichen, 
 msgid "Default Site Language"
 msgstr "Standardsprache"
 
-#: Template/Settings/feature.ctp:182
-msgid "Enable or disable Twitter integration."
-msgstr "Aktivieren oder Twitter-Integration deaktivieren."
-
-#: Template/Settings/feature.ctp:190
-msgid "Consumer key"
-msgstr "Consumer-Key"
-
-#: Template/Settings/feature.ctp:191
-msgid "This application's Twitter consumer key."
-msgstr "Dieser Twitter Anwendung Consumer-Key."
-
-#: Template/Settings/feature.ctp:199
-msgid "Consumer secret"
-msgstr "Verbraucher Geheimnis"
-
-#: Template/Settings/feature.ctp:200
-msgid "This application's Twitter consumer secret."
-msgstr "Dieser Twitter Anwendung Verbraucher Geheimnis."
-
-#: Template/Settings/feature.ctp:204
-msgid "Twitter integration requires the cUrl library, which your installation of PHP does not support. Talk to your system administrator or hosting company about enabling cUrl."
-msgstr "Twitter-Integration erfordert die cUrl Bibliothek, die die Installation von PHP nicht unterstützt. Sprechen Sie mit Ihrem Systemadministrator oder Hosting-Unternehmen über cUrl ermöglicht."
-
 #: Template/Settings/organization.ctp:13
 #: Template/Settings/payment.ctp:11
 #: Template/Settings/scoring.ctp:11
@@ -18135,10 +18022,6 @@ msgstr "Lassen Sie URLs"
 #: Template/Settings/team.ctp:64
 msgid "Enable or disable attachment of URLs to team and franchise records."
 msgstr "Aktivieren oder Deaktivieren der Befestigung von URLs zum Team und Franchise-Aufzeichnungen."
-
-#: Template/Settings/team.ctp:74
-msgid "Enable or disable attachment of Flickr slideshows to team records."
-msgstr "Aktivieren oder Deaktivieren der Befestigung von Flickr Diashows Aufzeichnungen zum Team."
 
 #: Template/Settings/team.ctp:81
 msgid "Location Preference Features"
@@ -18601,26 +18484,6 @@ msgstr "Keine Präferenz"
 #: Template/Teams/edit.ctp:159
 msgid "Your team's website, if you have one."
 msgstr "Ihr Team-Website, wenn Sie eine haben."
-
-#: Template/Teams/edit.ctp:166
-msgid "If selected, this team's Flickr slideshow will no longer be shown. This is for use if teams repeatedly violate this site's terms of service."
-msgstr "Wenn diese Option aktiviert, wird dieses Team Flickr Diashow nicht mehr angezeigt werden. Dies ist für den Einsatz, wenn Teams immer wieder dies Website-Nutzungsbedingungen verstoßen."
-
-#: Template/Teams/edit.ctp:169
-msgid "Your team has been banned from using the Flickr slideshow. Contact an administrator if you believe this was done in error or would like to request a review."
-msgstr "Ihr Team wurde von der Nutzung der Flickr Diashow verboten. Wenden Sie sich an den Administrator, wenn Sie das glauben wurde in Fehler gemacht haben oder eine Überprüfung zu beantragen."
-
-#: Template/Teams/edit.ctp:173
-msgid "The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your username."
-msgstr "Die URL für Ihr Fotoserie wird so etwas wie https://www.flickr.com/photos/abcdef/sets/12345678901234567/ sein. abcdef ist Ihr Benutzername."
-
-#: Template/Teams/edit.ctp:176
-msgid "The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. 12345678901234567 is your set number."
-msgstr "Die URL für Ihr Fotoserie wird so etwas wie https://www.flickr.com/photos/abcdef/sets/12345678901234567/ sein. 12345678901234567 ist Ihre Set-Nummer."
-
-#: Template/Teams/edit.ctp:183
-msgid "Do NOT include the @; it will be automatically added for you."
-msgstr "Beinhalten nicht die @; es wird automatisch hinzugefügt werden."
 
 #: Template/Teams/index.ctp:9
 #: Template/Teams/letter.ctp:7

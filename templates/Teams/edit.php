@@ -166,30 +166,6 @@ if (Configure::read('feature.urls')) {
 		'help' => __('Your team\'s website, if you have one.'),
 	]);
 }
-
-if (Configure::read('feature.flickr')) {
-	if ($this->Authorize->getIdentity()->isManagerOf($team)) {
-		echo $this->Form->control('flickr_ban', [
-			'help' => __('If selected, this team\'s Flickr slideshow will no longer be shown. This is for use if teams repeatedly violate this site\'s terms of service.'),
-		]);
-	} else if ($team->flickr_ban) {
-		echo $this->Html->para('warning-message', __('Your team has been banned from using the Flickr slideshow. Contact an administrator if you believe this was done in error or would like to request a review.'));
-	}
-	if ($this->Authorize->getIdentity()->isManagerOf($team) || !$team->flickr_ban) {
-		echo $this->Form->control('flickr_user', [
-			'help' => __('The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your username.'),
-		]);
-		echo $this->Form->control('flickr_set', [
-			'help' => __('The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. 12345678901234567 is your set number.'),
-		]);
-	}
-}
-
-if (Configure::read('feature.twitter')) {
-	echo $this->Form->control('twitter_user', [
-		'help' => __('Do NOT include the @; it will be automatically added for you.'),
-	]);
-}
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

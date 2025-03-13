@@ -1653,14 +1653,6 @@ class GamesTable extends AppTable {
 		return $options;
 	}
 
-	public static function twitterScore($team, $team_score, $opponent, $opponent_score) {
-		if ($team_score >= $opponent_score) {
-			return $team->twitterName() . ' ' . $team_score . ', ' . $opponent->twitterName() . ' ' . $opponent_score;
-		} else {
-			return $opponent->twitterName() . ' ' . $opponent_score . ', ' . $team->twitterName() . ' ' . $team_score;
-		}
-	}
-
 	public function affiliate($id) {
 		try {
 			return $this->Divisions->affiliate($this->division($id));

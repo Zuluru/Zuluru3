@@ -1395,31 +1395,7 @@ class GamesController extends AppController {
 			$opponent = $game->home_team;
 		}
 
-		// Do some fun analysis on scores
-		$twitter = "Score update #{$game->division['name']}: ";
-		if ($team_score == 1 && $opponent_score == 0) {
-			$twitter .= $team->twitterName() . ' opens the scoring against ' . $opponent->twitterName() . '.';
-		} else if ($team_score >= $game->division->league['expected_max_score']) {
-			$twitter .= $team->twitterName() . " wins $team_score-$opponent_score against " . $opponent->twitterName();
-		} else if ($team_score == ceil($game->division->league['expected_max_score'] / 2) && $team_score > $opponent_score) {
-			$twitter .= $team->twitterName() . " takes half $team_score-$opponent_score against " . $opponent->twitterName();
-		} else if ($team_score == $opponent_score) {
-			$twitter .= $team->twitterName() . ' scores to tie ' . $opponent->twitterName() . " at $team_score-$opponent_score";
-			if ($team_score == $game->division->league['expected_max_score'] - 1) {
-				$twitter .= ', heading to overtime!';
-			}
-		} else if ($team_score == $opponent_score + 1) {
-			$twitter .= $team->twitterName() . " takes the lead $team_score-$opponent_score against " . $opponent->twitterName();
-		} else if ($team_score == $opponent_score - 1) {
-			$twitter .= $team->twitterName() . " pulls within one, down $opponent_score-$team_score against " . $opponent->twitterName();
-		} else if ($team_score == $opponent_score + 5) {
-			$twitter .= $team->twitterName() . ' opens up a five-point lead on ' . $opponent->twitterName() . ', score now ' . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
-		} else {
-			$twitter .= Game::twitterScore($team, $team_score, $opponent, $opponent_score);
-		}
-
 		$this->set(compact('team_score'));
-		$this->set('twitter', addslashes($twitter));
 	}
 
 	public function TODOLATER_score_down() {
@@ -1550,9 +1526,7 @@ class GamesController extends AppController {
 			$opponent = $game->home_team;
 		}
 
-		$twitter = "Score update #{$game->division['name']}: " . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
 		$this->set(compact('team_score'));
-		$this->set('twitter', addslashes($twitter));
 	}
 
 	public function TODOLATER_timeout() {
@@ -1644,8 +1618,6 @@ class GamesController extends AppController {
 			$opponent = $game->home_team;
 		}
 
-		$twitter = "Game update #{$game->division['name']}: timeout called by " . $team->twitterName() . ' with the score ' . Game::twitterScore($team, $team_score, $opponent, $opponent_score);
-
 		// Check if there's already a score detail record from the other team that this is likely a duplicate of.
 		// If so, we want to disregard it.
 		foreach ($game->score_details as $detail) {
@@ -1655,7 +1627,6 @@ class GamesController extends AppController {
 				$detail->created >= FrozenTime::now()->subMinutes(2))
 			{
 				$this->set('taken', count($game->score_details));
-				$this->set('twitter', addslashes($twitter));
 				return;
 			}
 		}
@@ -1671,7 +1642,6 @@ class GamesController extends AppController {
 		}
 
 		$this->set('taken', count($game['ScoreDetail']) + 1);
-		$this->set('twitter', addslashes($twitter));
 	}
 
 	public function TODOLATER_play() {
@@ -1769,23 +1739,11 @@ class GamesController extends AppController {
 		$valid = $sport_obj->validatePlay($this->getRequest()->getData('team_id'), $this->getRequest()->getData('play'), $this->getRequest()->getData('score_from'), $game['ScoreDetail']);
 		if ($valid !== true) {
 			$this->set('message', addslashes($valid));
-			$this->set('twitter', '');
 			return;
 		} else if ($this->getRequest()->getData('play') == 'Start') {
 			$this->set('message', __('Game timer initialized.'));
-			$twitter = __('Game update #{0}:', $game->division->name) . ' ';
-			$text = Configure::read("sports.{$game->division->league->sport}.start.twitter");
-			if ($text) {
-				$twitter .= __($text, $team->twitterName(), $opponent->twitterName()) . ' ' . __('to start the game');
-			} else {
-				$twitter .= __('Game started');
-			}
-			$twitter .= '.';
-			$this->set('twitter', addslashes($twitter));
 		} else {
 			$this->set('message', Configure::read("sports.{$game->division->league->sport}.other_options.{$this->getRequest()->getData('play')}") . ' ' . __('recorded'));
-			$twitter = "Game update #{$game->division['name']}: " . $team->twitterName() . ' ' . strtolower(Configure::read("sports.{$game->division->league->sport}.other_options.{$this->getRequest()->getData('play')}")) . ' vs ' . $opponent->twitterName();
-			$this->set('twitter', addslashes($twitter));
 		}
 
 		// Check if there's already a score detail record from the other team that this is likely a duplicate of.
@@ -1808,40 +1766,6 @@ class GamesController extends AppController {
 		{
 			$this->set('message', __('There was an error updating the box score.\nPlease try again.'));
 			return;
-		}
-	}
-
-	public function TODOLATER_tweet() {
-		$this->getRequest()->allowMethod('ajax');
-
-		if (!App::import('Lib', 'twitter_api_exchange')) {
-			$this->set('message', __('Failed to load the {0} library! Contact your system administrator.', 'Twitter API Exchange'));
-			return;
-		}
-		$this->Game->HomeTeam->Person->contain();
-		$person = $this->Game->HomeTeam->Person->read(['twitter_token', 'twitter_secret'], $this->UserCache->currentId());
-		if (empty($person['Person']['twitter_token']) || empty($person['Person']['twitter_secret'])) {
-			$this->set('message', __('You have not authorized this site to tweet on your behalf. Configure this in the Profile Preferences page.'));
-			return;
-		}
-		$settings = [
-				'consumer_key' => Configure::read('twitter.consumer_key'),
-				'consumer_secret' => Configure::read('twitter.consumer_secret'),
-				'oauth_access_token' => $person['Person']['twitter_token'],
-				'oauth_access_token_secret' => $person['Person']['twitter_secret'],
-		];
-		$url = 'https://api.twitter.com/1.1/statuses/update.json';
-		$postfields = [
-				'status' => $this->getRequest()->getData('Twitter.message'),
-				'lat' => $this->getRequest()->getData('Twitter.lat'),
-				'long' => $this->getRequest()->getData('Twitter.long'),
-		];
-		$twitter = new TwitterAPIExchange($settings);
-		$response = json_decode($twitter->buildOauth($url, 'POST')->setPostfields($postfields)->performRequest());
-		if (!empty($response->id_str)) {
-			$this->set('message', __('Your message has been tweeted.'));
-		} else {
-			$this->set('message', __('Failed to send the tweet.') . ' ' . $response->errors[0]->message);
 		}
 	}
 

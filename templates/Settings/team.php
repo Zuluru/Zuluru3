@@ -69,16 +69,6 @@ echo $this->element('Settings/input', [
 		'help' => __('Enable or disable attachment of URLs to team and franchise records.'),
 	],
 ]);
-echo $this->element('Settings/input', [
-	'category' => 'feature',
-	'name' => 'flickr',
-	'options' => [
-		'label' => 'Flickr',
-		'type' => 'radio',
-		'options' => Configure::read('options.enable'),
-		'help' => __('Enable or disable attachment of Flickr slideshows to team records.'),
-	],
-]);
 ?>
 	</fieldset>
 

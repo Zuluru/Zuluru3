@@ -22,8 +22,6 @@ foreach ($people_table->getSchema()->columns() as $key) {
 	// TODO: Centralize checking of profile fields
 	$feature_lookup = [
 		'has_dog' => 'dog_questions',
-		'twitter_token' => 'twitter',
-		'twitter_secret' => 'twitter',
 		'show_gravatar' => 'gravatar',
 	];
 	if (!array_key_exists($key, $feature_lookup) || Configure::read("feature.{$feature_lookup[$key]}")) {

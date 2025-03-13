@@ -25,7 +25,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => false,
 			'live_score' => null,
 			'box_score' => null,
-			'twitter' => '{0} batting',
 		],
 
 		'ratio_rule' => [
@@ -85,7 +84,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => null,
 			'box_score' => null,
-			'twitter' => null,
 		],
 
 		'ratio_rule' => [
@@ -141,7 +139,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => false,
 			'live_score' => 'Batting team',
 			'box_score' => '{0} batting',
-			'twitter' => '{0} batting',
 		],
 
 		'ratio_rule' => [
@@ -190,7 +187,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => false,
 			'live_score' => null,
 			'box_score' => null,
-			'twitter' => null,
 		],
 
 		'ratio_rule' => [
@@ -232,7 +228,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => null,
 			'box_score' => null,
-			'twitter' => null,
 		],
 
 		'ratio_rule' => [
@@ -272,7 +267,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => 'Receiving team',
 			'box_score' => '{0} received the kick-off',
-			'twitter' => '{1} kicks off to {0}',
 		],
 
 		'ratio_rule' => [
@@ -360,7 +354,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => null,
 			'box_score' => null,
-			'twitter' => null,
 		],
 
 		'ratio_rule' => [
@@ -411,7 +404,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => null,
 			'box_score' => null,
-			'twitter' => null,
 		],
 
 		'ratio_rule' => [
@@ -485,7 +477,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => 'Team taking kick-off',
 			'box_score' => '{0} took the kick-off',
-			'twitter' => '{0} takes the kick-off',
 		],
 
 		'ratio_rule' => [
@@ -569,7 +560,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => 'Pulling team',
 			'box_score' => '{0} pulled',
-			'twitter' => '{1} pulls to {0}',
 		],
 
 		'ratio_rule' => [
@@ -766,7 +756,6 @@ $sports['sports'] = [
 			'stat_sheet_direction' => true,
 			'live_score' => 'Serving team',
 			'box_score' => '{0} served',
-			'twitter' => '{1} serves to {0}',
 		],
 
 		'ratio_rule' => [

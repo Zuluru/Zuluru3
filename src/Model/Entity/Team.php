@@ -28,12 +28,8 @@ use App\Model\Results\TeamResults;
  * @property int $affiliate_id
  * @property int $initial_seed
  * @property int $seed
- * @property string $flickr_user
- * @property string $flickr_set
- * @property bool $flickr_ban
  * @property string $logo
  * @property string $short_name
- * @property string $twitter_user
  *
  * @property \App\Model\Entity\Division $division
  * @property \App\Model\Entity\Field $field
@@ -169,21 +165,6 @@ class Team extends Entity {
 				$this->average_skill = 'N/A';
 			}
 		}
-	}
-
-	public function twitterName() {
-		static $handles = [];
-
-		if (!empty($this->short_name)) {
-			$ret = $this->short_name;
-		} else {
-			$ret = $this->name;
-		}
-		if (!empty($this->twitter_user) && !in_array($this->twitter_user, $handles)) {
-			$ret .= " @{$this->twitter_user}";
-			$handles[] = $this->twitter_user;
-		}
-		return $ret;
 	}
 
 	public function addGameResult($game, $league, $spirit_obj, $sport_obj) {
