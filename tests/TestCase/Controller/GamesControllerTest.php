@@ -2208,62 +2208,6 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test tweet method as an admin
-	 */
-	public function testTweetAsAdmin(): void {
-		// Admins are allowed to tweet
-		$this->markTestIncomplete('Operation not implemented yet.');
-	}
-
-	/**
-	 * Test tweet method as a manager
-	 */
-	public function testTweetAsManager(): void {
-		// Managers are allowed to tweet
-		$this->markTestIncomplete('Operation not implemented yet.');
-	}
-
-	/**
-	 * Test tweet method as a coordinator
-	 */
-	public function testTweetAsCoordinator(): void {
-		// Coordinators are allowed to tweet
-		$this->markTestIncomplete('Operation not implemented yet.');
-	}
-
-	/**
-	 * Test tweet method as a captain
-	 */
-	public function testTweetAsCaptain(): void {
-		// Captains are allowed to tweet
-		$this->markTestIncomplete('Operation not implemented yet.');
-	}
-
-	/**
-	 * Test tweet method as a player
-	 */
-	public function testTweetAsPlayer(): void {
-		// Players are allowed to tweet
-		$this->markTestIncomplete('Operation not implemented yet.');
-	}
-
-	/**
-	 * Test tweet method as someone else
-	 */
-	public function testTweetAsVisitor(): void {
-		// Visitors are allowed to tweet
-		$this->markTestIncomplete('Operation not implemented yet.');
-	}
-
-	/**
-	 * Test tweet method without being logged in
-	 */
-	public function testTweetAsAnonymous(): void {
-		// Others are allowed to tweet
-		$this->markTestIncomplete('Operation not implemented yet.');
-	}
-
-	/**
 	 * Test submit_score method as a captain
 	 */
 	public function testSubmitScoreAsCaptain(): void {

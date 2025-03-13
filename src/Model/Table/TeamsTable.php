@@ -192,15 +192,6 @@ class TeamsTable extends AppTable {
 			->numeric('seed')
 			->notEmptyString('seed')
 
-			->allowEmptyString('flickr_user')
-
-			->allowEmptyString('flickr_set')
-
-			->boolean('flickr_ban')
-			->allowEmptyString('flickr_ban')
-
-			->allowEmptyString('twitter_user')
-
 			;
 
 		return $validator;

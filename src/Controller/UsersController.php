@@ -193,7 +193,7 @@ class UsersController extends AppController {
 		// TODO: Centralize checking of profile fields
 		$columns = $this->Users->People->getSchema()->columns();
 		foreach ($columns as $key => $column) {
-			if (in_array($column, ['id', 'user_id', 'user_name', 'email', 'complete', 'twitter_token', 'twitter_secret', 'modified'])) {
+			if (in_array($column, ['id', 'user_id', 'user_name', 'email', 'complete', 'modified'])) {
 				unset($columns[$key]);
 			}
 

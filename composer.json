@@ -67,7 +67,6 @@
     "autoload": {
         "psr-4": {
             "App\\": "src",
-            "Javelin\\": "./plugins/Javelin/src",
             "ChasePayment\\": "./plugins/ChasePayment/src",
             "ElavonPayment\\": "./plugins/ElavonPayment/src",
             "PayPalPayment\\": "./plugins/PayPalPayment/src",
@@ -82,7 +81,6 @@
         "psr-4": {
             "App\\Test\\": "tests",
             "Cake\\Test\\": "vendor/cakephp/cakephp/tests",
-            "Javelin\\Test\\": "plugins/Javelin/tests",
             "ChasePayment\\Test\\": "plugins/ChasePayment/tests",
             "ElavonPayment\\Test\\": "plugins/ElavonPayment/tests",
             "PayPalPayment\\Test\\": "plugins/PayPalPayment/tests",

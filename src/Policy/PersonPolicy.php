@@ -174,14 +174,6 @@ class PersonPolicy extends AppPolicy {
 		return AppController::_isChild($person) && ($identity->isManagerOf($person) || $identity->isMe($person));
 	}
 
-	public function canAuthorize_twitter(IdentityInterface $identity, Person $person) {
-		return $identity->isMe($person) || $identity->isRelative($person);
-	}
-
-	public function canRevoke_twitter(IdentityInterface $identity, Person $person) {
-		return $identity->isMe($person) || $identity->isRelative($person);
-	}
-
 	public function canPhoto(IdentityInterface $identity, $controller) {
 		if (!Configure::read('feature.photos')) {
 			return false;

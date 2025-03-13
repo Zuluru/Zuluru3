@@ -190,47 +190,7 @@ if (!$affiliate && count($languages) > 1):
 	</fieldset>
 <?php
 endif;
-?>
 
-	<fieldset>
-		<legend><?= __('{0} Settings', 'Twitter') ?></legend>
-<?php
-if (function_exists('curl_init')) {
-	echo $this->element('Settings/input', [
-		'category' => 'feature',
-		'name' => 'twitter',
-		'options' => [
-			'label' => 'Twitter',
-			'type' => 'radio',
-			'options' => Configure::read('options.enable'),
-			'help' => __('Enable or disable {0} integration.', 'Twitter'),
-		],
-	]);
-
-	echo $this->element('Settings/input', [
-		'category' => 'twitter',
-		'name' => 'consumer_key',
-		'options' => [
-			'label' => __('Consumer Key'),
-			'help' => __('This application\'s {0} consumer key.', 'Twitter'),
-		],
-	]);
-
-	echo $this->element('Settings/input', [
-		'category' => 'twitter',
-		'name' => 'consumer_secret',
-		'options' => [
-			'label' => __('Consumer Secret'),
-			'help' => __('This application\'s {0} consumer secret.', 'Twitter'),
-		],
-	]);
-} else {
-	echo $this->Html->para('warning-message', __('{0} integration requires the {1} library, which your installation of PHP does not support. Talk to your system administrator or hosting company about enabling {1}.',
-		'Twitter', 'cUrl'));
-}
-?>
-	</fieldset>
-<?php
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

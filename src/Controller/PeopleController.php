@@ -741,8 +741,6 @@ class PeopleController extends AppController {
 				'modified' => false,
 				'status' => $this->Authentication->getIdentity()->isManagerOf($person),
 				'has_dog' => Configure::read('feature.dog_questions') ? true : false,
-				'twitter_token' => Configure::read('feature.twitter') ? true : false,
-				'twitter_secret' => Configure::read('feature.twitter') ? true : false,
 				'show_gravatar' => Configure::read('feature.gravatar') ? true : false,
 				'gender_description' => true,
 				'roster_designation' => true,
@@ -1303,94 +1301,6 @@ class PeopleController extends AppController {
 
 			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
-	}
-
-	public function TODOLATER_authorize_twitter() {
-		if (!App::import('Lib', 'tmh_oauth')) {
-			$this->Flash->warning(__('Failed to load the {0} library! Contact your system administrator.', 'Twitter OAuth'));
-			return $this->redirect(['action' => 'preferences']);
-		}
-
-		define('__DIR__', ROOT . DS . APP_DIR . DS . 'libs');
-		$tmhOAuth = new tmhOAuth([
-			'consumer_key' => Configure::read('twitter.consumer_key'),
-			'consumer_secret' => Configure::read('twitter.consumer_secret'),
-		]);
-
-		if (!empty($this->getRequest()->getParam('url.oauth_token'))) {
-			$response = $this->getRequest()->getSession()->read('Twitter.response');
-			$this->getRequest()->getSession()->delete('Twitter.response');
-			if ($this->getRequest()->getParam('url.oauth_token') !== $response['oauth_token']) {
-				$this->Flash->warning(__('The oauth token you started with doesn\'t match the one you\'ve been redirected with. Do you have multiple tabs open?'));
-				return $this->redirect(['action' => 'preferences']);
-			}
-
-			if (empty($this->getRequest()->getParam('url.oauth_verifier'))) {
-				$this->Flash->warning(__('The oauth verifier is missing so we cannot continue. Did you deny the application access?'));
-				return $this->redirect(['action' => 'preferences']);
-			}
-
-			// Update with the temporary token and secret
-			$tmhOAuth->reconfigure(array_merge($tmhOAuth->config, [
-				'token' => $response['oauth_token'],
-				'secret' => $response['oauth_token_secret'],
-			]));
-
-			$code = $tmhOAuth->user_request([
-				'method' => 'POST',
-				'url' => $tmhOAuth->url('oauth/access_token', ''),
-				'params' => [
-					'oauth_verifier' => trim($this->getRequest()->getParam('url.oauth_verifier')),
-				]
-			]);
-
-			if ($code == 200) {
-				$oauth_creds = $tmhOAuth->extract_params($tmhOAuth->response['response']);
-				if ($this->Person->updateAll(['twitter_token' => "'{$oauth_creds['oauth_token']}'", 'twitter_secret' => "'{$oauth_creds['oauth_token_secret']}'"], ['Person.id' => $this->UserCache->currentId()])) {
-					$this->Flash->success(__('Your Twitter authorization has been completed. You can always revoke this at any time through the preferences page.'));
-				} else {
-					$this->Flash->warning(__('Twitter authorization was received, but the database failed to update.'));
-				}
-			} else {
-				$this->Flash->warning(__('There was an error communicating with Twitter.') . ' ' . $tmhOAuth->response['response']);
-			}
-			return $this->redirect(['action' => 'preferences']);
-		} else {
-			$code = $tmhOAuth->apponly_request([
-				'without_bearer' => true,
-				'method' => 'POST',
-				'url' => $tmhOAuth->url('oauth/request_token', ''),
-				'params' => [
-					'oauth_callback' => Router::url(Router::normalize($this->getRequest()->getRequestTarget()), true),
-				],
-			]);
-
-			if ($code != 200) {
-				$this->Flash->warning(__('There was an error communicating with Twitter.') . ' ' . $tmhOAuth->response['response']);
-				return $this->redirect(['action' => 'preferences']);
-			}
-
-			// store the params into the session so they are there when we come back after the redirect
-			$response = $tmhOAuth->extract_params($tmhOAuth->response['response']);
-
-			// check the callback has been confirmed
-			if ($response['oauth_callback_confirmed'] !== 'true') {
-				$this->Flash->warning(__('The callback was not confirmed by Twitter so we cannot continue.') . ' ' . $tmhOAuth->response['response']);
-				return $this->redirect(['action' => 'preferences']);
-			} else {
-				$this->getRequest()->getSession()->write('Twitter.response', $response);
-				return $this->redirect($tmhOAuth->url('oauth/authorize', '') . "?oauth_token={$response['oauth_token']}");
-			}
-		}
-	}
-
-	public function TODOLATER_revoke_twitter() {
-		if ($this->Person->updateAll(['twitter_token' => null, 'twitter_secret' => null], ['Person.id' => $this->UserCache->currentId()])) {
-			$this->Flash->success(__('Your Twitter authorization has been revoked. You can always re-authorize at any time through the preferences page.'));
-		} else {
-			$this->Flash->warning(__('Failed to revoke your Twitter authorization.'));
-		}
-		return $this->redirect(['action' => 'preferences']);
 	}
 
 	public function photo() {

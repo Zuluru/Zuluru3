@@ -128,16 +128,6 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'feature',
-				'name' => 'flickr',
-				'value' => '1',
-			],
-			[
-				'category' => 'feature',
-				'name' => 'twitter',
-				'value' => '0',
-			],
-			[
-				'category' => 'feature',
 				'name' => 'annotations',
 				'value' => '1',
 			],
