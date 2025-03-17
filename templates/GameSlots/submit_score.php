@@ -21,17 +21,21 @@ $this->Breadcrumbs->add(__('Submit Game Results'));
 <?php
 echo $this->Form->create($game_slot, ['align' => 'horizontal']);
 
-echo $this->Form->control('game.status', [
-	'id' => 'Status',
+echo $this->Jquery->toggleInput('game.status', [
 	'label' => __('This game was:'),
+	'type' => 'select',
 	'options' => [
 		'normal' => __('Played'),
 		'cancelled' => __('Cancelled (e.g. due to weather)'),
 	],
+], [
+	'values' => [
+		'normal' => '.normal',
+	],
 ]);
 ?>
 
-	<div class="table-responsive">
+	<div class="table-responsive normal">
 		<table class="table table-striped table-hover table-condensed" id="Scores">
 			<thead>
 				<tr>
@@ -58,21 +62,24 @@ foreach ($game_slot->games as $game):
 						'label' => false,
 						'type' => 'number',
 						'size' => 3,
+						'secure' => false,
 					]) ?></td>
 <?php
 	if (Configure::read('scoring.incident_reports')):
 ?>
 					<td><?php
-						echo $this->Form->control("games.{$game->home_team_id}.incident", [
+						echo $this->Form->control("games.{$game->home_team_id}.has_incident", [
 							'class' => 'incident_checkbox',
 							'type' => 'checkbox',
 							'value' => '1',
 							'label' => false,
+							'data-team-id' => $game->home_team_id,
+							'secure' => false,
 						]);
-						echo $this->Form->hidden("games.{$game->home_team_id}.type");
-						echo $this->Form->hidden("games.{$game->home_team_id}.details");
-						// @todo: block, buffer or both?
-						$this->Html->scriptBlock("zjQuery('#games-{$game->home_team_id}-incident').data('team_id', {$game->home_team_id});", ['buffer' => true]);
+						$id = "games-{$game->home_team_id}-incident";
+						echo $this->Form->hidden("games.{$game->home_team_id}.incidents.0.team_id", ['value' => $game->home_team_id, 'secure' => false]);
+						echo $this->Form->hidden("games.{$game->home_team_id}.incidents.0.type", ['id' => "$id-type", 'secure' => false]);
+						echo $this->Form->hidden("games.{$game->home_team_id}.incidents.0.details", ['id' => "$id-details", 'secure' => false]);
 					?></td>
 <?php
 	endif;
@@ -98,7 +105,7 @@ if (Configure::read('scoring.incident_reports')):
 		<div class="zuluru">
 			<form>
 <?php
-	echo $this->Form->hidden('incident.team');
+	echo $this->Form->hidden('incident.team', ['id' => 'incident-team']);
 	echo $this->Form->control('incident.type', [
 		'label' => __('Incident Type'),
 		'options' => Configure::read('options.incident_types'),
@@ -120,51 +127,20 @@ endif;
 
 <?php
 $this->Html->scriptBlock("
-function statusChanged() {
-	if (zjQuery('#Status').val() == 'normal') {
-		enableCommon();
-		enableScores();
-	} else {
-		zjQuery('.score').val(0);
-		disableCommon();
-		disableScores();
-	}
-}
-
-function disableScores() {
-	zjQuery('#Scores').css('display', 'none');
-}
-
-function enableScores() {
-	zjQuery('#Scores').css('display', '');
-}
-
-function disableCommon() {
-	zjQuery('input:text').prop('disabled', true);
-	zjQuery('input[type=\"number\"]').prop('disabled', true);
-	zjQuery('.incident_checkbox').prop('disabled', true);
-}
-
-function enableCommon() {
-	zjQuery('input:text').prop('disabled', false);
-	zjQuery('input[type=\"number\"]').prop('disabled', false);
-	zjQuery('.incident_checkbox').prop('disabled', false);
-}
-
 function incidentCheckboxChanged(checkbox) {
-	var team = checkbox.data('team_id');
+	var team = checkbox.data('team-id');
 	if (checkbox.prop('checked')) {
-		zjQuery('#IncidentTeam').val(team);
-		zjQuery('#IncidentType').val(zjQuery('#Game' + team + 'Type').val());
-		zjQuery('#IncidentDetails').val(zjQuery('#Game' + team + 'Details').val());
+		zjQuery('#incident-team').val(team);
+		zjQuery('#incident-type').val(zjQuery('#games-' + team + '-incident-type').val());
+		zjQuery('#incident-details').val(zjQuery('#games-' + team + '-incident-details').val());
 		zjQuery('#IncidentDialog').dialog('open');
 	}
 }
 
 function updateIncident() {
-	var team = zjQuery('#IncidentTeam').val();
-	zjQuery('#Game' + team + 'Type').val(zjQuery('#IncidentType').val());
-	zjQuery('#Game' + team + 'Details').val(zjQuery('#IncidentDetails').val());
+	var team = zjQuery('#incident-team').val();
+	zjQuery('#games-' + team + '-incident-type').val(zjQuery('#incident-type').val());
+	zjQuery('#games-' + team + '-incident-details').val(zjQuery('#incident-details').val());
 }
 ", ['buffer' => true]);
 
@@ -173,8 +149,7 @@ function updateIncident() {
 $continue = __('Continue');
 $cancel = __('Cancel');
 $this->Html->scriptBlock("
-zjQuery('#Status').on('change', function (){statusChanged();});
-zjQuery('.incident_checkbox').on('change', function (){incidentCheckboxChanged(zjQuery(this));});
+zjQuery('.incident_checkbox').on('change', function () { incidentCheckboxChanged(zjQuery(this)); });
 zjQuery('#IncidentDialog').dialog({
 		autoOpen: false,
 		buttons: {

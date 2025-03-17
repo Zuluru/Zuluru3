@@ -13,6 +13,14 @@ $this->Breadcrumbs->add(__('View'));
 <div class="gameSlots view">
 	<h2><?= __('Game Slot') ?></h2>
 	<dl class="row">
+<?php
+if (!empty($game_slot->games)):
+?>
+		<dt class="col-sm-3 text-end"><?= __('Division') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Divisions/block', ['division' => $game_slot->games[0]->division, 'field' => 'full_league_name']) ?></dd>
+<?php
+endif;
+?>
 		<dt class="col-sm-3 text-end"><?= Configure::read('UI.field_cap') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game_slot->field, 'display_field' => 'long_name']) ?></dd>
 		<dt class="col-sm-3 text-end"><?= __('Game Date') ?></dt>
@@ -37,15 +45,16 @@ $this->Breadcrumbs->add(__('View'));
 						$line .= $this->element('Teams/block', ['team' => $game->home_team]);
 					}
 
-					$line .= __(' vs ');
+					if ($game->division->schedule_type !== 'competition') {
+						$line .= __(' vs ');
 
-					if ($game->away_team_id === null) {
-						$line .= $game->away_dependency;
-					} else {
-						$line .= $this->element('Teams/block', ['team' => $game->away_team]);
+						if ($game->away_team_id === null) {
+							$line .= $game->away_dependency;
+						} else {
+							$line .= $this->element('Teams/block', ['team' => $game->away_team]);
+						}
 					}
 
-					$line .= __(' ({0})', $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']));
 					$games[] = $line;
 				}
 				echo implode('<br />', $games);

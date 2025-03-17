@@ -105,8 +105,8 @@ function open_payment_window_stripe() {
 		echo $this->Form->submit(__n('Pay now', 'Pay with Stripe', $number_of_providers), $submit_options);
 		echo $this->Form->end();
 	} else {
-		echo $this->Html->scriptBlock("alert('$session');", ['block' => true, 'buffer' => true]);
+		echo $this->Html->scriptBlock("alert('$session');", ['buffer' => true]);
 	}
 } catch (\Stripe\Exception\ApiErrorException $ex) {
-	$this->Html->scriptBlock('alert("' . $ex->getMessage() . '");', ['block' => true, 'buffer' => true]);
+	$this->Html->scriptBlock('alert("' . $ex->getMessage() . '");', ['buffer' => true]);
 }

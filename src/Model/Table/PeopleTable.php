@@ -227,7 +227,7 @@ class PeopleTable extends AppTable {
 		$this->belongsToMany('OfficiatedGames', [
 			'className' => 'Games',
 			'joinTable' => 'games_officials',
-			'foreignKey' => 'person_id',
+			'foreignKey' => 'official_id',
 			'targetForeignKey' => 'game_id',
 		]);
 		$this->belongsToMany('UserGroups', [

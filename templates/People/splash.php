@@ -34,6 +34,10 @@ if (isset($new_nominations) && $this->Authorize->can('approve_badges', \App\Cont
 	echo $this->Html->para(null, __('There are {0} new {1}.', $new_nominations,
 		$this->Html->link(__('badge nominations to approve'), ['controller' => 'People', 'action' => 'approve_badges'])));
 }
+if ($this->Authorize->getIdentity()->isManager()) {
+	echo $this->Html->para(null, __('Check out {0}.',
+		$this->Html->link(__('today\'s schedule'), ['controller' => 'Schedules', 'action' => 'day'])));
+}
 
 $unpaid = $this->UserCache->read('RegistrationsUnpaid');
 $relative_unpaid = [];
@@ -101,7 +105,7 @@ else:
 				return false;
 			}
 			ui.panel.attr('loaded', true);
-			// Technique from http://stackoverflow.com/questions/2785548/loading-json-encoded-ajax-content-into-jquery-ui-tabs
+			// Technique from https://stackoverflow.com/questions/2785548/loading-json-encoded-ajax-content-into-jquery-ui-tabs
 			var url = ui.ajaxSettings.url;
 			zjQuery.get(url, function(result) {
 				ui.panel.find('.schedule').replaceWith(result.content);

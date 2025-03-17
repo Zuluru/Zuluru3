@@ -2328,10 +2328,6 @@ msgstr ""
 msgid "That game has not yet occurred!"
 msgstr ""
 
-#: Controller/GameSlotsController.php:456
-msgid "The incident data could not be saved. Please correct the errors below and try again."
-msgstr ""
-
 #: Controller/GameSlotsController.php:469
 msgid "Scores have been saved and game results posted."
 msgstr ""

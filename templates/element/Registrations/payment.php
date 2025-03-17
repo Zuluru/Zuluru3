@@ -34,5 +34,5 @@ function close_and_redirect(url) {
 	window.opener.location.href = url;
 	window.close();
 }
-	', ['block' => true, 'buffer' => true]);
+	', ['buffer' => true]);
 }

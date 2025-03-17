@@ -2,10 +2,13 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
  * @var bool $is_tournament
  * @var bool $multi_day
  * @var bool $same_date
  * @var bool $same_slot
+ * @var bool $competition
  */
 
 ?>

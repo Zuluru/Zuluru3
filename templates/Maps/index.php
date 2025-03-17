@@ -79,7 +79,7 @@ $sports = array_unique(collection($regions)->extract('facilities.{*}.fields.{*}.
 foreach ($sports as $sport) {
 	$this->Html->script("sport_$sport.js", ['block' => true]);
 }
-$this->Html->scriptBlock($variables, ['block' => true, 'buffer' => true]);
+$this->Html->scriptBlock($variables, ['buffer' => true]);
 ?>
 
 <?php

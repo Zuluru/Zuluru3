@@ -13,7 +13,7 @@ $visible_properties = $person->getVisible();
 	echo $this->element('People/player_photo', ['person' => $person, 'photo' => $photo]);
 ?></h2>
 <?php
-echo $this->element('People/contacts', compact(['person']));
+echo $this->element('People/contacts', compact('person'));
 
 if (!empty($person->badges)) {
 	echo $this->Html->tag('br');

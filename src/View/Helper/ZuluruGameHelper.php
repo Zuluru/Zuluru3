@@ -29,7 +29,9 @@ class ZuluruGameHelper extends Helper {
 				$text .= __($game->status) . "\n";
 			} else {
 				if ($division->schedule_type === 'competition') {
-					$text .= $game->home_score . "\n";
+					if ($show_score_for_team !== null) {
+						$text .= $game->home_score . "\n";
+					}
 				} else {
 					// If scores are being shown from a particular team's perspective,
 					// we may need to swap the home and away scores.
@@ -77,7 +79,9 @@ class ZuluruGameHelper extends Helper {
 					$text .= __($score_entry->status) . "\n";
 				} else {
 					if ($division->schedule_type === 'competition') {
-						$text .= $score_entry->score_for . "\n";
+						if ($show_score_for_team !== null) {
+							$text .= $score_entry->score_for . "\n";
+						}
 					} else {
 						// If scores are being shown from a particular team's perspective,
 						// we may need to swap the home and away scores.

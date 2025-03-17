@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game[] $games
+ * @var \Cake\I18n\FrozenDate $date
  */
 
 use Cake\Core\Configure;
@@ -37,13 +38,22 @@ else:
 	$is_tournament = collection($games)->some(function ($game) { return $game->type != SEASON_GAME; });
 
 	$sport = $last_slot = null;
+	$has_officials = Configure::read('feature.officials');
+	$can_assign = $has_officials && $this->Authorize->getIdentity()->isManager();
 	foreach ($games as $game):
 		if ($game->division->league->sport != $sport):
 			$sport = $game->division->league->sport;
 			if (count(Configure::read('options.sport')) > 1):
 ?>
 			<tr>
-				<th colspan="<?= 5 + $is_tournament ?>"><?= Inflector::humanize(__($sport)) ?></th>
+				<th colspan="<?= 5 + $is_tournament + $has_officials - $can_assign ?>"><?= Inflector::humanize(__($sport)) ?></th>
+<?php
+				if ($can_assign):
+?>
+				<th><?= $this->Html->link(__('Assign'), ['controller' => 'Games', 'action' => 'assign_officials', '?' => ['date' => $this->Time->format($date, 'yyyy-MM-dd'), 'sport' => $sport]]) ?></th>
+<?php
+				endif;
+?>
 			</tr>
 
 <?php
@@ -61,6 +71,13 @@ else:
 				<th><?= __(Configure::read("sports.{$sport}.field_cap")) ?></th>
 				<th><?= __('Home') ?></th>
 				<th><?= __('Away') ?></th>
+<?php
+			if ($has_officials):
+?>
+				<th><?= __('Officials') ?></th>
+<?php
+			endif;
+?>
 				<th><?= __('Score') ?></th>
 			</tr>
 <?php
@@ -100,7 +117,9 @@ else:
 				?></td>
 				<td><?php
 					if (empty($game->away_team)) {
-						if ($game->has('away_dependency')) {
+						if ($game->division->schedule_type === 'competition') {
+							echo __('N/A');
+						} else if ($game->has('away_dependency')) {
 							echo $game->away_dependency;
 						} else {
 							echo __('Unassigned');
@@ -109,6 +128,13 @@ else:
 						echo $this->element('Teams/block', ['team' => $game->away_team, 'options' => ['max_length' => 16]]);
 					}
 				?></td>
+<?php
+			if ($has_officials):
+?>
+				<td><?= $this->element('Games/officials', ['officials' => $game->officials]) ?></td>
+<?php
+			endif;
+?>
 				<td class="actions"><?= $this->Game->displayScore($game, $game->division, $game->division->league) ?></td>
 			</tr>
 

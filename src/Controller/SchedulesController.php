@@ -167,7 +167,7 @@ class SchedulesController extends AppController {
 			$stage = 0;
 		}
 
-		$this->set(compact(['id', 'division']));
+		$this->set(compact('id', 'division'));
 
 		$func = "_{$division->_options->step}";
 		return $this->$func($division, $stage);
@@ -1267,6 +1267,7 @@ class SchedulesController extends AppController {
 						'HomePoolTeam' => ['DependencyPool'],
 						'AwayTeam',
 						'AwayPoolTeam' => ['DependencyPool'],
+						'Officials',
 					])
 					->where([
 						'Divisions.id IN' => $divisions,
@@ -1278,7 +1279,7 @@ class SchedulesController extends AppController {
 					]);
 
 				$identity = $this->Authentication->getIdentity();
-				if (!$identity || !$this->Authentication->getIdentity()->isManager()) {
+				if (!$identity || !$identity->isManager()) {
 					$query->andWhere(['Games.published' => true]);
 				}
 

@@ -1663,10 +1663,6 @@ msgstr "Spiele in diesem Slot sind bereits abgeschlossen."
 msgid "That game has not yet occurred!"
 msgstr "Das Spiel ist noch nicht aufgetreten!"
 
-#: Controller/GameSlotsController.php:447
-msgid "The incident data could not be saved. Please correct the errors below and try again."
-msgstr "Die Ereignisdaten konnten nicht gespeichert werden. Bitte korrigieren Sie die Fehler und versuchen Sie es erneut."
-
 #: Controller/GameSlotsController.php:460
 msgid "Scores have been saved and game results posted."
 msgstr "Scores wurden gespeichert und Spielergebnisse veröffentlicht."

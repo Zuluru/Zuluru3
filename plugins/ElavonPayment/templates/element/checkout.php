@@ -18,7 +18,7 @@ $this->Html->scriptBlock('
 function open_payment_window_elavon() {
 	window.open(url, "payment_window_elavon", "menubar=1,toolbar=1,scrollbars=1,resizable=1,status=1,location=0");
 }
-', ['block' => true, 'buffer' => true]);
+', ['buffer' => true]);
 
 $order_fmt = Configure::read('registration.order_id_format');
 $debit_fmt = Configure::read('registration.debit_id_format');

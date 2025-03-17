@@ -4,7 +4,8 @@ declare(strict_types=1);
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $official
- * @var \App\Model\Entity\Game[] $officiated_games
+ * @var \Cake\Collection\CollectionInterface|\App\Model\Entity\Game[] $officiated_games
+ * @var bool $all
  */
 
 use Cake\Core\Configure;
@@ -20,7 +21,7 @@ $this->Breadcrumbs->add(__('Officiating Schedule'));
 		<tr>
 			<th><?= __('Date') ?></th>
 			<th><?= __('Time') ?></th>
-			<th><?= __(Configure::read("sports.{$officiated_games[0]->division->league->sport}.field_cap")) ?></th>
+			<th><?= __(Configure::read("sports.{$officiated_games->first()->division->league->sport}.field_cap")) ?></th>
 			<th><?= __('Division') ?></th>
 			<th><?= __('Score') ?></th>
 		</tr>
@@ -37,11 +38,28 @@ foreach ($officiated_games as $game):
 			<td><?= $this->Html->link($this->Time->timeRange($game->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]) ?></td>
 			<td><?= $this->element('Fields/block', ['field' => $game->game_slot->field]) ?></td>
 			<td><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'long_league_name']) ?></td>
-			<td class="actions"><?= $this->Game->displayScore($game, $game->division, $game->division->league) ?></td>
+			<td class="actions"><?= $this->Game->displayScore($game, $game->division, $game->division->league, false) ?></td>
 		</tr>
 <?php
 endforeach;
 ?>
 	</table>
 	</div>
+	<nav class="paginator"><ul class="pagination">
+		<?= $this->Paginator->numbers(['prev' => true, 'next' => true]) ?>
+	</ul></nav>
+</div>
+<div class="actions columns">
+	<?php
+	if ($all) {
+		$links = [
+			$this->Html->link(__('Upcoming Games'), ['action' => 'officiating_schedule'], ['class' => $this->Bootstrap->navPillLinkClasses()]),
+		];
+	} else {
+		$links = [
+			$this->Html->link(__('All Games'), ['action' => 'officiating_schedule', '?' => ['all' => true]], ['class' => $this->Bootstrap->navPillLinkClasses()]),
+		];
+	}
+	echo $this->Bootstrap->navPills($links);
+	?>
 </div>

@@ -29,10 +29,17 @@ if (!empty($items)):
 			<tr>
 <?php
 		if (is_a($item, Game::class)):
+			// This is a bit hacky. Should be a better way to denote this.
+			$officiating = !empty($item->_matchingData['Officials']);
+			if ($item->division->schedule_type === 'competition' && $officiating) {
+				$link = ['controller' => 'GameSlots', 'action' => 'view', '?' => ['slot' => $item->game_slot_id]];
+			} else {
+				$link = ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $item->id]];
+			}
 ?>
-				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $item->id]]) ?></td>
+				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), $link) ?></td>
 				<td class="splash_item"><?php
-					if (!empty($item->_matchingData['Officials'])) {
+					if ($officiating) {
 						echo __('Officiating {0} at {1}',
 							$this->element('Divisions/block', ['division' => $item->division, 'field' => 'long_league_name']),
 							$this->element('Fields/block', ['field' => $item->game_slot->field])
@@ -106,7 +113,7 @@ if (!empty($items)):
 						}
 					}
 
-					echo $this->Game->displayScore($item, $item->division, $item->division->league);
+					echo $this->Game->displayScore($item, $item->division, $item->division->league, $item->division->schedule_type === 'competition' && $officiating ? null : false);
 
 					if (Configure::read('feature.annotations')) {
 						echo $this->Html->link(__('Add Note'), ['controller' => 'Games', 'action' => 'note', '?' => ['game' => $item->id]]);

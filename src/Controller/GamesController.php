@@ -2,10 +2,10 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Person;
 use App\Model\Table\GamesTable;
 use Authorization\Exception\MissingIdentityException;
 use Cake\Cache\Cache;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -116,7 +116,7 @@ class GamesController extends AppController {
 						'queryBuilder' => function (Query $q) {
 							// We just need something to differentiate between games that have stats and those that don't
 							return $q->limit(1);
-						}
+						},
 					],
 				],
 			]);
@@ -196,7 +196,7 @@ class GamesController extends AppController {
 					'AwayTeam',
 					'GameSlots' => ['Fields' => ['Facilities' => ['Regions']]],
 					'Divisions' => ['Leagues'],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -222,7 +222,7 @@ class GamesController extends AppController {
 					'Divisions' => ['Leagues'],
 					'HomeTeam',
 					'AwayTeam',
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -252,7 +252,7 @@ class GamesController extends AppController {
 					'AwayTeam',
 					'GameSlots' => ['Fields' => ['Facilities' => ['Regions']]],
 					'Divisions',
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			throw new GoneException();
@@ -322,7 +322,7 @@ class GamesController extends AppController {
 					],
 					'SpiritEntries' => ['MostSpirited'],
 					'Incidents',
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -408,7 +408,141 @@ class GamesController extends AppController {
 			}
 		}
 
-		$this->set(compact(['game']));
+		$this->set(compact('game'));
+	}
+
+	/**
+	 * Officiating schedule method
+	 *
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
+	 */
+	public function assign_officials() {
+		if (!Configure::read('feature.officials')) {
+			$this->Flash->info(__('This feature is not enabled.'));
+			return $this->redirect(['controller' => 'Schedules', 'action' => 'day']);
+		}
+
+		$date = $this->getRequest()->getQuery('date');
+		if (empty($date)) {
+			$this->Flash->info(__('Invalid date.'));
+			return $this->redirect(['controller' => 'Schedules', 'action' => 'day']);
+		}
+		$date = new FrozenDate($date);
+		$sport = $this->getRequest()->getQuery('sport');
+
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
+
+		// Find divisions that match the affiliates, and specified date
+		$divisions = $this->Games->Divisions->find()
+			->contain(['Leagues'])
+			->where([
+				'Leagues.affiliate_id IN' => $affiliates,
+				'Leagues.sport' => $sport,
+				'Divisions.open <=' => $date,
+				'Divisions.close >=' => $date,
+			])
+			->all()
+			->extract('id')
+			->toList();
+
+		if (empty($divisions)) {
+			$this->Flash->info(__('No division was found matching these criteria.'));
+			return $this->redirect(['controller' => 'Schedules', 'action' => 'day']);
+		}
+
+		/** @var Game[] $games */
+		$games = $this->Games->find()
+			->contain([
+				'GameSlots' => ['Fields' => ['Facilities']],
+				'Divisions' => ['Leagues' => ['Affiliates']],
+				'ScoreEntries',
+				'HomeTeam',
+				'HomePoolTeam' => ['DependencyPool'],
+				'AwayTeam',
+				'AwayPoolTeam' => ['DependencyPool'],
+				'Officials',
+			])
+			->where([
+				'Divisions.id IN' => $divisions,
+				'GameSlots.game_date' => $date,
+				'OR' => [
+					'Games.home_dependency_type !=' => 'copy',
+					'Games.home_dependency_type IS' => null,
+				],
+			])
+			->toArray();
+
+		if (empty($games)) {
+			$this->Flash->info(__('No games were found matching these criteria.'));
+			return $this->redirect(['controller' => 'Schedules', 'action' => 'day']);
+		}
+
+		// Sort games by sport, time and field
+		usort($games, [GamesTable::class, 'compareDateAndField']);
+
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+			$assigned_slots = $updated_slots = [];
+			foreach ($games as $game) {
+				$patch = false;
+
+				// We want to update any games that were selected
+				if (!empty($data['games'][$game->id]['assign'])) {
+					// Check this game slot against all other game slots already assigned to this official.
+					foreach ($assigned_slots as $slot) {
+						if ($game->game_slot->overlaps($slot)) {
+							$game->setError('game_slot_id', __('Official scheduled in overlapping time slots.'));
+							break;
+						}
+						if ($game->game_slot->game_date == $slot->game_date &&
+							$game->game_slot->facility_id != $slot->facility_id
+						) {
+							$game->setError('game_slot_id', __('Official scheduled on {0} at different facilities.', Configure::read('UI.fields')));
+							break;
+						}
+					}
+
+					$updated_slots[$game->game_slot_id] = true;
+					$assigned_slots[] = $game->game_slot;
+					$patch = true;
+				}
+
+				// ...or that are in the same game slot as one that was selected
+				elseif (array_key_exists($game->game_slot_id, $updated_slots)) {
+					$patch = true;
+				}
+
+				// ...and also remember any unchanged game slots that a selected official was already assigned to
+				elseif (collection($game->officials)->some(function (Person $person) use ($data) {
+					return in_array($person->id, $data['officials']['_ids']);
+				})) {
+					$assigned_slots[] = $game->game_slot;
+				}
+
+				if ($patch) {
+					$this->Games->patchEntity($game, ['officials' => $data['officials']], [
+						'associated' => ['Officials'],
+					]);
+				}
+			}
+
+			if (!empty($updated_slots)) {
+				if ($this->Games->saveMany($games)) {
+					$this->Flash->success(__('Officials have been assigned to the selected games.'));
+					return $this->redirect(['controller' => 'Schedules', 'action' => 'day']);
+				}
+				$this->Flash->warning(__('Failed to assign the selected games.'));
+			} else {
+				$this->Flash->info(__('No games were selected for updating.'));
+			}
+		}
+
+		$this->set('officials', $this->Games->Officials->find('officials')
+			->all()
+			->combine('id', 'full_name')
+			->toArray()
+		);
+		$this->set(compact('date', 'sport', 'games'));
 	}
 
 	public function edit_boxscore() {
@@ -447,7 +581,7 @@ class GamesController extends AppController {
 						},
 						'ScoreDetailStats',
 					],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -539,7 +673,7 @@ class GamesController extends AppController {
 							},
 						],
 					],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -572,7 +706,7 @@ class GamesController extends AppController {
 					'HomeTeam',
 					'AwayTeam',
 					'GameSlots' => ['Fields' => ['Facilities']],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -654,8 +788,8 @@ class GamesController extends AppController {
 										]);
 									},
 									Configure::read('Security.authModel'),
-								]
-							]
+								],
+							],
 						]);
 						if (!empty($team->people)) {
 							$person = $this->UserCache->read('Person');
@@ -723,7 +857,7 @@ class GamesController extends AppController {
 					'HomeTeam',
 					'AwayTeam',
 					'ScoreEntries',
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -792,7 +926,7 @@ class GamesController extends AppController {
 					'HomeTeam',
 					'AwayTeam',
 					'GameSlots' => ['Fields' => ['Facilities']],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -877,7 +1011,7 @@ class GamesController extends AppController {
 								],
 							],
 						],
-					]
+					],
 				]);
 			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid game.'));
@@ -912,8 +1046,8 @@ class GamesController extends AppController {
 			$team = $this->Games->HomeTeam->get($team_id, [
 				'contain' => [
 					'People' => $captains_contain,
-					'Divisions' => ['Days']
-				]
+					'Divisions' => ['Days'],
+				],
 			]);
 
 			$game_dates = GamesTable::matchDates($game_date, collection($team->division->days)->extract('id')->toArray());
@@ -1125,7 +1259,7 @@ class GamesController extends AppController {
 					'AwayTeam',
 					'AwayPoolTeam' => ['DependencyPool'],
 					'GameSlots' => ['Fields' => ['Facilities']],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -1849,7 +1983,7 @@ class GamesController extends AppController {
 						],
 					],
 					'AwayPoolTeam' => ['DependencyPool'],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -1985,7 +2119,7 @@ class GamesController extends AppController {
 						'ScoreDetailStats',
 					],
 					'Stats',
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
@@ -2149,7 +2283,7 @@ class GamesController extends AppController {
 							return $q;
 						},
 					],
-				]
+				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));

@@ -1663,10 +1663,6 @@ msgstr "المباريات في هذا الحجز لم يتم تأكيدها ب�
 msgid "That game has not yet occurred!"
 msgstr "المباراة لم تلعب بعد!"
 
-#: Controller/GameSlotsController.php:447
-msgid "The incident data could not be saved. Please correct the errors below and try again."
-msgstr ""
-
 #: Controller/GameSlotsController.php:460
 msgid "Scores have been saved and game results posted."
 msgstr "النتائج تم حفظها ونشرها في الموقع."

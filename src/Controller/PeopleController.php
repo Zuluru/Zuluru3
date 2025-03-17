@@ -8,7 +8,6 @@ use App\Exception\EmailException;
 use App\Service\People\ApproveService;
 use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -23,7 +22,6 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use App\PasswordHasher\HasherTrait;
 use App\Exception\RuleException;
@@ -2250,7 +2248,7 @@ class PeopleController extends AppController {
 					$officiated_games = $this->People->OfficiatedGames
 						->find('officiatingSchedule', ['official_id' => $id])
 						->contain([
-							'Divisions',
+							'Divisions' => ['Leagues'],
 							'Officials',
 						])
 						->where([
@@ -2296,6 +2294,11 @@ class PeopleController extends AppController {
 		$this->set(compact('id', 'items', 'relatives', 'teams'));
 	}
 
+	/**
+	 * Officiating schedule method
+	 *
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
+	 */
 	public function officiating_schedule() {
 		$id = $this->getRequest()->getQuery('official');
 		if (!$id) {
@@ -2309,24 +2312,31 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($official);
 
-		$officiated_games = $this->People->OfficiatedGames
+		$query = $this->People->OfficiatedGames
 			->find('officiatingSchedule', ['official_id' => $id])
 			->contain([
 				'Divisions' => ['Leagues'],
 				'Officials',
-			])
-			->where([
-				'OfficiatedGames.published' => true,
-			])
-			->order(['GameSlots.game_date', 'GameSlots.game_start'])
-			->toArray();
+			]);
 
-		if (empty($officiated_games)) {
+		$all = $this->getRequest()->getQuery('all');
+		if (!$all) {
+			$query->where(['GameSlots.game_date >=' => FrozenDate::now()->subWeeks(1)]);
+		}
+		// @todo: There's probably a better way to check permission on this, but it can't rely on a particular game or division or league
+		if (!$this->Authentication->getIdentity()->isManager()) {
+			$query->where(['OfficiatedGames.published' => true]);
+		}
+
+		if ($query->count() === 0) {
 			$this->Flash->info(__('No games on the officiating schedule.'));
 			return $this->redirect('/');
 		}
 
-		$this->set(compact('official', 'officiated_games'));
+		$this->paginate['order'] = ['GameSlots.game_date', 'GameSlots.game_start'];
+		$officiated_games = $this->paginate($query);
+
+		$this->set(compact('official', 'officiated_games', 'all'));
 	}
 
 	public function act_as() {

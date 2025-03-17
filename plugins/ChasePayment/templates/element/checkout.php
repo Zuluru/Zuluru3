@@ -44,7 +44,7 @@ function open_payment_window_chase() {
 	window.open("", "payment_window_chase", "menubar=1,toolbar=1,scrollbars=1,resizable=1,status=1,location=0");
 	var a = window.setTimeout("document.chase_form.submit();", 500);
 }
-', ['block' => true, 'buffer' => true]);
+', ['buffer' => true]);
 
 $order_fmt = Configure::read('registration.order_id_format');
 $debit_fmt = Configure::read('registration.debit_id_format');

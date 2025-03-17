@@ -18,7 +18,7 @@ function open_payment_window_paypal() {
 	window.open("", "payment_window_paypal", "menubar=1,toolbar=1,scrollbars=1,resizable=1,status=1,location=0");
 	var a = window.setTimeout("document.paypal_form.submit();", 500);
 }
-', ['block' => true, 'buffer' => true]);
+', ['buffer' => true]);
 
 $invnum = sprintf(Configure::read('registration.order_id_format'), $registrations[0]->id);
 if (!empty($registrations[0]->payments)) {

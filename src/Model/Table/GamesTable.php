@@ -931,7 +931,12 @@ class GamesTable extends AppTable {
 		// TODO: This would seem to fit better in afterSaveCommit, but at that point incidents is no longer dirty.
 		// Might also make sense to do this in the IncidentsTable afterSave, but then we don't have the game info handy.
 		if ($entity->isDirty('incidents') && !empty($entity->incidents)) {
-			$event = new CakeEvent('Model.Game.incidentReport', $this, [$entity]);
+			if ($entity->has('game_slot')) {
+				$gameSlot = $entity->game_slot;
+			} else {
+				$gameSlot = $this->GameSlots->get($entity->game_slot_id, ['contain' => ['Fields' => 'Facilities']]);
+			}
+			$event = new CakeEvent('Model.Game.incidentReport', $this, [$entity, $gameSlot]);
 			$this->getEventManager()->dispatch($event);
 		}
 

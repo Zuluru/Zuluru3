@@ -7,6 +7,7 @@ namespace App\Event;
 
 use App\Core\UserCache;
 use App\Model\Entity\Game;
+use App\Model\Entity\GameSlot;
 use App\Model\Entity\Team;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
@@ -27,7 +28,7 @@ class GameListener implements EventListenerInterface {
 		];
 	}
 
-	public function incidentReport(CakeEvent $cakeEvent, Game $game) {
+	public function incidentReport(CakeEvent $cakeEvent, Game $game, GameSlot $gameSlot) {
 		$addr = Configure::read('email.incident_report_email');
 		if (AppController::_sendMail([
 			'to' => [$addr => __('Incident Manager')],
@@ -39,8 +40,8 @@ class GameListener implements EventListenerInterface {
 				'incident' => $game->incidents[0],
 				'game' => $game,
 				'division' => $game->division,
-				'slot' => $game->game_slot,
-				'field' => $game->game_slot->field,
+				'slot' => $gameSlot,
+				'field' => $gameSlot->field,
 				'home_team' => $game->home_team,
 				'away_team' => $game->away_team,
 			],

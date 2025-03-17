@@ -1663,10 +1663,6 @@ msgstr "Juegos de esta ranura ya se han finalizado."
 msgid "That game has not yet occurred!"
 msgstr "Ese juego aún no ha ocurrido!"
 
-#: Controller/GameSlotsController.php:447
-msgid "The incident data could not be saved. Please correct the errors below and try again."
-msgstr "Los datos de incidentes no podrían salvarse. Por favor, corrija los errores siguientes y vuelve a intentarlo."
-
 #: Controller/GameSlotsController.php:460
 msgid "Scores have been saved and game results posted."
 msgstr "Decenas de personas han sido salvadas y los resultados del juego publicado."

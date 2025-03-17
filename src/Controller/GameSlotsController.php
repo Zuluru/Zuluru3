@@ -368,6 +368,11 @@ class GameSlotsController extends AppController {
 		return $this->redirect('/');
 	}
 
+	/**
+	 * Submit score method
+	 *
+	 * @return void|\Cake\Http\Response Redirects on successful submission, renders view otherwise.
+	 */
 	public function submit_score() {
 		$id = $this->getRequest()->getQuery('slot');
 		try {
@@ -413,87 +418,57 @@ class GameSlotsController extends AppController {
 
 		$this->set(compact('game_slot'));
 
-		if ($this->getRequest()->is('post')) {
-			$teams = $games = $incidents = $errors = [];
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$game_slot->setDirty('games');
+			$data = $this->getRequest()->getData();
+			$unplayed = in_array($data['game']['status'], Configure::read('unplayed_status'));
 
-			$unplayed = in_array($this->getRequest()->getData('Game.status'), Configure::read('unplayed_status'));
-
-			// We could put these as hidden fields in the form, but we'd need to
-			// validate them against the values from the URL anyway, so it's
-			// easier to just set them directly here.
-			// We use the team_id as the array index, here and in the views,
-			// because order matters, and this is a good way to ensure that
-			// the correct data gets into the correct form.
-			foreach ($game_slot->games as $i => $game) {
-				if (!array_key_exists($game->home_team_id, $this->getRequest()->getData('Game'))) {
-					$errors[$game['home_team_id']]['home_score'] = 'Scores must be entered for all teams.';
+			// We could put these as hidden fields in the form, but we'd need to validate them against the values from the URL
+			// anyway, so it's easier to just set them directly here.
+			// We use the team_id as the array index, here and in the views, because order matters, and this is a good way to
+			// ensure that the correct data gets into the correct form.
+			foreach ($game_slot->games as $game) {
+				if ($unplayed) {
+					$this->GameSlots->Games->patchEntity($game, [
+						'status' => $data['game']['status'],
+						'approved_by_id' => $this->UserCache->currentId(),
+					]);
+				} elseif (!array_key_exists($game->home_team_id, $data['games'])) {
+					$game->setError('home_score', __('Scores must be entered for all teams.'));
 				} else {
-					$details = $this->getRequest()->getData("Game.{$game->home_team_id}");
-					if ($unplayed) {
-						$score = $rating = null;
-					} else {
-						$score = $details['home_score'];
-						$rating = $ratings_obj->calculateRatingsChange($details['home_score']);
-						$teams[$game['home_team_id']] = [
-								'id' => $game->home_team_id,
-								'rating' => $game->home_team->rating + $rating,
-								// Any time that this is called, the division seeding might change.
-								// We just reset it here, and it will be recalculated as required elsewhere.
-								'seed' => 0,
-						];
-					}
-					$games[$game->home_team_id] = [
-							'id' => $game->id,
-							'status' => $this->getRequest()->getData('Game.status'),
-							'home_score' => $score,
-							'rating_points' => $rating,
-							'approved_by_id' => $this->UserCache->currentId(),
-					];
-					if ($details['incident']) {
-						$incidents[$game->home_team_id] = [
-								'game_id' => $game->id,
-								'team_id' => $game->home_team_id,
-								'type' => $details['type'],
-								'details' => $details['details'],
-								'game' => $game,
-						];
-					}
+					$details = $data['games'][$game->home_team_id];
+					// TODO: Do something with a call to $game->adjustScoreAndRatings? It will need to be adjusted to handle
+					// competition differences. For now, all that function does that this doesn't is stats, and we have no idea
+					// how stats might play out in competition divisions, so this will suffice.
+					$rating_points = $ratings_obj->calculateRatingsChange($details['home_score'], 0, 0);
+					$details = array_merge($details, [
+						'status' => $data['game']['status'],
+						'away_score' => 0,
+						'rating_points' => $rating_points,
+						'approved_by_id' => $this->UserCache->currentId(),
+						'home_team' => [
+							'rating' => $game->home_team->rating + $rating_points,
+							// Any time that this is called, the division seeding might change.
+							// We just reset it here, and it will be recalculated as required elsewhere.
+							'seed' => 0,
+						],
+					]);
+
+					$this->GameSlots->Games->patchEntity($game, $details);
 				}
 			}
 
-			if (!empty($errors)) {
-				$this->GameSlot->Game->validationErrors = $errors;
-			} else {
-				$transaction = new DatabaseTransaction($this->GameSlot);
-				if ($this->GameSlot->Game->saveAll($games, ['validate' => 'first'])) {
-					if (Configure::read('scoring.incident_reports') && !empty($incidents)) {
-						if (!$this->GameSlot->Game->Incident->saveAll($incidents, ['validate' => 'first'])) {
-							$this->Flash->warning(__('The incident data could not be saved. Please correct the errors below and try again.'));
-							return;
-						}
-					}
-
-					// TODO: Replace this with a call to $game->adjustScoreAndRatings, which will need
-					// to be adjusted to handle competition differences.
-					// For now, all that function does that this doesn't is stats, and we have no idea how
-					// stats might play out in competition divisions, so this will suffice.
-					$this->GameSlot->Game->Division->Team->saveAll($teams);
-
-					$transaction->commit();
-
-					$resultMessage = __('Scores have been saved and game results posted.');
-					$resultClass = 'success';
-
-					if ($resultMessage) {
-						$this->Flash->{$resultClass}($resultMessage);
-					}
-
-					return $this->redirect('/');
-				} else {
-					$this->Flash->warning(__('The scores could not be saved. Please correct the errors below and try again.'));
-				}
+			// We don't actually want to update the "modified" column in the games table here
+			if ($this->GameSlots->Games->hasBehavior('Timestamp')) {
+				$this->GameSlots->Games->removeBehavior('Timestamp');
 			}
+
+			if ($this->GameSlots->save($game_slot)) {
+				$this->Flash->success(__('Scores have been saved and game results posted.'));
+				return $this->redirect('/');
+			}
+
+			$this->Flash->warning(__('The scores could not be saved. Please correct the errors below and try again.'));
 		}
 	}
-
 }
