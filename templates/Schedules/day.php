@@ -38,7 +38,7 @@ else:
 	$is_tournament = collection($games)->some(function ($game) { return $game->type != SEASON_GAME; });
 
 	$sport = $last_slot = null;
-	$has_officials = Configure::read('feature.officials');
+	$has_officials = Configure::read('feature.officials') && $this->Authorize->getIdentity();
 	$can_assign = $has_officials && $this->Authorize->getIdentity()->isManager();
 	foreach ($games as $game):
 		if ($game->division->league->sport != $sport):

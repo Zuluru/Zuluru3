@@ -92,7 +92,7 @@ if ($game->home_dependency_type != 'copy'):
 <?php
 endif;
 
-if (Configure::read('feature.officials') && !empty($game->officials)):
+if (Configure::read('feature.officials') && $this->Authorize->getIdentity() && !empty($game->officials)):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->element('Games/officials', ['officials' => $game->officials]) ?></dd>
