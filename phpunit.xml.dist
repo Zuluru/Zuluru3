@@ -22,9 +22,6 @@
         <testsuite name="Elavon">
             <directory>plugins/ElavonPayment/tests/TestCase/</directory>
         </testsuite>
-        <testsuite name="Javelin">
-            <directory>plugins/Javelin/tests/TestCase/</directory>
-        </testsuite>
         <testsuite name="PayPal">
             <directory>plugins/PayPalPayment/tests/TestCase/</directory>
         </testsuite>

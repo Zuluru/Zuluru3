@@ -615,7 +615,7 @@ class UsersController extends AppController {
 				'subject' => function() { return __('New Password'); },
 				'template' => 'password_new',
 				'sendAs' => 'both',
-				'viewVars' => compact(['user', 'password']),
+				'viewVars' => compact('user', 'password'),
 			]);
 		}
 		return false;

@@ -167,7 +167,7 @@ class SchedulesController extends AppController {
 			$stage = 0;
 		}
 
-		$this->set(compact(['id', 'division']));
+		$this->set(compact('id', 'division'));
 
 		$func = "_{$division->_options->step}";
 		return $this->$func($division, $stage);

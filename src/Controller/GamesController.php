@@ -394,7 +394,7 @@ class GamesController extends AppController {
 			}
 		}
 
-		$this->set(compact(['game']));
+		$this->set(compact('game'));
 	}
 
 	public function edit_boxscore() {

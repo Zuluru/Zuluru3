@@ -137,7 +137,7 @@ return [
 		'jsBaseUrl' => 'js/',
 		'filesBaseUrl' => 'files/',
 		'paths' => [
-			'plugins' => [ROOT . DS . 'plugins' . DS],
+			'plugins' => [ROOT . DS . 'plugins' . DS, ROOT . DS . 'plugins.local' . DS],
 			'templates' => [ROOT . DS . 'templates' . DS],
 			'locales' => [RESOURCES . 'locales' . DS],
 			'files' => WWW_ROOT . 'files',
