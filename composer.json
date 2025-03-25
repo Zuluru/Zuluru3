@@ -99,6 +99,7 @@
         }
     },
     "extra": {
+        "plugin-paths": ["plugins", "plugins.local"],
         "installer-disable": [
             "cakephp"
         ]

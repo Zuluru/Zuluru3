@@ -15,6 +15,9 @@
 /*
  * Use the DS to separate the directories in other defines
  */
+
+use Cake\Core\Plugin;
+
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
@@ -61,25 +64,28 @@ define('WWW_ROOT', ROOT . DS . 'webroot' . DS);
 define('TESTS', ROOT . DS . 'tests' . DS);
 
 if (defined('DOMAIN_PLUGIN')) {
+	$plugins = Plugin::getCollection();
+	$path = $plugins->findPath(DOMAIN_PLUGIN);
+
 	/*
 	 * Path to the temporary files directory.
 	 */
-	define('TMP', ROOT . DS . 'plugins' . DS . DOMAIN_PLUGIN . DS . 'tmp' . DS);
+	define('TMP', $path . 'tmp' . DS);
 
 	/*
 	 * Path to the logs directory.
 	 */
-	define('LOGS', ROOT . DS . 'plugins' . DS . DOMAIN_PLUGIN . DS . 'logs' . DS);
+	define('LOGS', $path . 'logs' . DS);
 
 	/*
 	 * Path to Zuluru's config directory; may be different from CONFIG in the case of multi-hosting.
 	 */
-	define('ZULURU_CONFIG', ROOT . DS . 'plugins' . DS . DOMAIN_PLUGIN . DS . 'config' . DS);
+	define('ZULURU_CONFIG', $path . 'config' . DS);
 
 	/*
 	 * Path to Zuluru's resources directory.
 	 */
-	define('ZULURU_RESOURCES', ROOT . DS . 'plugins' . DS . DOMAIN_PLUGIN . DS . 'resources' . DS);
+	define('ZULURU_RESOURCES', $path . 'resources' . DS);
 } else {
 	/*
 	 * Path to the temporary files directory.

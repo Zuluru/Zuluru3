@@ -4,6 +4,7 @@
 /config/.env
 /config/.env_test
 /config/Migrations/schema-dump-default.lock
+/plugins.local
 /logs/*
 /tmp/*
 /vendor/*
