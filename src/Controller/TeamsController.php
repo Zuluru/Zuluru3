@@ -1351,12 +1351,6 @@ class TeamsController extends AppController {
 			->where($conditions)
 			->toArray();
 
-		// Make sure there's somewhere to move it to
-		if (empty($divisions)) {
-			$this->Flash->info(__('No similar division found to move this team to!'));
-			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
-		}
-
 		$this->set(compact('team', 'divisions', 'loose'));
 	}
 
