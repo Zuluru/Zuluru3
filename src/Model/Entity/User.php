@@ -50,8 +50,17 @@ class User extends Entity {
 		return $hasher->hash($value);
 	}
 
+	protected function getMerge() {
+		$fields = $this->getVisible();
+		$fields[] = 'user_name';
+		$fields[] = 'email';
+
+		return $fields;
+	}
+
 	public function merge(User $new) {
-		foreach ($new->getVisible() as $prop) {
+		$fields = $new->getMerge();
+		foreach ($fields as $prop) {
 			// We never want to copy empty properties in the user record;
 			// it would only be things like last login date
 			if ($this->isAccessible($prop) && !empty($new->$prop)) {

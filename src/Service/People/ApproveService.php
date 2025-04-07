@@ -79,7 +79,11 @@ class ApproveService {
 	 * This is basically the same as delete duplicate, except that some old information (e.g. user ID) is preserved
 	 */
 	public function merge_duplicate(Person $person, Person $duplicate): void {
+		// We have to save this now, before we merge and overwrite the old email address
+		$emails = AppController::_extractEmails([$person, $duplicate]);
+
 		$this->People->getConnection()->transactional(function () use ($duplicate, $person) {
+			// $person is the new account that somebody created; $duplicate is the existing one we found that matches it
 			$duplicate->merge($person);
 
 			// If we are merging, we want to migrate all records that aren't part of the in-memory record.
@@ -138,7 +142,7 @@ class ApproveService {
 		if (!AppController::_sendMail([
 			'subject' => function() { return __('{0} Account Update', Configure::read('organization.name')); },
 			'template' => 'account_merge_duplicate',
-			'to' => [$person, $duplicate],
+			'to' => $emails,
 			'sendAs' => 'both',
 			'viewVars' => compact('person', 'duplicate'),
 		])) {

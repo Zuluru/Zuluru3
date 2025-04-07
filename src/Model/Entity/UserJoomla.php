@@ -76,6 +76,14 @@ class UserJoomla extends User {
 		return $this->username;
 	}
 
+	protected function getMerge() {
+		$fields = $this->getVisible();
+		$fields[] = 'username';
+		$fields[] = 'email';
+
+		return $fields;
+	}
+
 	public function merge(User $new) {
 		parent::merge($new);
 

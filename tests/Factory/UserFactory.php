@@ -30,6 +30,7 @@ class UserFactory extends BaseFactory
 				'email' => $faker->email(),
 				'last_login' => FrozenTime::now()->startOfDay()->subDays(1),
 				'client_ip' => '127.0.0.1',
+				'password' => $faker->password(),
 			];
 		});
 	}
