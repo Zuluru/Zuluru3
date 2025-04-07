@@ -117,7 +117,7 @@ class TeamsTable extends AppTable {
 			'joinTable' => 'teams_facilities',
 			'through' => 'TeamsFacilities',
 			'saveStrategy' => 'replace',
-			'sort' => 'TeamsFacilities.rank',
+			'sort' => 'TeamsFacilities.ranking',
 		]);
 		$this->belongsToMany('People', [
 			'foreignKey' => 'team_id',

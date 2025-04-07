@@ -1180,7 +1180,7 @@ class GamesTable extends AppTable {
 					if (!empty($team->facilities)) {
 						$pref = collection($team->facilities)->firstMatch(['id' => $game->game_slot->field->facility_id]);
 						if ($pref) {
-							$rank = $pref->_joinData->rank;
+							$rank = $pref->_joinData->ranking;
 						} else if ($team_type == 'home_team' && !empty($team->facilities)) {
 							$some_home_preference = true;
 						}

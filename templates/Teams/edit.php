@@ -121,7 +121,7 @@ if ($options):
 		if (!empty($team->facilities)) {
 			foreach ($team->facilities as $facility) {
 				if (array_key_exists($facility->id, $facility_options)) {
-					$facility_options[$facility->id]['id'] = sprintf("option_%04d", $facility->_joinData->rank);
+					$facility_options[$facility->id]['id'] = sprintf("option_%04d", $facility->_joinData->ranking);
 				}
 			}
 		}
