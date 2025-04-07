@@ -104,6 +104,14 @@ class UserDrupal extends User {
 		return $this->mail;
 	}
 
+	protected function getMerge() {
+		$fields = $this->getVisible();
+		$fields[] = 'name';
+		$fields[] = 'mail';
+
+		return $fields;
+	}
+
 	public function merge(User $new) {
 		parent::merge($new);
 

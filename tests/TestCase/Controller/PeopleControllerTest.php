@@ -2467,6 +2467,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertEquals($player->user_id, $person->user_id);
 		$this->assertNotNull($person->user);
 		$this->assertEquals($player->user_id, $person->user->id);
+		$this->assertEquals($new->user->user_name, $person->user->user_name);
+		$this->assertEquals($new->user->email, $person->user->email);
 		$this->assertCount(1, $person->affiliates);
 		$this->assertCount(1, $person->user_groups);
 		$this->assertCount(2, $person->settings);

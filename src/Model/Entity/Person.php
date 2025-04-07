@@ -348,6 +348,11 @@ class Person extends Entity {
 				}
 			}
 		}
+
+		// Special handling for the status field; don't leave an old inactive profile inactive after merging.
+		if ($this->status === 'inactive') {
+			$this->status = 'active';
+		}
 	}
 
 	/*
