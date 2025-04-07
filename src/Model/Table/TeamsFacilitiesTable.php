@@ -45,9 +45,9 @@ class TeamsFacilitiesTable extends AppTable {
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
 
-			->numeric('rank')
-			->requirePresence('rank', 'create')
-			->notEmptyString('rank')
+			->numeric('ranking')
+			->requirePresence('ranking', 'create')
+			->notEmptyString('ranking')
 
 			;
 

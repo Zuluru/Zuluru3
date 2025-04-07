@@ -974,7 +974,7 @@ class TeamsController extends AppController {
 					$data['facilities'][$key] = [
 						'id' => $facility_id,
 						'_joinData' => [
-							'rank' => $key + 1,
+							'ranking' => $key + 1,
 						],
 					];
 				}
@@ -1069,7 +1069,7 @@ class TeamsController extends AppController {
 					$data['facilities'][$key] = [
 						'id' => $facility_id,
 						'_joinData' => [
-							'rank' => $key + 1,
+							'ranking' => $key + 1,
 						],
 					];
 				}
