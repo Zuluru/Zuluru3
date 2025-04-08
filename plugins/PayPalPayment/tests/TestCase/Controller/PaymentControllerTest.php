@@ -3,6 +3,7 @@ namespace PayPalPayment\Test\TestCase\Controller;
 
 use App\Model\Entity\Registration;
 use App\Test\Factory\PluginFactory;
+use App\Test\Factory\RegistrationAuditFactory;
 use App\Test\Scenario\DiverseRegistrationsScenario;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\TestCase\Controller\ControllerTestCase;
@@ -72,6 +73,34 @@ class PaymentControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('Your payment was declined');
 		$this->assertEquals('Paid', $registration->payment);
 		$this->assertCount(1, $registration->payments);
+	}
+
+	/**
+	 * Test a duplicate payment as a logged in user
+	 *
+	 * @return void
+	 */
+	public function testDuplicateAsPlayer() {
+		PluginFactory::make(['name' => 'PayPal', 'load_name' => 'PayPalPayment', 'path' => 'plugins/PayPalPayment'])
+			->persist();
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'member' => $player,
+		]);
+		$this->membership = $registrations[DiverseRegistrationsScenario::$MEMBERSHIP];
+
+		// This is the transaction ID that the mocked service returns
+		RegistrationAuditFactory::make(['transaction_id' => '1234567890'])->persist();
+
+		// PayPal sends parameters in the URL.
+		$this->assertGetAsAccessRedirect(['plugin' => 'PayPalPayment', 'controller' => 'Payment', 'action' => 'index', '?' => ['token' => 'TESTING']],
+			$player->id, '/', 'Duplicate transaction detected');
+
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get($this->membership->id, [
+			'contain' => ['Payments']
+		]);
+		$this->assertEmpty($registration->payments);
 	}
 
 	/**
