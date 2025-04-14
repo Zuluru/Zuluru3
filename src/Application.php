@@ -13,6 +13,7 @@ use App\Middleware\ConfigurationLoader;
 use App\Middleware\LocalizationMiddleware;
 use App\Middleware\NamedRoutingMiddleware;
 use App\Middleware\UnauthorizedHandler\RedirectFlashHandler;
+use App\Model\Entity\Plugin;
 use App\Policy\TypeResolver;
 use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
@@ -50,6 +51,7 @@ use Cake\Routing\Middleware\RoutingMiddleware;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Cake\Utility\Security;
+use Composer\Autoload\ClassLoader;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -117,7 +119,11 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			try {
 				foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
-					$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
+					if ($plugin->path === "plugins/{$plugin->load_name}") {
+						$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
+					} else {
+						$this->addPluginToPsr($plugin, ['bootstrap' => true, 'routes' => true]);
+					}
 				}
 			} catch (\Exception $ex) {
 				// The plugins table may not exist, if the migration hasn't run.
@@ -125,6 +131,14 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		}
 
 		$this->addPlugin('BootstrapUI', ['bootstrap' => true]);
+	}
+
+	private function addPluginToPsr(Plugin $plugin, array $config): void
+	{
+		/** @var ClassLoader $loader */
+		$loader = require ROOT . '/vendor/autoload.php';
+		$loader->addPsr4($plugin->load_name . '\\', ROOT . DS . $plugin->path . DS . 'src');
+		$this->addPlugin($plugin->load_name, $config);
 	}
 
 	/**
