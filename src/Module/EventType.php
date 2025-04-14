@@ -201,6 +201,10 @@ class EventType {
 	public function afterPaid(Event $event, Registration $registration, $options) {
 	}
 
+	public function canCancel(Registration $registration): bool {
+		return true;
+	}
+
 	public function beforeUnpaid(Event $event, Registration $registration, $options) {
 		if (Configure::read('feature.badges')) {
 			$badge_obj = ModuleRegistry::getInstance()->load('Badge');

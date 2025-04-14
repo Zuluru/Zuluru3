@@ -35,7 +35,7 @@ echo $this->Form->control('payment_amount', [
 	'default' => ($refund->getErrors() || $registration->getErrors()) ? -$refund->amount : $payment->paid,
 ]);
 
-if (!in_array($registration->getOriginal('payment'), Configure::read('registration_cancelled'))) {
+if ($this->Authorize->can('cancel', $registration)) {
 	echo $this->Form->control('mark_refunded', [
 		'label' => __('Mark this registration as refunded?'),
 		'type' => 'checkbox',
