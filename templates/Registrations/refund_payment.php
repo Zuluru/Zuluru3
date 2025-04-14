@@ -48,7 +48,7 @@ if (empty($payment->registration_audit_id)) {
 	echo $this->Html->para('warning-message', __('Note that your online payment provider does not currently support automatic refunds, so in addition to noting the refund here you will need to issue a refund manually. You may be able to enable online refunds in the payment provider plugin settings.'));
 }
 
-if (!in_array($registration->getOriginal('payment'), Configure::read('registration_cancelled'))) {
+if ($this->Authorize->can('cancel', $registration)) {
 	echo $this->Form->control('mark_refunded', [
 		'label' => __('Mark this registration as refunded?'),
 		'type' => 'checkbox',

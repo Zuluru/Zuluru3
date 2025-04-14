@@ -2,6 +2,7 @@
 namespace App\Policy;
 
 use App\Authorization\ContextResource;
+use App\Core\ModuleRegistry;
 use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Registration;
 use Authorization\IdentityInterface;
@@ -161,4 +162,12 @@ class RegistrationPolicy extends AppPolicy {
 		return $identity->isManager();
 	}
 
+	public function canCancel(IdentityInterface $identity, Registration $registration): bool {
+		if (in_array($registration->getOriginal('payment'), Configure::read('registration_cancelled'))) {
+			return false;
+		}
+
+		$event_obj = ModuleRegistry::getInstance()->load("EventType:{$registration->event->event_type->type}");
+		return $event_obj->canCancel($registration);
+	}
 }
