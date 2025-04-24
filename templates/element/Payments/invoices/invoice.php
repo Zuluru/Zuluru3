@@ -6,7 +6,6 @@
  */
 use App\Model\Entity\Payment;
 use Cake\Core\Configure;
-use Cake\I18n\FrozenTime;
 
 $reg_id_format = Configure::read('payment.reg_id_format');
 // TODOBOOTSTRAP: Fix the formatting of this whole ugly page

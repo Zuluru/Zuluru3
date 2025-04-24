@@ -569,10 +569,11 @@ class RegistrationsController extends AppController {
 			if ($this->Registrations->People->hasBehavior('Timestamp')) {
 				$this->Registrations->People->removeBehavior('Timestamp');
 			}
-			$registration->setDirty('person', true);
-			$registration->person->setDirty('credits', true);
 
-			if ($this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
+			if ($this->Registrations->getConnection()->transactional(function () use ($registration, $credit) {
+				return $this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event]) &&
+					$this->Registrations->People->Credits->save($credit);
+			})) {
 				$this->Flash->success(__('The credit has been applied to the chosen registration.'));
 				$this->UserCache->clear('Credits', $registration->person_id);
 			} else {

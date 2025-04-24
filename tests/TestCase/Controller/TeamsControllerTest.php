@@ -26,6 +26,7 @@ use App\TestSuite\ZuluruEmailTrait;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
+use Cake\Routing\Router;
 use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -1401,6 +1402,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to move teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', '?' => ['team' => $team->id]], $admin->id);
+		$this->assertResponseContains('<select name="to" id="to" class="form-select">');
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1419,6 +1421,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to move teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', '?' => ['team' => $team->id]], $manager->id);
+		$this->assertResponseContains('<select name="to" id="to" class="form-select">');
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1470,9 +1473,10 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Can't move teams if there's nowhere to move them to
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'move', '?' => ['team' => $team->id]],
-			$admin->id, ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]],
-			'No similar division found to move this team to!');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', '?' => ['team' => $team->id]], $admin->id);
+		$this->assertResponseNotContains('<select name="to" id="to" class="form-select">');
+		$url = htmlentities(Router::url(['controller' => 'Teams', 'action' => 'move', '?' => ['team' => $team->id, 'loose' => true]]));
+		$this->assertResponseContains("<a href=\"$url\">");
 	}
 
 	/**
