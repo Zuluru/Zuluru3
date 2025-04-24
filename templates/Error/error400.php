@@ -38,7 +38,7 @@ if (Configure::read('debug')):
 <?= $this->element('auto_table_warning') ?>
 <?php
 	if (extension_loaded('xdebug') && (!defined('PHPUNIT_TESTSUITE') || !PHPUNIT_TESTSUITE)):
-		if (defined(XDEBUG_STACK_NO_DESC)):
+		if (defined('XDEBUG_STACK_NO_DESC')):
 			xdebug_print_function_stack('user triggered', XDEBUG_STACK_NO_DESC);
 		else:
 			xdebug_print_function_stack();

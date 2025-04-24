@@ -116,8 +116,14 @@ class UserDrupalTable extends UsersTable {
 		// We can't just call drupal_settings_initialize, because that will use the
 		// entire URL including Zuluru subfolder when calculating the session name
 		// in the case where the cookie_domain isn't set in the settings.php.
-		if (!isset($cookie_domain) && !empty($_SERVER['HTTP_HOST'])) {
-			$cookie_domain = $_SERVER['HTTP_HOST'];
+		if (!isset($cookie_domain)) {
+			if (!empty($_SERVER['HTTP_HOST'])) {
+				$cookie_domain = $_SERVER['HTTP_HOST'];
+			} else {
+				$parts = parse_url(Configure::read('App.fullBaseUrl'));
+				$cookie_domain = $parts['host'] ?? '';
+			}
+
 			// Strip leading periods, www., and port numbers from cookie domain.
 			$cookie_domain = ltrim($cookie_domain, '.');
 			if (strpos($cookie_domain, 'www.') === 0) {
