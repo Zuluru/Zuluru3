@@ -10,6 +10,9 @@ class ZuluruFormHelper extends FormHelper {
 	public $helpers = ['Url', 'Html' => ['className' => 'ZuluruHtml']];
 
 	protected array $formProtectorStack = [];
+	protected ?string $savedAlign;
+	protected $savedGrid;
+	protected $savedSpacing;
 
 	public function create($context = null, array $options = []): string {
 		// TODOLATER: Remove this once we're done with validation testing
@@ -19,6 +22,11 @@ class ZuluruFormHelper extends FormHelper {
 		// @todo Cake4: sotg_questions is one such place. Are there others? Can we eliminate those?
 		$this->formProtectorStack[] = $this->formProtector;
 
+		// We also need to store and restore things related to alignment
+		$this->savedAlign = $this->_align;
+		$this->savedGrid = $this->_grid;
+		$this->savedSpacing = $this->_spacing;
+
 		return parent::create($context, $options);
 	}
 
@@ -26,6 +34,9 @@ class ZuluruFormHelper extends FormHelper {
 		$end = parent::end($secureAttributes);
 
 		$this->formProtector = array_pop($this->formProtectorStack);
+		$this->_align = $this->savedAlign;
+		$this->_grid = $this->savedGrid;
+		$this->_spacing = $this->savedSpacing;
 
 		return $end;
 	}
