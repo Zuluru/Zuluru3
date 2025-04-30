@@ -29,6 +29,7 @@ class GameFactory extends BaseFactory
 				'status' => 'normal',
 				'published' => true,
 				'type' => SEASON_GAME,
+				'home_carbon_flip' => 0,
 			];
 		});
 	}

@@ -3,7 +3,9 @@ namespace App\Controller;
 
 use App\Authorization\ContextResource;
 use App\Model\Entity\Person;
+use App\Model\Entity\SpiritEntry;
 use App\Model\Table\GamesTable;
+use App\Service\Games\ScoreService;
 use Authorization\Exception\MissingIdentityException;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -18,6 +20,7 @@ use App\Model\Entity\Allstar;
 use App\Model\Entity\Game;
 use App\Model\Entity\Team;
 use App\Model\Table\PeopleTable;
+use Cake\ORM\TableRegistry;
 
 /**
  * Games Controller
@@ -99,6 +102,7 @@ class GamesController extends AppController {
 					],
 					'AwayPoolTeam' => ['DependencyPool'],
 					'Officials',
+					'TeamOfficials',
 					'ApprovedBy',
 					'ScoreEntries' => [
 						'People',
@@ -170,7 +174,6 @@ class GamesController extends AppController {
 		}
 
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
-		$this->Games->adjustEntryIndices($game);
 		$game->readDependencies();
 
 		$this->set('game', $game);
@@ -315,6 +318,7 @@ class GamesController extends AppController {
 					],
 					'AwayPoolTeam' => ['DependencyPool'],
 					'Officials',
+					'TeamOfficials',
 					'ApprovedBy',
 					'ScoreEntries' => [
 						'People',
@@ -342,11 +346,20 @@ class GamesController extends AppController {
 		}
 
 		if (Configure::read('feature.officials')) {
-			$this->set('officials', $this->Games->Officials->find('officials')
-				->all()
-				->combine('id', 'full_name')
-				->toArray()
-			);
+			if ($game->division->league->officials == OFFICIALS_ADMIN) {
+				$this->set('officials', $this->Games->Officials->find('officials')
+					->all()
+					->combine('id', 'full_name')
+					->toArray()
+				);
+			} elseif ($game->division->league->officials == OFFICIALS_TEAM) {
+				$this->set('teams', $this->Games->TeamOfficials->find()
+					->where(['TeamOfficials.division_id' => $game->division_id])
+					->all()
+					->combine('id', 'name')
+					->toArray()
+				);
+			}
 		}
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
@@ -357,7 +370,7 @@ class GamesController extends AppController {
 
 			/** @var Game $game */
 			$game = $this->Games->patchEntity($game, $data, [
-				'associated' => ['ScoreEntries', 'ScoreEntries.Allstars', 'SpiritEntries', 'Officials'],
+				'associated' => ['ScoreEntries', 'ScoreEntries.Allstars', 'SpiritEntries', 'Officials', 'TeamOfficials'],
 			]);
 			$game->resetEntryIndices();
 
@@ -412,7 +425,172 @@ class GamesController extends AppController {
 	}
 
 	/**
-	 * Officiating schedule method
+	 * Single game official assignment method
+	 *
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
+	 */
+	public function assign_official() {
+		if (!Configure::read('feature.officials')) {
+			$this->Flash->info(__('This feature is not enabled.'));
+			return $this->redirect('/');
+		}
+
+		$id = $this->getRequest()->getQuery('game');
+		try {
+			/** @var Game $game */
+			$game = $this->Games->get($id, [
+				'contain' => [
+					'Divisions' => [
+						'Leagues',
+					],
+					'GameSlots' => ['Fields' => ['Facilities']],
+					'HomeTeam',
+					'HomePoolTeam' => ['DependencyPool'],
+					'AwayTeam',
+					'AwayPoolTeam' => ['DependencyPool'],
+					'Officials',
+					'TeamOfficials' => ['People'],
+				],
+			]);
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid game.'));
+			return $this->redirect('/');
+		}
+
+		$this->Authorization->authorize($game->team_officials[0]);
+		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
+		$game->readDependencies();
+
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+			if (empty($data['officials'][0]['id'])) {
+				$this->Flash->warning(__('You must select an official to assign to this game.'));
+			} else if (!empty($game->officials) && $game->officials[0]->_joinData->official_id == $data['officials'][0]['id']) {
+				$this->Flash->warning(__('This person is already assigned to officiate this game.'));
+			} else {
+				$team = $game->team_officials[0];
+				$person = collection($team->people)->firstMatch(['id' => $data['officials'][0]['id']]);
+
+				$game->team_officials[0]->_joinData->official_id = $data['officials'][0]['id'];
+
+				if (TableRegistry::getTableLocator()->get('GamesOfficials')->save($game->team_officials[0]->_joinData)) {
+					$this->Flash->success(__('Official has been assigned to the game.'));
+
+					$this->_sendMail([
+						'to' => $person,
+						'subject' => function() use ($team) { return __('{0} officiating assignment', $team->name); },
+						'template' => 'officiating_official_notification',
+						'sendAs' => 'both',
+						'viewVars' => compact('game', 'team', 'person'),
+					]);
+
+					// If there was already an official on this game, email them to tell them they're no longer it
+					if (!empty($game->officials)) {
+						$this->_sendMail([
+							'to' => $game->officials[0],
+							'subject' => function() use ($team) { return __('{0} officiating assignment cancelled', $team->name); },
+							'template' => 'officiating_official_cancellation',
+							'sendAs' => 'both',
+							'viewVars' => compact('game', 'team', 'person'),
+						]);
+					}
+
+					return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
+				}
+			}
+		}
+
+		$this->set(compact('game'));
+	}
+
+	/**
+	 * Single game official unassignment method, for players who cannot do it
+	 *
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
+	 */
+	public function unassign_official() {
+		if (!Configure::read('feature.officials')) {
+			$this->Flash->info(__('This feature is not enabled.'));
+			return $this->redirect('/');
+		}
+
+		$id = $this->getRequest()->getQuery('game');
+		try {
+			/** @var Game $game */
+			$game = $this->Games->get($id, [
+				'contain' => [
+					'Divisions' => [
+						'Leagues',
+					],
+					'GameSlots' => ['Fields' => ['Facilities']],
+					'HomeTeam',
+					'HomePoolTeam' => ['DependencyPool'],
+					'AwayTeam',
+					'AwayPoolTeam' => ['DependencyPool'],
+					'Officials',
+					'TeamOfficials' => ['People' => [
+						'queryBuilder' => function (Query $q) {
+							$q = $q->where([
+								'TeamsPeople.role IN' => Configure::read('privileged_roster_roles'),
+								'TeamsPeople.status' => ROSTER_APPROVED,
+							]);
+							$my_id = $this->UserCache->currentId();
+							if ($my_id) {
+								$q = $q->where(['TeamsPeople.person_id !=' => $my_id]);
+							}
+							return $q;
+						},
+						Configure::read('Security.authModel'),
+					]],
+				],
+			]);
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid game.'));
+			return $this->redirect('/');
+		}
+
+		$this->Authorization->authorize($game);
+		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
+		$game->readDependencies();
+
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+			if (empty($data['reason']) || strlen($data['reason']) < 4) {
+				$this->Flash->warning(__('You must provide a short explanation.'));
+			} else {
+				$team = $game->team_officials[0];
+				$captains = $team->people;
+				$person = $game->officials[0];
+
+				$person->_joinData->official_id = null;
+
+				if (TableRegistry::getTableLocator()->get('GamesOfficials')->save($person->_joinData)) {
+					$this->Flash->success(__('You have been removed from officiating this game.'));
+
+					if (!empty($captains)) {
+						$this->_sendMail([
+							'to' => $captains,
+							'replyTo' => $person,
+							'subject' => function() use ($team) { return __('{0} officiating change', $team->name); },
+							'template' => 'officiating_captain_notification',
+							'sendAs' => 'both',
+							'viewVars' => array_merge([
+								'captains' => implode(', ', collection($captains)->extract('first_name')->toArray()),
+								'reason' => $data['reason'],
+							], compact('game', 'team', 'person')),
+						]);
+					}
+
+					return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
+				}
+			}
+		}
+
+		$this->set(compact('game'));
+	}
+
+	/**
+	 * Bulk official assignment method
 	 *
 	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
@@ -438,6 +616,7 @@ class GamesController extends AppController {
 			->where([
 				'Leagues.affiliate_id IN' => $affiliates,
 				'Leagues.sport' => $sport,
+				'Leagues.officials' => OFFICIALS_ADMIN,
 				'Divisions.open <=' => $date,
 				'Divisions.close >=' => $date,
 			])
@@ -1917,9 +2096,18 @@ class GamesController extends AppController {
 		}
 	}
 
-	public function submit_score() {
+	public function submit() {
 		$id = $this->getRequest()->getQuery('game');
 		$team_id = $this->getRequest()->getQuery('team');
+		$is_captain = true;
+		$is_official = false;
+
+		if (is_null($team_id)) {
+			// The case where it's an official submitting the score
+			$team_id = 0;
+			$is_captain = false;
+			$is_official = true;
+		}
 
 		if (Configure::read('scoring.allstars') || Configure::read('scoring.most_spirited')) {
 			// We need roster details for potential allstar nominations.
@@ -1930,6 +2118,7 @@ class GamesController extends AppController {
 		}
 
 		try {
+			/** @var Game $game */
 			$game = $this->Games->get($id, [
 				'contain' => [
 					'Divisions' => [
@@ -1943,7 +2132,7 @@ class GamesController extends AppController {
 						},
 						'People',
 						'Allstars' => [
-							'queryBuilder' => function (Query $q) use ($team_id) {
+							'queryBuilder' => function (Query $q) {
 								return $q->order(['Allstars.' . Configure::read('gender.column') => Configure::read('gender.order')]);
 							},
 						],
@@ -1983,6 +2172,7 @@ class GamesController extends AppController {
 						],
 					],
 					'AwayPoolTeam' => ['DependencyPool'],
+					'Officials',
 				],
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
@@ -1990,38 +2180,32 @@ class GamesController extends AppController {
 			return $this->redirect('/');
 		}
 
-		$this->Authorization->authorize($game);
+		$resource = new ContextResource($game, [
+			'team_id' => $team_id,
+			'league' => $game->division->league,
+			'is_captain' => $is_captain,
+			'is_official' => $is_official,
+		]);
+		$this->Authorization->authorize($resource);
 
-		if (empty($game->home_team_id) || empty($game->away_team_id)) {
-			$this->Flash->info(__('The opponent for that game has not been determined, so a score cannot yet be submitted.'));
-			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
-		}
-
-		if ($team_id == $game->home_team_id) {
+		if ($team_id == $game->home_team_id || $is_official) {
 			$team = $game->home_team;
 			$opponent = $game->away_team;
-		} else if ($team_id == $game->away_team_id) {
+		} else {
 			$team = $game->away_team;
 			$opponent = $game->home_team;
-		} else {
-			$this->Flash->info(__('That team is not playing in this game.'));
-			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
-		$this->Authorization->authorize($team);
+		if ($is_captain) {
+			$this->Authorization->authorize($team);
+		}
 
-		if ($game->isFinalized()) {
-			$this->Flash->info(__('The score for that game has already been finalized.'));
-			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
+		// Make sure that spirit score entries have the correct indices
+		if (count($game->spirit_entries) > 1) {
+			$game->spirit_entries = collection($game->spirit_entries)->indexBy(fn (SpiritEntry $entry) => $entry->team_id === $game->home_team_id ? 0 : 1)->toArray();
 		}
 
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
-
-		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
-			$this->Flash->info(__('That game has not yet occurred!'));
-			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
-		}
-
 		$game->readDependencies();
 
 		// Initialize various checkboxes that aren't part of the saved record
@@ -2041,7 +2225,8 @@ class GamesController extends AppController {
 			$this->set(compact('spirit_obj'));
 		}
 
-		$opponent_score = $game->getScoreEntry($opponent->id);
+		$score_service = new ScoreService($game->score_entries ?? []);
+		$opponent_score = $score_service->getScoreEntryFrom($opponent->id);
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// TODO: Move these checks to rules?
@@ -2065,7 +2250,9 @@ class GamesController extends AppController {
 			// it doesn't run until after the beforeSave for the game entity has run, and that looks at
 			// person_id fields to decide which score entries are "real" and which are not (e.g. a score
 			// entry created by the game edit when one team didn't submit a score).
-			$game->score_entries[0]->person_id = $this->UserCache->currentId();
+			if (!empty($game->score_entries)) {
+				$game->score_entries[0]->person_id = $this->UserCache->currentId();
+			}
 
 			// We don't actually want to update the "modified" column in the games table here
 			if ($this->Games->hasBehavior('Timestamp')) {
@@ -2093,7 +2280,7 @@ class GamesController extends AppController {
 			}
 		}
 
-		$this->set(compact('game', 'team_id', 'opponent_score'));
+		$this->set(compact('game', 'team_id', 'opponent_score', 'resource', 'is_captain', 'is_official'));
 	}
 
 	public function submit_stats() {

@@ -38,7 +38,10 @@ foreach ($officiated_games as $game):
 			<td><?= $this->Html->link($this->Time->timeRange($game->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]) ?></td>
 			<td><?= $this->element('Fields/block', ['field' => $game->game_slot->field]) ?></td>
 			<td><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'long_league_name']) ?></td>
-			<td class="actions"><?= $this->Game->displayScore($game, $game->division, $game->division->league, false) ?></td>
+			<td class="actions"><?php
+				echo $this->Game->score($game, $game->division);
+				echo $this->Game->actions($game, $game->division, $game->division->league);
+			?></td>
 		</tr>
 <?php
 endforeach;

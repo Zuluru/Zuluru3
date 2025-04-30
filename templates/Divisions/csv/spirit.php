@@ -11,7 +11,7 @@ $fp = fopen('php://output','w+');
 $header = [
 	__('Team'),
 	__('TeamID'),
-	__('Opponent'),
+	__('Submitted By'),
 	__('Team Score'),
 	__('Opp Score'),
 ];
@@ -33,69 +33,52 @@ if (Configure::read('scoring.most_spirited') && $division->most_spirited != 'nev
 fputcsv($fp, $header);
 
 $teams = collection($division->teams)->extract('id')->toArray();
-$team_results = [];
+$results = [];
 foreach ($division->games as $game) {
 	foreach (['home_team' => 'away_team', 'away_team' => 'home_team'] as $team => $opp) {
-		if ($game->isFinalized()) {
-			$id = $game->$team->id;
-			if (!in_array($id, $teams)) {
+		if (!$game->isFinalized()) {
+			continue;
+		}
+
+		foreach ($game->spirit_entries as $spirit_entry) {
+			if (!in_array($spirit_entry->team_id, $teams)) {
 				continue;
 			}
-			if (!array_key_exists($id, $team_results)) {
-				$team_results[$id] = [
-					$game->$team->name,
-					$game->$team->id,
-				];
-			}
-			$team_results[$id][] = $game->$opp->name;
-			$team_results[$id][] = ($team == 'home_team' ? $game->home_score : $game->away_score);
-			$team_results[$id][] = ($team == 'home_team' ? $game->away_score : $game->home_score);
 
-			$spirit_entry = $game->getSpiritEntry($id, $spirit_obj, true, true);
-			if ($spirit_entry) {
-				$spirit_entry->assigned_sotg = $spirit_obj->calculate($spirit_entry);
-			}
+			$game_results[] = [
+				$game->$team->name,
+				$game->$team->id,
+				$spirit_entry->created_team_id ? $game->$opp->name : __('Official'),
+				($team == 'home_team' ? $game->home_score : $game->away_score),
+				($team == 'home_team' ? $game->away_score : $game->home_score),
+			];
 
 			if ($division->league->numeric_sotg) {
-				if ($spirit_entry) {
-					$team_results[$id][] = $spirit_entry->entered_sotg;
-				} else {
-					$team_results[$id][] = '';
-				}
+				$game_results[] = $spirit_entry->entered_sotg;
 			}
 			if ($division->league->sotg_questions != 'none') {
-				if ($spirit_entry) {
-					$team_results[$id][] = $spirit_entry->assigned_sotg;
-				} else {
-					$team_results[$id][] = '';
-				}
+				$game_results[] = $spirit_obj->calculate($spirit_entry);
 			}
 			if (Configure::read('scoring.missing_score_spirit_penalty')) {
-				if ($spirit_entry) {
-					$team_results[$id][] = $spirit_entry->score_entry_penalty;
-				} else {
-					$team_results[$id][] = '';
-				}
+				$game_results[] = $spirit_entry->score_entry_penalty;
 			}
 			foreach ($spirit_obj->questions as $question => $detail) {
-				if ($spirit_entry) {
-					$team_results[$id][] = $spirit_entry->$question;
-				} else {
-					$team_results[$id][] = '';
-				}
+				$game_results[] = $spirit_entry->$question;
 			}
 			if (Configure::read('scoring.most_spirited') && $division->most_spirited != 'never') {
 				if (!empty($spirit_entry->most_spirited)) {
-					$team_results[$id][] = $spirit_entry->most_spirited->full_name;
+					$game_results[] = $spirit_entry->most_spirited->full_name;
 				} else {
-					$team_results[$id][] = '';
+					$game_results[] = '';
 				}
 			}
+
+			$results[] = $game_results;
 		}
 	}
 }
 
-foreach($team_results as $row) {
+foreach($results as $row) {
 	fputcsv($fp, $row);
 }
 

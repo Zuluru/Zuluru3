@@ -121,6 +121,11 @@ class LeaguesTable extends AppTable {
 			}, __('You must select whether or not the carbon flip is enabled.'))
 			->notEmptyString('carbon_flip', __('You must select whether or not the carbon flip is enabled.'))
 
+			->requirePresence('officials', function ($context) {
+				return $context['newRecord'] && Configure::read('feature.officials');
+			}, __('You must select how officials are assigned to games in this league.'))
+			->notEmptyString('officials', __('You must select how officials are assigned to games in this league.'))
+
 			;
 
 		return $validator;
@@ -171,6 +176,11 @@ class LeaguesTable extends AppTable {
 		}, 'validTieBreaker', [
 			'errorField' => 'tie_breakers',
 			'message' => __('You have selected an invalid tie breaker method.'),
+		]);
+
+		$rules->add(new InConfigRule(['key' => 'options.officials', 'optional' => !Configure::read('feature.officials')]), 'validOfficials', [
+			'errorField' => 'officials',
+			'message' => __('You must select how officials are assigned to games in this league.'),
 		]);
 
 		return $rules;

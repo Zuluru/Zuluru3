@@ -568,9 +568,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$away_str = "<td><a[^>]*href=\"$base/teams/view\?team={$away->id}\"[^>]*>{$away->name}</a> <span[^>]*title=\"Shirt Colour: {$away->shirt_colour}\"[^>]*><img src=\"$base/img/shirts/{$away_icon}.png\?\d+\"[^>]*></span></td>";
 		$actions_str = '';
 		if ($edit) {
-			$actions_str = "<td class=\"actions\">{$status}\s*<span class=\"actions\"><a href=\"$base/games/edit\?game={$game_id}[^>]*\"";
+			$actions_str = "<td class=\"actions\">{$status}\s*<span class=\"actions\">.*<a href=\"$base/games/edit\?game={$game_id}[^>]*\"";
 		} else if ($submit) {
-			$actions_str = "<td class=\"actions\">{$status}\s*<span class=\"actions\"><a href=\"$base/games/submit_score\?game={$game_id}[^>]*\"";
+			$actions_str = "<td class=\"actions\">{$status}\s*<span class=\"actions\">.*<a href=\"$base/games/submit\?game={$game_id}[^>]*\"";
 		}
 
 		return "#$game_str\s*$facility_str\s*$home_str\s*$away_str\s*$actions_str#ms";
@@ -629,7 +629,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/schedules/unpublish?division=' . $season->id . '&amp;date=' . $date);
 
 		// Admins don't get to submit scores or do attendance
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
@@ -699,7 +699,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/schedules/unpublish?division=' . $season->id . '&amp;date=' . $date);
 
 		// Managers don't get to submit scores or do attendance
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
@@ -770,7 +770,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/schedules/unpublish?division=' . $season->id . '&amp;date=' . $date);
 
 		// Coordinators don't get to submit scores or do attendance
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
@@ -826,7 +826,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
-		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit\?game={$games[0]->id}[^>0-9]*"#ms');
 		$this->assertResponseNotContains('stats');
 		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
 		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
@@ -859,7 +859,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 
 		// Captains are allowed to see schedules from any affiliate
 		/** @var \App\Model\Entity\League $league */
@@ -870,7 +870,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 	}
 
 	/**
@@ -895,7 +895,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
-		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit\?game={$games[0]->id}[^>0-9]*"#ms');
 		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
 		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
 		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', false));
@@ -908,7 +908,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Players don't get to edit games, submit scores or do anything with schedules
 		$this->assertResponseNotContains('/games/edit');
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 		$this->assertResponseNotContains('/games/submit_stats');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
 		$this->assertResponseNotContains('/divisions/slots');
@@ -938,7 +938,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
-		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit\?game={$games[0]->id}[^>0-9]*"#ms');
 		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
 		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
 		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', false));
@@ -949,7 +949,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Visitors don't get to edit games, submit scores, do attendance, or anything with schedules
 		$this->assertResponseNotContains('/games/edit');
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 		$this->assertResponseNotContains('/games/submit_stats');
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
@@ -979,7 +979,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
-		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit\?game={$games[0]->id}[^>0-9]*"#ms');
 		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
 		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
 		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', false));
@@ -990,7 +990,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Anonymous browsers don't get any actions
 		$this->assertResponseNotContains('/games/edit');
-		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit');
 		$this->assertResponseNotContains('/games/submit_stats');
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');

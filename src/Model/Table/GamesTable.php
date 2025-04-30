@@ -2,6 +2,7 @@
 namespace App\Model\Table;
 
 use App\Authorization\ContextResource;
+use App\Service\Games\ScoreService;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
@@ -42,6 +43,7 @@ use InvalidArgumentException;
  * @property \Cake\ORM\Association\HasMany $SpiritEntries
  * @property \Cake\ORM\Association\HasMany $Stats
  * @property \Cake\ORM\Association\BelongsToMany $Officials
+ * @property \Cake\ORM\Association\BelongsToMany $TeamOfficials
  */
 class GamesTable extends AppTable {
 
@@ -154,6 +156,13 @@ class GamesTable extends AppTable {
 			'joinTable' => 'games_officials',
 			'foreignKey' => 'game_id',
 			'targetForeignKey' => 'official_id',
+			'through' => 'GamesOfficials',
+		]);
+		$this->belongsToMany('TeamOfficials', [
+			'className' => 'Teams',
+			'joinTable' => 'games_officials',
+			'foreignKey' => 'game_id',
+			'targetForeignKey' => 'team_id',
 		]);
 	}
 
@@ -803,19 +812,11 @@ class GamesTable extends AppTable {
 				// The only way we should ever get here is after a score submission.
 				// If there are two, we can try to finalize it.
 				// TODO: Handle this kind of a save when someone is editing a schedule?
-				if (reset($entity->score_entries)->team_id == $entity->home_team_id) {
-					$opponent_score = $entity->getScoreEntry($entity->away_team_id);
-				} else {
-					$opponent_score = $entity->getScoreEntry($entity->home_team_id);
-				}
-				if ($opponent_score->person_id) {
-					if (count($entity->score_entries) == 1) {
-						$entity->score_entries[] = $opponent_score;
-						$entity->finalize();
-						array_pop($entity->score_entries);
-					} else {
-						$entity->finalize();
-					}
+				$score_service = new ScoreService($entity->score_entries ?? []);
+				$home_score = $score_service->getOrFindScoreEntryFrom($entity->home_team_id, $entity->id);
+				$away_score = $score_service->getOrFindScoreEntryFrom($entity->away_team_id, $entity->id);
+				if ($home_score && $home_score->person_id && $away_score && $away_score->person_id) {
+					$entity->finalize($home_score, $away_score);
 				}
 			}
 		}
@@ -837,17 +838,7 @@ class GamesTable extends AppTable {
 
 		// "Copy" dependency games do not have a game slot ID set
 		if ($entity->isDirty('game_slot_id') && !empty($entity->game_slot_id)) {
-			if (empty($entity->game_slot)) {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-				$entity->game_slot = $this->GameSlots->newEntity([
-					'id' => $entity->game_slot_id,
-					'assigned' => true,
-				]);
-				pr($entity->game_slot);
-			} else {
-				$entity->game_slot = $this->GameSlots->patchEntity($entity->game_slot, ['assigned' => true]);
-			}
+			$entity->game_slot = $this->GameSlots->patchEntity($entity->game_slot, ['assigned' => true]);
 
 			// TODOLATER: We should only do this when a change is made that might affect the field rankings:
 			// home team, away team, game slot, field id

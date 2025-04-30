@@ -6,6 +6,7 @@
  * @var \App\Model\Entity\Team $team
  * @var \App\Module\Spirit $spirit_obj
  * @var string[] $classes
+ * @var bool $show_spirit_scores
  */
 
 $class = null;
@@ -28,7 +29,6 @@ if ($league->hasSpirit()):
 		}
 		echo $this->element('Spirit/symbol', [
 			'spirit_obj' => $spirit_obj,
-			'league' => $league,
 			'show_spirit_scores' => $show_spirit_scores,
 			'value' => $spirit,
 		]);

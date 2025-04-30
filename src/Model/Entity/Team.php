@@ -2,6 +2,8 @@
 namespace App\Model\Entity;
 
 use App\Core\UserCache;
+use App\Module\Spirit;
+use App\Module\Sport;
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
@@ -167,7 +169,7 @@ class Team extends Entity {
 		}
 	}
 
-	public function addGameResult($game, $league, $spirit_obj, $sport_obj) {
+	public function addGameResult(Game $game, League $league, ?Spirit $spirit_obj, Sport $sport_obj) {
 		if (!$this->has('_results')) {
 			$this->_results = new TeamResults();
 			$this->setDirty('_results', false);

@@ -2244,22 +2244,20 @@ class PeopleController extends AppController {
 
 		if (Configure::read('feature.officials')) {
 			foreach ($people as $id) {
-				if (in_array(GROUP_OFFICIAL, UserCache::getInstance()->read('UserGroupIDs', $id))) {
-					$officiated_games = $this->People->OfficiatedGames
-						->find('officiatingSchedule', ['official_id' => $id])
-						->contain([
-							'Divisions' => ['Leagues'],
-							'Officials',
-						])
-						->where([
-							'OfficiatedGames.published' => true,
-						])
-						->order(['GameSlots.game_date', 'GameSlots.game_start'])
-						->limit($limit)
-						->toArray();
-					if (!empty($officiated_games)) {
-						$items = array_merge($items, $officiated_games);
-					}
+				$officiated_games = $this->People->OfficiatedGames
+					->find('officiatingSchedule', ['official_id' => $id])
+					->contain([
+						'Divisions' => ['Leagues'],
+						'Officials',
+					])
+					->where([
+						'OfficiatedGames.published' => true,
+					])
+					->order(['GameSlots.game_date', 'GameSlots.game_start'])
+					->limit($limit)
+					->toArray();
+				if (!empty($officiated_games)) {
+					$items = array_merge($items, $officiated_games);
 				}
 			}
 		}

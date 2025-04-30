@@ -17,10 +17,22 @@ class AddOfficialIdToGames extends AbstractMigration
 			])
 			->addColumn('official_id', \Phinx\Db\Table\Column::INTEGER, [
 				'default' => null,
-				'null' => false,
+				'null' => true,
+			])
+			->addColumn('team_id', \Phinx\Db\Table\Column::INTEGER, [
+				'default' => null,
+				'null' => true,
 			])
 			->addIndex(['game_id'])
 			->addIndex(['official_id'])
         	->create();
+
+		$this->table('leagues')
+			->addColumn('officials', \Phinx\Db\Table\Column::INTEGER, [
+				'default' => 0,
+				'null' => false,
+				'after' => 'carbon_flip',
+			])
+			->update();
     }
 }

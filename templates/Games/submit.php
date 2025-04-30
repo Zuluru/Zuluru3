@@ -3,8 +3,11 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
  * @var int $team_id
- * @var \App\Model\Entity\ScoreEntry $opponent_score
+ * @var ?\App\Model\Entity\ScoreEntry $opponent_score
  * @var \App\Module\Spirit $spirit_obj
+ * @var \App\Authorization\ContextResource $resource
+ * @var bool $is_captain
+ * @var bool $is_official
  */
 
 use Cake\Core\Configure;
@@ -12,7 +15,7 @@ use Cake\Core\Configure;
 $this->Breadcrumbs->add(__('Games'));
 $this->Breadcrumbs->add(__('Submit Game Results'));
 
-if ($team_id == $game->home_team_id) {
+if ($team_id == $game->home_team_id || $is_official) {
 	$this_team = $game->home_team;
 	$opponent = $game->away_team;
 } else {
@@ -29,34 +32,37 @@ if ($team_id == $game->home_team_id) {
 		$this->element('Teams/block', ['team' => $this_team, 'show_shirt' => false]),
 		$this->element('Teams/block', ['team' => $opponent, 'show_shirt' => false])
 	)) ?></p>
+<?php if ($is_captain): ?>
 	<p><?= __('If your opponent has already entered a result, it will be displayed below. If the result you enter does not agree with this result, posting of the result will be delayed until your coordinator can confirm the correct result.') ?></p>
-
 <?php
+endif;
+
 echo $this->Form->create($game, ['align' => 'horizontal']);
 
-echo $this->Jquery->toggleInput('score_entries.0.status', [
-	'id' => 'Status',
-	'label' => __('This game was:'),
-	'type' => 'select',
-	'options' => [
-		'normal' => __('Played'),
-		'home_default' => __("Defaulted by {0}", $game->home_team->name),
-		'away_default' => __("Defaulted by {0}", $game->away_team->name),
-		'cancelled' => __('Cancelled (e.g. due to weather)'),
-	],
-], [
-	'values' => [
-		'normal' => '.normal',
-		'home_default' => '.default',
-		'away_default' => '.default',
-	],
-]);
+if ($this->Authorize->can('submit_score', $resource)):
+	echo $this->Jquery->toggleInput('score_entries.0.status', [
+		'id' => 'Status',
+		'label' => __('This game was:'),
+		'type' => 'select',
+		'options' => [
+			'normal' => __('Played'),
+			'home_default' => __("Defaulted by {0}", $game->home_team->name),
+			'away_default' => __("Defaulted by {0}", $game->away_team->name),
+			'cancelled' => __('Cancelled (e.g. due to weather)'),
+		],
+	], [
+		'values' => [
+			'normal' => '.normal',
+			'home_default' => '.default',
+			'away_default' => '.default',
+		],
+	]);
 
-if (!empty($game->score_entries) && $game->score_entries[0]->has('id')) {
-	echo $this->Form->hidden('score_entries.0.id', ['value' => $game->score_entries[0]->id]);
-}
-echo $this->Form->hidden('score_entries.0.team_id', ['value' => $team_id]);
-echo $this->Form->hidden('score_entries.0.game_id', ['value' => $game->id]);
+	if (!empty($game->score_entries) && $game->score_entries[0]->has('id')) {
+		echo $this->Form->hidden('score_entries.0.id', ['value' => $game->score_entries[0]->id]);
+	}
+	echo $this->Form->hidden('score_entries.0.team_id', ['value' => $team_id]);
+	echo $this->Form->hidden('score_entries.0.game_id', ['value' => $game->id]);
 ?>
 
 	<div class="table-responsive normal default">
@@ -73,14 +79,14 @@ echo $this->Form->hidden('score_entries.0.game_id', ['value' => $game->id]);
 					<td><?= $this_team['name'] ?></td>
 					<td><?= $this->Form->control('score_entries.0.score_for', [
 						'div' => false,
-						'id' => ($team_id == $game->home_team_id ? 'ScoreHome' : 'ScoreAway'),
+						'id' => ($team_id == $game->home_team_id || $is_official ? 'ScoreHome' : 'ScoreAway'),
 						'label' => false,
 						'type' => 'number',
 						'size' => 3,
 						'secure' => false,
 					]) ?></td>
 					<td><?php
-						if ($opponent_score->person_id) {
+						if ($opponent_score && $opponent_score->person_id) {
 							echo $opponent_score->score_against;
 						} else {
 							echo __('not yet entered');
@@ -91,14 +97,14 @@ echo $this->Form->hidden('score_entries.0.game_id', ['value' => $game->id]);
 					<td><?= $opponent->name ?></td>
 					<td><?= $this->Form->control('score_entries.0.score_against', [
 						'div' => false,
-						'id' => ($team_id == $game->home_team_id ? 'ScoreAway' : 'ScoreHome'),
+						'id' => ($team_id == $game->home_team_id || $is_official ? 'ScoreAway' : 'ScoreHome'),
 						'label' => false,
 						'type' => 'number',
 						'size' => 3,
 						'secure' => false,
 					]) ?></td>
 					<td><?php
-						if ($opponent_score->person_id) {
+						if ($opponent_score && $opponent_score->person_id) {
 							echo $opponent_score->score_for;
 						} else {
 							echo __('not yet entered');
@@ -106,7 +112,7 @@ echo $this->Form->hidden('score_entries.0.game_id', ['value' => $game->id]);
 					?></td>
 				</tr>
 <?php
-if ($game->division->league->hasCarbonFlip()):
+	if ($game->division->league->hasCarbonFlip()):
 ?>
 				<tr class="normal">
 					<td><?= __('Carbon Flip') ?></td>
@@ -126,7 +132,7 @@ if ($game->division->league->hasCarbonFlip()):
 						]);
 					?></td>
 					<td><?php
-						if ($opponent_score->person_id) {
+						if ($opponent_score && $opponent_score->person_id) {
 							echo $carbon_flip_options[$opponent_score->home_carbon_flip];
 						} else {
 							echo __('not yet entered');
@@ -134,9 +140,9 @@ if ($game->division->league->hasCarbonFlip()):
 					?></td>
 				</tr>
 <?php
-endif;
+	endif;
 
-if ($game->division->women_present):
+	if ($is_captain && $game->division->women_present):
 ?>
 				<tr class="normal">
 					<td><?= __('How many women designated players did you have at this game?') ?></td>
@@ -151,20 +157,32 @@ if ($game->division->women_present):
 					<td></td>
 				</tr>
 <?php
-endif;
+	endif;
 ?>
 			</tbody>
 		</table>
 	</div>
 
 <?php
-if ($game->division->league->hasSpirit()) {
-	echo $this->element('Spirit/input', [
-		'index' => 0, 'for_team' => $opponent, 'from_team' => $this_team, 'game' => $game, 'spirit_obj' => $spirit_obj
-	]);
+endif;
+
+if ($this->Authorize->can('submit_spirit', $resource)) {
+	if ($is_official) {
+		// Officials submit spirit scores for both teams at the same time.
+		echo $this->element('Spirit/input', [
+			'index' => 0, 'for_team' => $this_team, 'from_team' => $opponent, 'game' => $game, 'spirit_obj' => $spirit_obj, 'is_official' => $is_official
+		]);
+		echo $this->element('Spirit/input', [
+			'index' => 1, 'for_team' => $opponent, 'from_team' => $this_team, 'game' => $game, 'spirit_obj' => $spirit_obj, 'is_official' => $is_official
+		]);
+	} else {
+		echo $this->element('Spirit/input', [
+			'index' => 0, 'for_team' => $opponent, 'from_team' => $this_team, 'game' => $game, 'spirit_obj' => $spirit_obj, 'is_official' => $is_official,
+		]);
+	}
 }
 
-if (Configure::read('scoring.incident_reports')):
+if ($is_captain && Configure::read('scoring.incident_reports')):
 	echo $this->Html->tag('div', $this->Jquery->toggleInput('has_incident', [
 		'type' => 'checkbox',
 		'value' => '1',
@@ -203,7 +221,7 @@ if (Configure::read('scoring.incident_reports')):
 <?php
 endif;
 
-if (Configure::read('scoring.allstars') && $game->division->allstars !== 'never'):
+if ($is_captain && Configure::read('scoring.allstars') && $game->division->allstars !== 'never'):
 ?>
 	<div class="normal">
 <?php

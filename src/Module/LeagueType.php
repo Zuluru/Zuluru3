@@ -175,7 +175,7 @@ abstract class LeagueType {
 	 * Do any calculations that will make the comparisons more efficient, such
 	 * as determining wins, losses, spirit, etc.
 	 */
-	protected function presort(Division $division, League $league, $games, Spirit $spirit_obj = null) {
+	protected function presort(Division $division, League $league, array $games, ?Spirit $spirit_obj = null) {
 		$sport_obj = ModuleRegistry::getInstance()->load("Sport:{$league->sport}");
 		$division->teams = collection($division->teams)->indexBy('id')->toArray();
 

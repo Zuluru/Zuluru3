@@ -262,35 +262,35 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test submit_score method as an admin
+	 * Test submit method as an admin
 	 */
 	public function testSubmitScoreAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test submit_score method as a manager
+	 * Test submit method as a manager
 	 */
 	public function testSubmitScoreAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test submit_score method as a coordinator
+	 * Test submit method as a coordinator
 	 */
 	public function testSubmitScoreAsCoordinator(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test submit_score method as a captain
+	 * Test submit method as a captain
 	 */
 	public function testSubmitScoreAsCaptain(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test submit_score method as others
+	 * Test submit method as others
 	 */
 	public function testSubmitScoreAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');

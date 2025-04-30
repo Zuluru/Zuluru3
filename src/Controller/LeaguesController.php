@@ -473,6 +473,8 @@ class LeaguesController extends AppController {
 						'DependencyPool',
 					],
 					'Pools',
+					'Officials',
+					'TeamOfficials',
 				],
 			])
 			->where(['Divisions.id IN' => collection($league->divisions)->extract('id')->toArray()])

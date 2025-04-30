@@ -131,11 +131,19 @@ else:
 <?php
 			if ($has_officials):
 ?>
-				<td><?= $this->element('Games/officials', ['officials' => $game->officials]) ?></td>
+				<td><?= $this->element('Games/officials', [
+					'game' => $game,
+					'officials' => $game->officials,
+					'team_officials' => $game->team_officials,
+					'league' => $game->division->league,
+				]) ?></td>
 <?php
 			endif;
 ?>
-				<td class="actions"><?= $this->Game->displayScore($game, $game->division, $game->division->league) ?></td>
+				<td class="actions"><?php
+					echo $this->Game->score($game, $game->division);
+					echo $this->Game->actions($game, $game->division, $game->division->league);
+				?></td>
 			</tr>
 
 <?php

@@ -39,6 +39,18 @@ if (!defined('GROUP_PLAYER')) {
 	define('CROSSOVER_GAME', 3);
 	define('BRACKET_GAME', 4);
 
+	define('SCORE_BY_CAPTAIN', 1);
+	define('SCORE_BY_OFFICIAL', 2);
+	define('SCORE_BY_BOTH', 3);
+
+	define('SPIRIT_BY_CAPTAIN', 1);
+	define('SPIRIT_BY_OFFICIAL', 2);
+	define('SPIRIT_BY_BOTH', 3);
+
+	define('OFFICIALS_NONE', 0);
+	define('OFFICIALS_ADMIN', 1);
+	define('OFFICIALS_TEAM', 2);
+
 	define('APPROVAL_AUTOMATIC', -1);		// approval, scores agree
 	define('APPROVAL_AUTOMATIC_HOME', -2);  // approval, home score used
 	define('APPROVAL_AUTOMATIC_AWAY', -3);  // approval, away score used

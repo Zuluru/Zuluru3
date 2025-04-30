@@ -38,7 +38,10 @@ $this->Breadcrumbs->add(__('Stats'));
 if ($game->isFinalized()):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Score') ?></dt>
-		<dd class="col-sm-9 mb-0"><?= $this->Game->displayScore($game, $game->division, $game->division->league) ?></dd>
+		<dd class="col-sm-9 mb-0"><?php
+			echo $this->Game->score($game, $game->division);
+			echo $this->Game->actions($game, $game->division, $game->division->league);
+		?></dd>
 <?php
 endif;
 ?>

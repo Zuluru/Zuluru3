@@ -113,11 +113,8 @@ if (!empty($items)):
 						}
 					}
 
-					echo $this->Game->displayScore($item, $item->division, $item->division->league, $item->division->schedule_type === 'competition' && $officiating ? null : false);
-
-					if (Configure::read('feature.annotations')) {
-						echo $this->Html->link(__('Add Note'), ['controller' => 'Games', 'action' => 'note', '?' => ['game' => $item->id]]);
-					}
+					echo $this->Game->score($item, $item->division);
+					echo $this->Game->actions($item, $item->division, $item->division->league);
 				?></td>
 <?php
 		elseif (is_a($item, TeamEvent::class)):

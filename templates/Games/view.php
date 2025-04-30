@@ -8,6 +8,8 @@
  */
 
 use App\Authorization\ContextResource;
+use App\Service\Games\ScoreService;
+use App\Service\Games\SpiritService;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use App\Controller\AppController;
@@ -92,10 +94,15 @@ if ($game->home_dependency_type != 'copy'):
 <?php
 endif;
 
-if (Configure::read('feature.officials') && $this->Authorize->getIdentity() && !empty($game->officials)):
+if (Configure::read('feature.officials') && $this->Authorize->getIdentity() && $game->division->league->officials):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
-		<dd class="col-sm-9 mb-0"><?= $this->element('Games/officials', ['officials' => $game->officials]) ?></dd>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Games/officials', [
+			'game' => $game,
+			'officials' => $game->officials,
+			'team_officials' => $game->team_officials,
+			'league' => $game->division->league,
+		]) ?></dd>
 <?php
 endif;
 ?>
@@ -173,19 +180,11 @@ if (!empty($actions)) {
 		['class' => 'actions columns']);
 }
 
-if (array_key_exists($game->home_team_id, $game->score_entries)) {
-	$homeScoreEntry = $game->score_entries[$game->home_team_id];
-}
-if (array_key_exists($game->away_team_id, $game->score_entries)) {
-	$awayScoreEntry = $game->score_entries[$game->away_team_id];
-}
+$score_service = new ScoreService($game->score_entries ?? []);
+$homeScoreEntry = $score_service->getScoreEntryFrom($game->home_team_id);
+$awayScoreEntry = $score_service->getScoreEntryFrom($game->away_team_id);
 
-if (!empty($game->spirit_entries) || Configure::read('scoring.spirit_default')) {
-	$homeSpiritEntry = $game->getSpiritEntry($game->home_team_id, $spirit_obj, false, true);
-	$awaySpiritEntry = $game->getSpiritEntry($game->away_team_id, $spirit_obj, false, true);
-} else {
-	$homeSpiritEntry = $awaySpiritEntry = false;
-}
+$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
 $team_names = [];
 if ($game->home_team) {
 	$team_names[$game->home_team_id] = $game->home_team->name;
@@ -195,7 +194,7 @@ if ($game->away_team) {
 }
 ?>
 
-	<fieldset class="clear-float wide-labels">
+	<fieldset class="clear-float">
 		<legend><?= __('Scoring') ?></legend>
 <?php
 if ($game->isFinalized()):
@@ -207,7 +206,7 @@ if ($game->isFinalized()):
 			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->home_team->name ?? '', 28) ?></dt>
 			<dd class="col-sm-9 mb-0"><?php
 				echo $game->home_score;
-				if ($game->division->women_present && isset($homeScoreEntry) && $homeScoreEntry->women_present) {
+				if ($game->division->women_present && $homeScoreEntry && $homeScoreEntry->women_present) {
 					echo __(' ({0})', $homeScoreEntry->women_present);
 				}
 			?></dd>
@@ -217,7 +216,7 @@ if ($game->isFinalized()):
 			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name ?? '', 28) ?></dt>
 			<dd class="col-sm-9 mb-0"><?php
 				echo $game->away_score;
-				if ($game->division->women_present && isset($awayScoreEntry) && $awayScoreEntry->women_present) {
+				if ($game->division->women_present && $awayScoreEntry && $awayScoreEntry->women_present) {
 					echo __(' ({0})', $awayScoreEntry->women_present);
 				}
 			?></dd>
@@ -236,16 +235,14 @@ if ($game->isFinalized()):
 			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->home_team->name ?? '', 18)) ?></dt>
 			<dd class="col-sm-9 mb-0"><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
-				'league' => $game->division->league,
 				'show_spirit_scores' => $show_spirit_scores,
-				'entry' => $awaySpiritEntry,
+				'value' => $spirit_service->getScoreFor($game->home_team_id, $game->division->league),
 			]) ?></dd>
 			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->away_team->name ?? '', 18)) ?></dt>
 			<dd class="col-sm-9 mb-0"><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
-				'league' => $game->division->league,
 				'show_spirit_scores' => $show_spirit_scores,
-				'entry' => $homeSpiritEntry,
+				'value' => $spirit_service->getScoreFor($game->away_team_id, $game->division->league),
 			]) ?></dd>
 <?php
 		endif;
@@ -286,18 +283,18 @@ else:
 			<tbody>
 				<tr>
 					<td><?= __('Home Score') ?></td>
-					<td><?= isset($homeScoreEntry) ? $homeScoreEntry->score_for : __('not entered') ?></td>
-					<td><?= isset($awayScoreEntry) ? $awayScoreEntry->score_against : __('not entered') ?></td>
+					<td><?= $homeScoreEntry ? $homeScoreEntry->score_for : __('not entered') ?></td>
+					<td><?= $awayScoreEntry ? $awayScoreEntry->score_against : __('not entered') ?></td>
 				</tr>
 				<tr>
 					<td><?= __('Away Score') ?></td>
-					<td><?= isset($homeScoreEntry) ? $homeScoreEntry->score_against : __('not entered') ?></td>
-					<td><?= isset($awayScoreEntry) ? $awayScoreEntry->score_for : __('not entered') ?></td>
+					<td><?= $homeScoreEntry ? $homeScoreEntry->score_against : __('not entered') ?></td>
+					<td><?= $awayScoreEntry ? $awayScoreEntry->score_for : __('not entered') ?></td>
 				</tr>
 				<tr>
 					<td><?= __('Defaulted?') ?></td>
-					<td><?= isset($homeScoreEntry) ? ($homeScoreEntry->status == 'home_default' ? __('us') : ($homeScoreEntry->status == 'away_default' ? __('them') : __('no'))) : '' ?></td>
-					<td><?= isset($awayScoreEntry) ? ($awayScoreEntry->status == 'away_default' ? __('us') : ($awayScoreEntry->status == 'home_default' ? __('them') : __('no'))) : '' ?></td>
+					<td><?= $homeScoreEntry ? ($homeScoreEntry->status == 'home_default' ? __('us') : ($homeScoreEntry->status == 'away_default' ? __('them') : __('no'))) : '' ?></td>
+					<td><?= $awayScoreEntry ? ($awayScoreEntry->status == 'away_default' ? __('us') : ($awayScoreEntry->status == 'home_default' ? __('them') : __('no'))) : '' ?></td>
 				</tr>
 <?php
 		if ($game->division->league->hasCarbonFlip()):
@@ -305,7 +302,7 @@ else:
 				<tr>
 					<td><?= __('Carbon Flip') ?></td>
 					<td><?php
-					if (isset($homeScoreEntry)) {
+					if ($homeScoreEntry) {
 						if ($homeScoreEntry->status == 'normal') {
 							echo $carbon_flip_options[$homeScoreEntry->home_carbon_flip];
 						} else {
@@ -314,7 +311,7 @@ else:
 					}
 					?></td>
 					<td><?php
-					if (isset($awayScoreEntry)) {
+					if ($awayScoreEntry) {
 						if ($awayScoreEntry->status == 'normal') {
 							echo $carbon_flip_options[$awayScoreEntry->home_carbon_flip];
 						} else {
@@ -330,21 +327,21 @@ else:
 ?>
 				<tr>
 					<td><?= __('How many women designated players did you have at this game?') ?></td>
-					<td><?= isset($homeScoreEntry) && $homeScoreEntry->women_present ? $homeScoreEntry->women_present : '' ?></td>
-					<td><?= isset($awayScoreEntry) && $awayScoreEntry->women_present ? $awayScoreEntry->women_present : '' ?></td>
+					<td><?= $homeScoreEntry && $homeScoreEntry->women_present ? $homeScoreEntry->women_present : '' ?></td>
+					<td><?= $awayScoreEntry && $awayScoreEntry->women_present ? $awayScoreEntry->women_present : '' ?></td>
 				</tr>
 <?php
 		endif;
 ?>
 				<tr>
 					<td><?= __('Entered By') ?></td>
-					<td><?= isset($homeScoreEntry) ? $this->element('People/block', ['person' => $homeScoreEntry->person]) : '' ?></td>
-					<td><?= isset($awayScoreEntry) ? $this->element('People/block', ['person' => $awayScoreEntry->person]) : '' ?></td>
+					<td><?= $homeScoreEntry ? $this->element('People/block', ['person' => $homeScoreEntry->person]) : '' ?></td>
+					<td><?= $awayScoreEntry ? $this->element('People/block', ['person' => $awayScoreEntry->person]) : '' ?></td>
 				</tr>
 				<tr>
 					<td><?= __('Entry Time') ?></td>
-					<td><?= isset($homeScoreEntry) ? $this->Time->datetime($homeScoreEntry->modified) : '' ?></td>
-					<td><?= isset($awayScoreEntry) ? $this->Time->datetime($awayScoreEntry->modified) : '' ?></td>
+					<td><?= $homeScoreEntry ? $this->Time->datetime($homeScoreEntry->modified) : '' ?></td>
+					<td><?= $awayScoreEntry ? $this->Time->datetime($awayScoreEntry->modified) : '' ?></td>
 				</tr>
 <?php
 		if ($show_spirit):
@@ -353,15 +350,13 @@ else:
 					<td><?= __('Spirit Assigned') ?></td>
 					<td><?= $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
-						'league' => $game->division->league,
 						'show_spirit_scores' => $show_spirit_scores,
-						'entry' => $awaySpiritEntry,
+						'value' => $spirit_service->getScoreFor($game->home_team_id, $game->division->league),
 					]) ?></td>
 					<td><?= $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
-						'league' => $game->division->league,
 						'show_spirit_scores' => $show_spirit_scores,
-						'entry' => $homeSpiritEntry,
+						'value' => $spirit_service->getScoreFor($game->away_team_id, $game->division->league),
 					]) ?></td>
 				</tr>
 <?php
@@ -372,7 +367,7 @@ else:
 		</div>
 <?php
 	else:
-		$entry = $game->getBestScoreEntry();
+		$entry = $score_service->getBestScoreEntry();
 		if ($entry === null) {
 			echo $this->Html->para(null, __('The final scores entered by the teams do not match, and the discrepancy has not been resolved.'));
 		}
@@ -461,10 +456,14 @@ endif;
 <?php
 if (!in_array($game->status, Configure::read('unplayed_status'))):
 	if ($show_spirit_scores) {
-		echo $this->element('Spirit/view',
-			['team' => $game->home_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj]);
-		echo $this->element('Spirit/view',
-			['team' => $game->away_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj]);
+		foreach ($spirit_service->getEntriesFor($game->home_team_id) as $entry) {
+			echo $this->element('Spirit/view',
+				['team' => $game->home_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $entry, 'spirit_obj' => $spirit_obj]);
+		}
+		foreach ($spirit_service->getEntriesFor($game->away_team_id) as $entry) {
+			echo $this->element('Spirit/view',
+				['team' => $game->away_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $entry, 'spirit_obj' => $spirit_obj]);
+		}
 	}
 
 	if ($this->Authorize->can('allstars', $game->division)):

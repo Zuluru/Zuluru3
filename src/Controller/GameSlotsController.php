@@ -373,7 +373,7 @@ class GameSlotsController extends AppController {
 	 *
 	 * @return void|\Cake\Http\Response Redirects on successful submission, renders view otherwise.
 	 */
-	public function submit_score() {
+	public function submit() {
 		$id = $this->getRequest()->getQuery('slot');
 		try {
 			/** @var GameSlot $game_slot */

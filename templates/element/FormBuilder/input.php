@@ -2,7 +2,9 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Question[] $questions
+ * @var string $prefix
  * @var bool $secure
+ * @var bool $preview
  */
 
 if (!isset($secure)) {

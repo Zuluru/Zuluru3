@@ -311,6 +311,20 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'scoring',
+				'name' => 'score_entry_by',
+				'value' => SCORE_BY_CAPTAIN,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'scoring',
+				'name' => 'spirit_entry_by',
+				'value' => SPIRIT_BY_CAPTAIN,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'scoring',
 				'name' => 'default_winning_score',
 				'value' => 6,
 				'affiliate_id' => null,

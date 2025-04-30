@@ -5,6 +5,12 @@
 
 namespace App\Model\Results;
 
+use App\Model\Entity\Game;
+use App\Model\Entity\League;
+use App\Model\Entity\Team;
+use App\Module\Spirit;
+use App\Module\Sport;
+use App\Service\Games\SpiritService;
 use Cake\Datasource\EntityTrait;
 
 /**
@@ -17,7 +23,9 @@ class TeamResults {
 
 	use EntityTrait;
 
-	public function addGame($game, $team, $league, $spirit_obj, $sport_obj) {
+	public function addGame(Game $game, Team $team, League $league, ?Spirit $spirit_obj, Sport $sport_obj) {
+		$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
+
 		switch ($game->type) {
 			case SEASON_GAME:
 				if (!$this->has('season')) {
@@ -29,12 +37,12 @@ class TeamResults {
 					if ($game->isFinalized()) {
 						$this->season->addResult(
 							$game->away_team_id, $game->home_score, $game->away_score, $game->home_carbon_flip,
-							$game->getSpiritEntry($game->away_team_id, $spirit_obj), $league, $spirit_obj, $sport_obj,
+							$spirit_service->getScoreFor($game->home_team_id, $league), $sport_obj,
 							$game->status == 'home_default', $game->status == 'normal'
 						);
 						$this->season->rounds[$game->round]->addResult(
 							$game->away_team_id, $game->home_score, $game->away_score, $game->home_carbon_flip,
-							$game->getSpiritEntry($game->away_team_id, $spirit_obj), $league, $spirit_obj, $sport_obj,
+							$spirit_service->getScoreFor($game->home_team_id, $league), $sport_obj,
 							$game->status == 'home_default', $game->status == 'normal'
 						);
 					}
@@ -44,12 +52,12 @@ class TeamResults {
 					if ($game->isFinalized()) {
 						$this->season->addResult(
 							$game->home_team_id, $game->away_score, $game->home_score, 2 - $game->home_carbon_flip,
-							$game->getSpiritEntry($game->home_team_id, $spirit_obj), $league, $spirit_obj, $sport_obj,
+							$spirit_service->getScoreFor($game->away_team_id, $league), $sport_obj,
 							$game->status == 'away_default', $game->status == 'normal'
 						);
 						$this->season->rounds[$game->round]->addResult(
 							$game->home_team_id, $game->away_score, $game->home_score, 2 - $game->home_carbon_flip,
-							$game->getSpiritEntry($game->home_team_id, $spirit_obj), $league, $spirit_obj, $sport_obj,
+							$spirit_service->getScoreFor($game->away_team_id, $league), $sport_obj,
 							$game->status == 'away_default', $game->status == 'normal'
 						);
 					}
@@ -70,7 +78,7 @@ class TeamResults {
 					if ($game->isFinalized()) {
 						$this->pools[$game->home_pool_team->pool->stage][$game->pool_id]->addResult(
 							$game->away_team_id, $game->home_score, $game->away_score, $game->home_carbon_flip,
-							$game->getSpiritEntry($game->away_team_id, $spirit_obj), $league, $spirit_obj, $sport_obj,
+							$spirit_service->getScoreFor($game->home_team_id, $league), $sport_obj,
 							$game->status == 'home_default', $game->status == 'normal'
 						);
 					}
@@ -79,7 +87,7 @@ class TeamResults {
 					if ($game->isFinalized()) {
 						$this->pools[$game->away_pool_team->pool->stage][$game->pool_id]->addResult(
 							$game->home_team_id, $game->away_score, $game->home_score, 2 - $game->away_carbon_flip,
-							$game->getSpiritEntry($game->home_team_id, $spirit_obj), $league, $spirit_obj, $sport_obj,
+							$spirit_service->getScoreFor($game->away_team_id, $league), $sport_obj,
 							$game->status == 'away_default', $game->status == 'normal'
 						);
 					}

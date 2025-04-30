@@ -5,6 +5,7 @@
 
 namespace App\Model\Results;
 
+use App\Module\Sport;
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
 use App\Model\Entity\Team;
@@ -41,7 +42,7 @@ class RoundRobinRecord {
 		$this->team_id = $team_id;
 	}
 
-	public function addResult($opp_id, $score_for, $score_against, $cf_for, $spirit_for, $league, $spirit_obj, $sport_obj, $default, $played) {
+	public function addResult(int $opp_id, int $score_for, int $score_against, int $cf_for, ?float $spirit_for, Sport $sport_obj, bool $default, bool $played) {
 		// What type of result was this?
 		if ($score_for > $score_against) {
 			++ $this->wins;
@@ -80,15 +81,9 @@ class RoundRobinRecord {
 		$this->goals_against += $score_against;
 
 		// TODO: drop high and low spirit?
-		if ($spirit_obj) {
-			if ($spirit_for) {
-				++ $this->spirit_games;
-				if (!$league->numeric_sotg) {
-					$this->spirit += $spirit_obj->calculate($spirit_for);
-				} else {
-					$this->spirit += $spirit_for->entered_sotg;
-				}
-			}
+		if ($spirit_for !== null) {
+			++ $this->spirit_games;
+			$this->spirit += $spirit_for;
 		}
 
 		if ($opp_id) {

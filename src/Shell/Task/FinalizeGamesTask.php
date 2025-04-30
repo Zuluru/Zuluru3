@@ -3,6 +3,7 @@ namespace App\Shell\Task;
 
 use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Game;
+use App\Service\Games\ScoreService;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
@@ -74,7 +75,8 @@ class FinalizeGamesTask extends Shell {
 
 	private function handleGame(Game $game) {
 		if ($game->division->finalize_after > 0 && $game->game_slot->start_time->addHours($game->division->finalize_after)->isPast()) {
-			if ($game->finalize() === true) {
+			$score_service = new ScoreService($game->score_entries ?? []);
+			if ($game->finalize($score_service->getScoreEntryFrom($game->home_team_id), $score_service->getScoreEntryFrom($game->away_team_id)) === true) {
 				$this->games_table->save($game);
 				return;
 			}

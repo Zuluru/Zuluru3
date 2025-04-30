@@ -58,6 +58,21 @@ if (Configure::read('feature.spirit')):
 	<fieldset>
 		<legend><?= __('Spirit Scores') ?></legend>
 <?php
+	if (Configure::read('feature.officials')) {
+		echo $this->element('Settings/input', [
+			'category' => 'scoring',
+			'name' => 'spirit_entry_by',
+			'options' => [
+				'label' => __('Spirit Entry'),
+				'type' => 'select',
+				'options' => Configure::read('options.spirit_entry_by'),
+				'empty' => $empty,
+				'help' => __('Who will be entering spirit scores for games?'),
+			],
+		]);
+	} else {
+		echo $this->Form->hidden('score_entry_by', ['value' => SCORE_BY_CAPTAIN]);
+	}
 	echo $this->element('Settings/input', [
 		'category' => 'scoring',
 		'name' => 'spirit_questions',
@@ -120,6 +135,21 @@ endif;
 	<fieldset>
 		<legend><?= __('Score Entry Features') ?></legend>
 <?php
+	if (Configure::read('feature.officials')) {
+		echo $this->element('Settings/input', [
+			'category' => 'scoring',
+			'name' => 'score_entry_by',
+			'options' => [
+				'label' => __('Score Entry'),
+				'type' => 'select',
+				'options' => Configure::read('options.score_entry_by'),
+				'empty' => $empty,
+				'help' => __('Who will be entering scores for games?'),
+			],
+		]);
+	} else {
+		echo $this->Form->hidden('score_entry_by', ['value' => SCORE_BY_CAPTAIN]);
+	}
 	echo $this->element('Settings/input', [
 		'category' => 'scoring',
 		'name' => 'allstars',

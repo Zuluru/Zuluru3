@@ -3,18 +3,23 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var \App\Model\Entity\League $league
+ * @var \Cake\I18n\FrozenDate[] $week
  * @var bool $competition
- * @var bool $multi_day
  * @var string $id_field
  * @var int $id
- * @var \Cake\I18n\FrozenDate[] $week
+ * @var bool $published
+ * @var bool $finalized
+ * @var bool $is_tournament
+ * @var bool $multi_day
+ * @var bool $has_dependent_games
+ * @var bool $has_officials
  */
 
 use Cake\Core\Configure;
 ?>
 
 <tr>
-	<th colspan="<?= 3 + $multi_day ?>"><a name="<?= $week[0]->toDateString() ?>"><?= $this->Time->dateRange($week[0], $week[1]) ?></a></th>
+	<th colspan="<?= 3 + $multi_day + $has_officials ?>"><a name="<?= $week[0]->toDateString() ?>"><?= $this->Time->dateRange($week[0], $week[1]) ?></a></th>
 	<th colspan="<?= 2 + !$competition ?>" class="actions splash-action">
 <?php
 if (!isset($division) && count($league->divisions) == 1) {

@@ -4640,7 +4640,7 @@ msgstr "Detalles del equipo"
 #: Template/Element/Leagues/view/ladder/heading.ctp:7
 #: Template/Element/Leagues/view/rounds/heading.ctp:6
 #: Template/Element/Leagues/view/tournament/heading.ctp:13
-#: Template/Games/submit_score.ctp:58
+#: Template/Games/submit.ctp:58
 msgid "Team Name"
 msgstr "Nombre del equipo"
 
@@ -6352,7 +6352,7 @@ msgstr "Editar Afiliado"
 #: Template/Games/edit_boxscore.ctp:124
 #: Template/Games/live_score.ctp:114
 #: Template/Games/note.ctp:79
-#: Template/Games/submit_score.ctp:287
+#: Template/Games/submit.ctp:287
 #: Template/Games/submit_stats.ctp:112;114
 #: Template/Holidays/edit.ctp:27
 #: Template/Leagues/edit.ctp:258
@@ -7474,7 +7474,7 @@ msgstr "Guardar cambios"
 #: Template/Element/Leagues/schedule/week_edit.ctp:333
 #: Template/Element/Leagues/standings/tournament/bracket.ctp:22
 #: Template/Element/Leagues/standings/tournament/pools.ctp:27
-#: Template/Games/submit_score.ctp:288
+#: Template/Games/submit.ctp:288
 #: Template/Games/submit_stats.ctp:118
 msgid "Reset"
 msgstr "Reiniciar"
@@ -8647,7 +8647,7 @@ msgstr "{0} tomado"
 #: Template/Element/Layout/common_blocks.ctp:166
 #: Template/Element/People/rating.ctp:42
 #: Template/Element/Questionnaires/edit.ctp:45
-#: Template/GameSlots/submit_score.ctp:167
+#: Template/GameSlots/submit.ctp:167
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -8780,7 +8780,7 @@ msgid "Events"
 msgstr "Eventos"
 
 #: Template/Element/Help/index.ctp:52
-#: Template/GameSlots/submit_score.ctp:4
+#: Template/GameSlots/submit.ctp:4
 #: Template/Games/attendance.ctp:6
 #: Template/Games/attendance_change.ctp:4
 #: Template/Games/edit.ctp:8
@@ -8789,7 +8789,7 @@ msgstr "Eventos"
 #: Template/Games/note.ctp:2
 #: Template/Games/ratings_table.ctp:2
 #: Template/Games/stats.ctp:2
-#: Template/Games/submit_score.ctp:4
+#: Template/Games/submit.ctp:4
 #: Template/Games/submit_stats.ctp:4
 #: Template/Games/view.ctp:14
 #: Template/Teams/statistics.ctp:312
@@ -11162,7 +11162,7 @@ msgstr "Racha"
 #: Template/Element/Leagues/standings/ladder/heading.ctp:16
 #: Template/Element/Leagues/standings/rounds/heading.ctp:22
 #: Template/Games/edit.ctp:225;333
-#: Template/Games/submit_score.ctp:104
+#: Template/Games/submit.ctp:104
 #: Template/Games/view.ctp:227;304
 #: Template/Leagues/edit.ctp:131
 #: Template/Leagues/view.ctp:57
@@ -12009,8 +12009,8 @@ msgstr "Asignar penalización por falta puntuación de entrada?"
 
 #: Template/Element/Spirit/input.ctp:74
 #: Template/Element/Spirit/view.ctp:7
-msgid "Spirit assigned to {0}"
-msgstr "Espíritu asignado a {0}"
+msgid "Spirit assigned to {0}{1}"
+msgstr "Espíritu asignado a {0}{1}"
 
 #: Template/Element/Spirit/legend.ctp:1
 msgid "Spirit symbols: "
@@ -12029,7 +12029,7 @@ msgid ", if you think they deserve to be nominated as most spirited player"
 msgstr ", Si usted piensa que merecen ser nominado como jugador más enérgica"
 
 #: Template/Element/Spirit/input/basic.ctp:38
-#: Template/Games/submit_score.ctp:241
+#: Template/Games/submit.ctp:241
 msgid "substitute"
 msgstr "sustituir"
 
@@ -14082,7 +14082,7 @@ msgid "Make Game Slot Available To"
 msgstr "Hacer Ranura de Juego Disponible Para"
 
 #: Template/GameSlots/add.ctp:214
-#: Template/GameSlots/submit_score.ctp:166
+#: Template/GameSlots/submit.ctp:166
 #: Template/People/nominate.ctp:18
 #: Template/Preregistrations/add.ctp:29
 #: Template/Schedules/reschedule.ctp:35
@@ -14137,23 +14137,23 @@ msgstr "Eliminar Ranura de Juego"
 msgid "Are you sure you want to delete this game_slot?"
 msgstr "¿Está seguro de que desea eliminar este game_slot?"
 
-#: Template/GameSlots/submit_score.ctp:5;9
-#: Template/Games/submit_score.ctp:5;17
+#: Template/GameSlots/submit.ctp:5;9
+#: Template/Games/submit.ctp:5;17
 msgid "Submit Game Results"
 msgstr "Presentar los Resultados del Juego"
 
-#: Template/GameSlots/submit_score.ctp:20
-#: Template/Games/submit_score.ctp:31
+#: Template/GameSlots/submit.ctp:20
+#: Template/Games/submit.ctp:31
 msgid "This game was:"
 msgstr "Este juego fue:"
 
-#: Template/GameSlots/submit_score.ctp:96
-#: Template/Games/submit_score.ctp:188
+#: Template/GameSlots/submit.ctp:96
+#: Template/Games/submit.ctp:188
 msgid "Incident Type"
 msgstr "Tipo de incidente"
 
-#: Template/GameSlots/submit_score.ctp:101
-#: Template/Games/submit_score.ctp:194
+#: Template/GameSlots/submit.ctp:101
+#: Template/Games/submit.ctp:194
 msgid "Enter the details of the incident"
 msgstr "Introduzca los detalles del incidente"
 
@@ -14236,13 +14236,13 @@ msgid "You may optionally add a personal note which will be included in the invi
 msgstr "Puede añadir opcionalmente una nota personal que será incluido en el mensaje de invitación al jugador"
 
 #: Template/Games/edit.ctp:15;16;21;22
-#: Template/Games/submit_score.ctp:107;108
+#: Template/Games/submit.ctp:107;108
 #: Template/Games/view.ctp:26;27
 msgid "{0} won"
 msgstr "{0} ganado"
 
 #: Template/Games/edit.ctp:17;23
-#: Template/Games/submit_score.ctp:109
+#: Template/Games/submit.ctp:109
 #: Template/Games/view.ctp:28
 msgid "tie"
 msgstr "Corbata"
@@ -14308,7 +14308,7 @@ msgid "Spirit Assigned"
 msgstr "Espíritu Asignado"
 
 #: Template/Games/edit.ctp:298
-#: Template/Games/submit_score.ctp:136
+#: Template/Games/submit.ctp:136
 #: Template/Games/view.ctp:330
 msgid "How many women designated players did you have at this game?"
 msgstr ""
@@ -14322,7 +14322,7 @@ msgid "Away Team Women Designated Players"
 msgstr ""
 
 #: Template/Games/edit.ctp:383;431
-#: Template/Games/submit_score.ctp:219
+#: Template/Games/submit.ctp:219
 #: Template/People/view.ctp:644
 msgid "Allstar Nominations"
 msgstr "Allstar nominaciones"
@@ -14539,63 +14539,63 @@ msgstr "Estadísticas del juego"
 msgid "Subs"
 msgstr "Subs"
 
-#: Template/Games/submit_score.ctp:18
+#: Template/Games/submit.ctp:18
 msgid "Submit the result for the {0} game at {1} between {2} and {3}."
 msgstr "Presentar el resultado de la {0} juego en {1} entre {2} y {3}."
 
-#: Template/Games/submit_score.ctp:24
+#: Template/Games/submit.ctp:24
 msgid "If your opponent has already entered a result, it will be displayed below. If the result you enter does not agree with this result, posting of the result will be delayed until your coordinator can confirm the correct result."
 msgstr "Si su oponente ya ha entrado en consecuencia, éste se mostrará a continuación. Si el resultado se introduce no está de acuerdo con este resultado, la publicación de los resultados se retrasará hasta que el coordinador puede confirmar el resultado correcto."
 
-#: Template/Games/submit_score.ctp:34
+#: Template/Games/submit.ctp:34
 msgid "Played"
 msgstr "Jugó"
 
-#: Template/Games/submit_score.ctp:35;36
+#: Template/Games/submit.ctp:35;36
 msgid "Defaulted by {0}"
 msgstr "Incumplido por {0}"
 
-#: Template/Games/submit_score.ctp:37
+#: Template/Games/submit.ctp:37
 msgid "Cancelled (e.g. due to weather)"
 msgstr "Cancelado (por ejemplo, debido al mal tiempo)"
 
-#: Template/Games/submit_score.ctp:59
+#: Template/Games/submit.ctp:59
 msgid "Your Score Entry"
 msgstr "Su puntuación de Entrada"
 
-#: Template/Games/submit_score.ctp:60
+#: Template/Games/submit.ctp:60
 msgid "Opponent's Score Entry"
 msgstr "La puntuación de entrada rival"
 
-#: Template/Games/submit_score.ctp:78;96;124
+#: Template/Games/submit.ctp:78;96;124
 msgid "not yet entered"
 msgstr "que aún no figuren"
 
-#: Template/Games/submit_score.ctp:168
+#: Template/Games/submit.ctp:168
 msgid "I have an incident to report"
 msgstr "Tengo un incidente reportar"
 
-#: Template/Games/submit_score.ctp:211
+#: Template/Games/submit.ctp:211
 msgid "I want to nominate an all-star"
 msgstr "Quiero nominar a una de las estrellas"
 
-#: Template/Games/submit_score.ctp:221
+#: Template/Games/submit.ctp:221
 msgid "You may select up to two all-stars from the list below"
 msgstr "Puede seleccionar hasta dos estrellas en la lista a continuación"
 
-#: Template/Games/submit_score.ctp:223
+#: Template/Games/submit.ctp:223
 msgid "if you think they deserve to be nominated as an all-star"
 msgstr "si usted piensa que merecen ser nominada como una de las estrellas"
 
-#: Template/Games/submit_score.ctp:256
+#: Template/Games/submit.ctp:256
 msgid "league coordinator"
 msgstr "coordinador de la liga"
 
-#: Template/Games/submit_score.ctp:262
+#: Template/Games/submit.ctp:262
 msgid "If you feel strongly about nominating additional all-stars, please contact your {0}."
 msgstr "Si tiene muchas ganas de nominar estrellas adicionales, contacte a su {0}."
 
-#: Template/Games/submit_score.ctp:277
+#: Template/Games/submit.ctp:277
 msgid "I want to enter stats for this game (if you don't do it now, you can do it later)"
 msgstr "Quiero entrar en las estadísticas para este juego (si no lo hace ahora, puede hacerlo más adelante)"
 

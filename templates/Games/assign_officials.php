@@ -17,7 +17,7 @@ $this->Breadcrumbs->add($this->Time->date($date));
 $this->Breadcrumbs->add(Inflector::humanize(__($sport)));
 ?>
 
-<div class="schedules day form" id="GameList">
+<div class="games officials form" id="GameList">
 	<h2><?= __('Assign Officials') . ': ' . $this->Time->date($date) ?></h2>
 <?php
 echo $this->Form->create(null, ['align' => 'horizontal']);
@@ -79,7 +79,7 @@ foreach ($games as $game):
 						echo $this->element('Teams/block', ['team' => $game->away_team, 'options' => ['max_length' => 25]]);
 					}
 				?></td>
-				<td><?= $this->element('Games/officials', ['officials' => $game->officials]) ?></td>
+				<td><?= $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'league' => $game->division->league]) ?></td>
 			</tr>
 
 <?php

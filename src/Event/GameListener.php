@@ -9,6 +9,7 @@ use App\Core\UserCache;
 use App\Model\Entity\Game;
 use App\Model\Entity\GameSlot;
 use App\Model\Entity\Team;
+use App\Service\Games\ScoreService;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventListenerInterface;
@@ -111,7 +112,7 @@ class GameListener implements EventListenerInterface {
 					[
 						'type' => 'link',
 						'link' => __('edit the score'),
-						'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
+						'target' => ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
 					],
 				],
 			],
@@ -172,7 +173,7 @@ class GameListener implements EventListenerInterface {
 						[
 							'type' => 'link',
 							'link' => __('edit their submission'),
-							'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
+							'target' => ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
 						],
 					],
 				],
@@ -181,7 +182,8 @@ class GameListener implements EventListenerInterface {
 	}
 
 	public function scoreApproval(CakeEvent $cakeEvent, Game $game, Team $team, Team $opponent) {
-		if ($game->getScoreEntry($team->id)->person_id) {
+		$score_service = new ScoreService($game->score_entries ?? []);
+		if ($score_service->hasScoreEntryFrom($team->id)) {
 			return;
 		}
 
@@ -210,7 +212,12 @@ class GameListener implements EventListenerInterface {
 
 	public function remindTeam(CakeEvent $cakeEvent, Game $game, Team $team = null, Team $opponent = null) {
 		// TODO: Do this on a recurring basis, every few days, instead of just once.
-		if (!$team || $game->getScoreEntry($team->id)->person_id || $game->getScoreReminderEmail($team->id)) {
+		if (!$team || $game->getScoreReminderEmail($team->id)) {
+			return;
+		}
+
+		$score_service = new ScoreService($game->score_entries ?? []);
+		if ($score_service->hasScoreEntryFrom($team->id)) {
 			return;
 		}
 

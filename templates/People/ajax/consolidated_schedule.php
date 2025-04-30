@@ -161,7 +161,10 @@ foreach ($items as $item):
 <?php
 		endforeach;
 ?>
-				<td><?= $this->Game->displayScore($item, $item->division, $item->division->league, $item->division->schedule_type === 'competition' && $officiating ? null : false) ?></td>
+				<td><?php
+					echo $this->Game->score($item, $item->division);
+					echo $this->Game->actions($item, $item->division, $item->division->league);
+				?></td>
 <?php
 	elseif (is_a($item, TeamEvent::class)):
 ?>

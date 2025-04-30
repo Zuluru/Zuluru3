@@ -39,10 +39,16 @@ class ZuluruGameHelperTest extends TestCase {
 	}
 
 	/**
-	 * Test displayScore method
+	 * Test score method
 	 */
-	public function testDisplayScore(): void {
+	public function testScore(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
+	/**
+	 * Test actions method
+	 */
+	public function testActions(): void {
+		$this->markTestIncomplete('Not implemented yet.');
+	}
 }

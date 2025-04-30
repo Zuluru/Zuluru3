@@ -3,9 +3,12 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
  * @var string[] $officials
+ * @var string[] $teams
  * @var \App\Module\Spirit $spirit_obj
  */
 
+use App\Service\Games\ScoreService;
+use App\Service\Games\SpiritService;
 use Cake\Core\Configure;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
@@ -100,6 +103,7 @@ endif;
 		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
 <?php
 if (Configure::read('feature.officials')):
+	if ($game->division->league->officials == OFFICIALS_ADMIN):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
 		<dd class="col-sm-9 mb-0"><?php
@@ -120,6 +124,20 @@ if (Configure::read('feature.officials')):
 			$this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
 		?></dd>
 <?php
+	elseif ($game->division->league->officials == OFFICIALS_TEAM):
+?>
+		<dt class="col-sm-3 text-end"><?= __('Officials From') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
+			echo $this->Form->control('team_officials._ids.0', [
+				'label' => false,
+				'type' => 'select',
+				'options' => $teams,
+				'empty' => '---',
+				'title' => __('Select the team that will be providing officials for this game'),
+			]);
+		?></dd>
+<?php
+	endif;
 endif;
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Game Status') ?></dt>
@@ -194,8 +212,9 @@ else:
 <?php
 endif;
 
-$homeScoreEntry = $game->getScoreEntry($game->home_team_id);
-$awayScoreEntry = $game->getScoreEntry($game->away_team_id);
+$score_service = new ScoreService($game->score_entries ?? []);
+$homeScoreEntry = $score_service->getScoreEntryFrom($game->home_team_id);
+$awayScoreEntry = $score_service->getScoreEntryFrom($game->away_team_id);
 if (!empty($game->score_entries)):
 ?>
 		<h3><?= __('Score as entered') ?></h3>
@@ -217,11 +236,11 @@ if (!empty($game->score_entries)):
 			<tbody>
 				<tr>
 					<td><?= __('Home Score') ?></td>
-					<td><?= $homeScoreEntry->person_id ? $homeScoreEntry->score_for : __('not entered') ?></td>
+					<td><?= $homeScoreEntry && $homeScoreEntry->person_id ? $homeScoreEntry->score_for : __('not entered') ?></td>
 <?php
 	if ($game->division->schedule_type !== 'competition'):
 ?>
-					<td><?= $awayScoreEntry->person_id ? $awayScoreEntry->score_against : __('not entered') ?></td>
+					<td><?= $awayScoreEntry && $awayScoreEntry->person_id ? $awayScoreEntry->score_against : __('not entered') ?></td>
 <?php
 	endif;
 ?>
@@ -231,13 +250,13 @@ if (!empty($game->score_entries)):
 ?>
 				<tr>
 					<td><?= __('Away Score') ?></td>
-					<td><?= $homeScoreEntry->person_id ? $homeScoreEntry->score_against : __('not entered') ?></td>
-					<td><?= $awayScoreEntry->person_id ? $awayScoreEntry->score_for : __('not entered') ?></td>
+					<td><?= $homeScoreEntry && $homeScoreEntry->person_id ? $homeScoreEntry->score_against : __('not entered') ?></td>
+					<td><?= $awayScoreEntry && $awayScoreEntry->person_id ? $awayScoreEntry->score_for : __('not entered') ?></td>
 				</tr>
 				<tr>
 					<td><?= __('Defaulted?') ?></td>
-					<td><?= $homeScoreEntry->person_id ? ($homeScoreEntry->status == 'home_default' ? __('us') : ($homeScoreEntry->status == 'away_default' ? __('them') : __('no'))) : '' ?></td>
-					<td><?= $awayScoreEntry->person_id ? ($awayScoreEntry->status == 'away_default' ? __('us') : ($awayScoreEntry->status == 'home_default' ? __('them') : __('no'))) : '' ?></td>
+					<td><?= $homeScoreEntry && $homeScoreEntry->person_id ? ($homeScoreEntry->status == 'home_default' ? __('us') : ($homeScoreEntry->status == 'away_default' ? __('them') : __('no'))) : '' ?></td>
+					<td><?= $awayScoreEntry && $awayScoreEntry->person_id ? ($awayScoreEntry->status == 'away_default' ? __('us') : ($awayScoreEntry->status == 'home_default' ? __('them') : __('no'))) : '' ?></td>
 				</tr>
 <?php
 	endif;
@@ -247,7 +266,7 @@ if (!empty($game->score_entries)):
 				<tr>
 					<td><?= __('Carbon Flip') ?></td>
 					<td><?php
-					if ($homeScoreEntry->person_id) {
+					if ($homeScoreEntry && $homeScoreEntry->person_id) {
 						if ($homeScoreEntry->status === 'normal') {
 							echo $carbon_flip_options[$homeScoreEntry->home_carbon_flip];
 						} else {
@@ -256,7 +275,7 @@ if (!empty($game->score_entries)):
 					}
 					?></td>
 					<td><?php
-					if ($awayScoreEntry->person_id) {
+					if ($awayScoreEntry && $awayScoreEntry->person_id) {
 						if ($awayScoreEntry->status === 'normal') {
 							echo $carbon_flip_options[$awayScoreEntry->home_carbon_flip];
 						} else {
@@ -271,12 +290,12 @@ if (!empty($game->score_entries)):
 				<tr>
 					<td><?= __('Entered By') ?></td>
 					<td><?php
-					if ($homeScoreEntry->person_id) {
+					if ($homeScoreEntry && $homeScoreEntry->person_id) {
 						echo $this->element('People/block', ['person' => $homeScoreEntry->person]);
 					}
 					?></td>
 					<td><?php
-					if ($awayScoreEntry->person_id) {
+					if ($awayScoreEntry && $awayScoreEntry->person_id) {
 						echo $this->element('People/block', ['person' => $awayScoreEntry->person]);
 					}
 					?></td>
@@ -284,32 +303,31 @@ if (!empty($game->score_entries)):
 				<tr>
 					<td><?= __('Entry Time') ?></td>
 					<td><?php
-					if ($homeScoreEntry->person_id && $homeScoreEntry->modified) {
+					if ($homeScoreEntry && $homeScoreEntry->person_id && $homeScoreEntry->modified) {
 						echo $this->Time->datetime($homeScoreEntry->modified);
 					}
 					?></td>
 					<td><?php
-					if ($awayScoreEntry->person_id && $awayScoreEntry->modified) {
+					if ($awayScoreEntry && $awayScoreEntry->person_id && $awayScoreEntry->modified) {
 						echo $this->Time->datetime($awayScoreEntry->modified);
 					}
 					?></td>
 				</tr>
 <?php
 	if ($game->division->league->hasSpirit()):
+		$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
 ?>
 				<tr>
 					<td><?= __('Spirit Assigned') ?></td>
 					<td><?= $this->element('Spirit/symbol', [
 							'spirit_obj' => $spirit_obj,
-							'league' => $game->division->league,
 							'show_spirit_scores' => true,
-							'entry' => $game->getSpiritEntry($game->away_team_id, $spirit_obj),
+							'value' => $spirit_service->getScoreFor($game->home_team_id, $game->division->league),
 						]) ?></td>
 					<td><?= $this->element('Spirit/symbol', [
 							'spirit_obj' => $spirit_obj,
-							'league' => $game->division->league,
 							'show_spirit_scores' => true,
-							'entry' => $game->getSpiritEntry($game->home_team_id, $spirit_obj),
+							'value' => $spirit_service->getScoreFor($game->away_team_id, $game->division->league),
 						]) ?></td>
 				</tr>
 <?php
@@ -319,8 +337,8 @@ if (!empty($game->score_entries)):
 ?>
 				<tr>
 					<td><?= __('How many women designated players did you have at this game?') ?></td>
-					<td><?= $homeScoreEntry->women_present ?></td>
-					<td><?= $awayScoreEntry->women_present ?></td>
+					<td><?= $homeScoreEntry ? $homeScoreEntry->women_present : '' ?></td>
+					<td><?= $awayScoreEntry ? $awayScoreEntry->women_present : '' ?></td>
 				</tr>
 <?php
 	endif;
@@ -332,7 +350,7 @@ if (!empty($game->score_entries)):
 endif;
 
 if (!$preliminary && $game->game_slot->start_time->isPast()):
-	if ($homeScoreEntry->id) {
+	if ($homeScoreEntry && $homeScoreEntry->id) {
 		echo $this->Form->hidden('score_entries.0.id', [
 			'value' => $homeScoreEntry->id,
 		]);
@@ -342,10 +360,10 @@ if (!$preliminary && $game->game_slot->start_time->isPast()):
 		}
 	} else {
 		echo $this->Form->hidden('score_entries.0.game_id', [
-			'value' => $homeScoreEntry->game_id,
+			'value' => $game->id,
 		]);
 		echo $this->Form->hidden('score_entries.0.team_id', [
-			'value' => $homeScoreEntry->team_id,
+			'value' => $game->home_team_id,
 		]);
 		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
 		if ($this->Form->hasFormProtector()) {
@@ -354,27 +372,25 @@ if (!$preliminary && $game->game_slot->start_time->isPast()):
 		}
 	}
 
-	if ($awayScoreEntry) {
-		if ($awayScoreEntry->id) {
-			echo $this->Form->hidden('score_entries.1.id', [
-				'value' => $awayScoreEntry->id,
-			]);
-			// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-			if ($this->Form->hasFormProtector()) {
-				$this->Form->unlockField('score_entries.1.id');
-			}
-		} else {
-			echo $this->Form->hidden('score_entries.1.game_id', [
-				'value' => $awayScoreEntry->game_id,
-			]);
-			echo $this->Form->hidden('score_entries.1.team_id', [
-				'value' => $awayScoreEntry->team_id,
-			]);
-			// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-			if ($this->Form->hasFormProtector()) {
-				$this->Form->unlockField('score_entries.1.game_id');
-				$this->Form->unlockField('score_entries.1.team_id');
-			}
+	if ($awayScoreEntry && $awayScoreEntry->id) {
+		echo $this->Form->hidden('score_entries.1.id', [
+			'value' => $awayScoreEntry->id,
+		]);
+		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('score_entries.1.id');
+		}
+	} else if ($game->away_team_id) {
+		echo $this->Form->hidden('score_entries.1.game_id', [
+			'value' => $game->id,
+		]);
+		echo $this->Form->hidden('score_entries.1.team_id', [
+			'value' => $game->away_team_id,
+		]);
+		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('score_entries.1.game_id');
+			$this->Form->unlockField('score_entries.1.team_id');
 		}
 	}
 ?>

@@ -31,9 +31,9 @@ use Cake\Routing\Router;
 	__('We ask you to please submit the score as soon as possible.') . ' ' .
 	__('If the above score is correct, you can confirm it {0}, otherwise you can submit your score {1}.',
 		$this->Html->link(__('here'),
-			Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => array_merge(['game' => $game->id, 'team' => $opponent->id], compact('status', 'score_for', 'score_against'))], true)),
+			Router::url(['controller' => 'Games', 'action' => 'submit', '?' => array_merge(['game' => $game->id, 'team' => $opponent->id], compact('status', 'score_for', 'score_against'))], true)),
 		$this->Html->link(__('here'),
-			Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $opponent->id]], true))
+			Router::url(['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $opponent->id]], true))
 	)
 ?></p>
 <?php

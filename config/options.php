@@ -143,6 +143,24 @@ $options['options'] = [
 		'all' => __('All'), // everyone gets to see the actual score
 	],
 
+	'score_entry_by' => [
+		SCORE_BY_CAPTAIN => __('Captains'),
+		SCORE_BY_OFFICIAL => __('Officials'),
+		SCORE_BY_BOTH => __('Both'),
+	],
+
+	'spirit_entry_by' => [
+		SPIRIT_BY_CAPTAIN => __('Captains'),
+		SPIRIT_BY_OFFICIAL => __('Officials'),
+		SPIRIT_BY_BOTH => __('Both'),
+	],
+
+	'officials' => [
+		OFFICIALS_NONE => __('No officials'),
+		OFFICIALS_ADMIN => __('Assigned by admin'),
+		OFFICIALS_TEAM => __('Assigned by team'),
+	],
+
 	'tie_breaker' => [
 		'hth' => __('Head-to-head'),
 		'hthpm' => __('Head-to-head plus-minus'),

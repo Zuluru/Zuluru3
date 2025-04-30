@@ -4,6 +4,7 @@
  * @var \App\Model\Entity\Game[] $games
  */
 
+use App\Service\Games\ScoreService;
 use Cake\Core\Configure;
 
 $return = [];
@@ -32,7 +33,8 @@ foreach ($games as $game) {
 		$homeScore = $game->home_score;
 		$awayScore = $game->away_score;
 	} else {
-		$entry = $game->getBestScoreEntry();
+		$score_service = new ScoreService($game->score_entries ?? []);
+		$entry = $score_service->getBestScoreEntry();
 		if (empty($entry)) {
 			$homeScore = 0;
 			$awayScore = 0;

@@ -22,7 +22,7 @@ use Cake\Routing\Router;
 <p><?= __('Scores need to be submitted in a timely fashion by both teams to substantiate results and for optimal scheduling of future games.') . ' ' .
 	__('We ask you to please submit the score as soon as possible.') . ' ' .
 	__('You can submit the score for this game {0}.',
-		$this->Html->link(__('here'), Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team->id]], true))
+		$this->Html->link(__('here'), Router::url(['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $team->id]], true))
 	)
 ?></p>
 <?php

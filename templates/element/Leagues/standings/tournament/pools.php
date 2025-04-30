@@ -10,6 +10,7 @@
 use App\Controller\AppController;
 use App\Model\Results\Comparison;
 use App\Model\Traits\DateTimeCombinator;
+use App\Service\Games\ScoreService;
 
 ksort($games);
 $teams = collection($teams)->indexBy('id')->toArray();
@@ -202,7 +203,8 @@ foreach ($games as $stage_id => $stage):
 						if ($game->isFinalized()) {
 							echo $game->home_score . '-' . $game->away_score . ' ' . __x('standings', '(F)');
 						} else {
-							$entry = $game->getBestScoreEntry();
+							$score_service = new ScoreService($game->score_entries ?? []);
+							$entry = $score_service->getBestScoreEntry();
 							if ($entry) {
 								if ($entry->team_id == $game->away_team) {
 									echo $entry->score_against . '-' . $entry->score_for;

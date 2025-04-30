@@ -6,6 +6,7 @@
  * @var \App\Model\Entity\Team $from_team
  * @var \App\Module\Spirit $spirit_obj
  * @var int $index
+ * @var bool $is_official
  */
 
 use Cake\Core\Configure;
@@ -19,9 +20,14 @@ if (array_key_exists($index, $game->spirit_entries)) {
 echo $this->Form->hidden("$prefix.team_id", [
 	'value' => $for_team->id,
 ]);
-echo $this->Form->hidden("$prefix.created_team_id", [
-	'value' => $from_team->id,
-]);
+if (!$is_official) {
+	echo $this->Form->hidden("$prefix.created_team_id", [
+		'value' => $from_team->id,
+	]);
+	$creator = '';
+} else {
+	$creator = ' ' . __('by official');
+}
 
 $spirit = $this->element("Spirit/input/{$spirit_obj->render_element}",
 	compact('prefix', 'for_team', 'from_team', 'game', 'spirit_obj'));
@@ -33,7 +39,7 @@ if ($game->division->league->numeric_sotg) {
 		$opts = [$opts];
 	}
 
-	if ($spirit_obj->render_element != 'none') {
+	if ($spirit_obj->render_element !== 'none') {
 		$suggest = '&nbsp;' .
 			$this->Html->tag('span',
 				$this->Html->link('Suggest', '#', [
@@ -57,11 +63,11 @@ if ($game->division->league->numeric_sotg) {
 
 // Don't show this when submitting scores, just when editing. We don't need
 // to check admin/coordinator permissions, as that's already been done.
-if ($this->getRequest()->getParam('action') == 'edit') {
+if ($this->getRequest()->getParam('action') === 'edit') {
 	$checked = false;
 	if (array_key_exists($index, $game->spirit_entries) &&
 		$game->spirit_entries[$index]->has('score_entry_penalty') &&
-		$game->spirit_entries[$index]->score_entry_penalty != 0)
+		$game->spirit_entries[$index]->score_entry_penalty !== 0)
 	{
 		$checked = true;
 	} else if (!$game->isFinalized() &&
@@ -80,6 +86,6 @@ if ($this->getRequest()->getParam('action') == 'edit') {
 
 if ($spirit) {
 	echo $this->Html->tag('fieldset',
-		$this->Html->tag('legend', __('Spirit assigned to {0}', $for_team->name)) . $spirit,
+		$this->Html->tag('legend', __('Spirit assigned to {0}{1}', $for_team->name, $creator)) . $spirit,
 		['class' => 'spirit normal']);
 }

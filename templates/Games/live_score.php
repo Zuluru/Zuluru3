@@ -52,7 +52,7 @@ echo $this->element('Games/score_box', ['game' => $game, 'submitter' => $submitt
 if (!$submitter) {
 	$url = ['action' => 'edit', '?' => ['game' => $game->id, 'stats' => $has_stats]];
 } else {
-	$url = ['action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $submitter]];
+	$url = ['action' => 'submit', '?' => ['game' => $game->id, 'team' => $submitter]];
 }
 echo $this->Bootstrap->navPills([
 	$this->Html->link(__('Finalize'), $url, ['class' => $this->Bootstrap->navPillLinkClasses()]),

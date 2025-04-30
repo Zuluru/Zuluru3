@@ -1268,6 +1268,7 @@ class SchedulesController extends AppController {
 						'AwayTeam',
 						'AwayPoolTeam' => ['DependencyPool'],
 						'Officials',
+						'TeamOfficials',
 					])
 					->where([
 						'Divisions.id IN' => $divisions,

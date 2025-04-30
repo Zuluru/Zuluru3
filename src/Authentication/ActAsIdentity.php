@@ -350,7 +350,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	}
 
 	public function isOfficialOf(Game $game): bool {
-		return $this->_isOfficial && collection($game->officials ?? [])->some(function (Person $official) { return $official->id === $this->identity->person->id; });
+		return collection($game->officials ?? [])->some(function (Person $official) { return $official->id === $this->identity->person->id; });
 	}
 
 	public function isVolunteer(): bool {

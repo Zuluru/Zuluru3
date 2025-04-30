@@ -4,6 +4,7 @@ namespace App\Policy;
 use App\Authorization\ContextResource;
 use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Game;
+use App\Service\Games\ScoreService;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
 use Cake\Http\Exception\GoneException;
@@ -128,7 +129,14 @@ class GamePolicy extends AppPolicy {
 	}
 
 	protected function _canLive_score(IdentityInterface $identity, ContextResource $resource, $message) {
-		if ($identity->isCaptainOf($resource->resource())) {
+		$game = $resource->resource();
+
+		if ($game->isFinalized()) {
+			throw new ForbiddenRedirectException(__('The score for that game has already been finalized.'),
+				['action' => 'view', '?' => ['game' => $game->id]]);
+		}
+
+		if ($identity->isCaptainOf($game)) {
 			return true;
 		}
 
@@ -139,7 +147,7 @@ class GamePolicy extends AppPolicy {
 			}
 			*/
 
-			return new ForbiddenRedirectException($message);
+			throw new ForbiddenRedirectException($message);
 		}
 
 		return false;
@@ -165,8 +173,70 @@ class GamePolicy extends AppPolicy {
 		return $this->_canLive_score($identity, $resource, __('Invalid submitter.'));
 	}
 
-	public function canSubmit_score(IdentityInterface $identity, Game $game) {
-		return $identity->isCaptainOf($game) || $identity->isOfficialOf($game);
+	public function canSubmit(IdentityInterface $identity, ContextResource $resource) {
+		if (!$identity->can('submit_score', $resource) && !$identity->can('submit_spirit', $resource)) {
+			return false;
+		}
+
+		$game = $resource->resource();
+		$redirect = ['action' => 'view', '?' => ['game' => $game->id]];
+
+		if (empty($game->home_team_id) || empty($game->away_team_id)) {
+			throw new ForbiddenRedirectException(__('The opponent for that game has not been determined, so a score cannot yet be submitted.'), $redirect);
+		}
+
+		if (!$resource->is_official) {
+			// These restrictions do not apply to officials.
+			if ($resource->team_id != $game->home_team_id && $resource->team_id != $game->away_team_id) {
+				throw new ForbiddenRedirectException(__('That team is not playing in this game.'), $redirect);
+			}
+
+			if ($game->isFinalized()) {
+				throw new ForbiddenRedirectException(__('The score for that game has already been finalized.'), $redirect);
+			}
+		}
+
+		// Allow score submissions any time after an hour before the scheduled end time.
+		// Some people like to submit via mobile phone immediately, and games can end early.
+		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
+			throw new ForbiddenRedirectException(__('That game has not yet occurred!'), $redirect);
+		}
+
+		return true;
+	}
+
+	public function canSubmit_score(IdentityInterface $identity, ContextResource $resource) {
+		$game = $resource->resource();
+		$submit_by = Configure::read('scoring.score_entry_by');
+		switch ($submit_by) {
+			case SCORE_BY_CAPTAIN:
+				return $identity->isCaptainOf($game);
+			case SCORE_BY_OFFICIAL:
+				return $identity->isOfficialOf($game);
+			case SCORE_BY_BOTH:
+				return $identity->isCaptainOf($game) || $identity->isOfficialOf($game);
+		}
+
+		return false;
+	}
+
+	public function canSubmit_spirit(IdentityInterface $identity, ContextResource $resource) {
+		if (!$resource->league->hasSpirit()) {
+			return false;
+		}
+
+		$game = $resource->resource();
+		$submit_by = Configure::read('scoring.spirit_entry_by');
+		switch ($submit_by) {
+			case SPIRIT_BY_CAPTAIN:
+				return $identity->isCaptainOf($game);
+			case SPIRIT_BY_OFFICIAL:
+				return $identity->isOfficialOf($game);
+			case SPIRIT_BY_BOTH:
+				return $identity->isCaptainOf($game) || $identity->isOfficialOf($game);
+		}
+
+		return false;
 	}
 
 	public function canSubmit_stats(IdentityInterface $identity, ContextResource $resource) {
@@ -177,6 +247,7 @@ class GamePolicy extends AppPolicy {
 			throw new ForbiddenRedirectException(__('This league does not have any entry-type stats selected.'));
 		}
 
+		/** @var Game $game */
 		$game = $resource->resource();
 		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
 			throw new ForbiddenRedirectException(__('That game has not yet occurred!'));
@@ -196,9 +267,20 @@ class GamePolicy extends AppPolicy {
 				return false;
 			}
 
-			if (!$game->isFinalized() && !array_key_exists($team_id, $game->score_entries)) {
+			$score_service = new ScoreService($game->score_entries ?? []);
+			if (!$game->isFinalized() && !$score_service->hasScoreEntryFrom($team_id)) {
 				throw new ForbiddenRedirectException(__('You must submit a score for this game before you can submit stats.'),
-					['action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
+					['action' => 'submit', '?' => ['game' => $game->id, 'team' => $team_id]]);
+			}
+
+			if ($game->isFinalized()) {
+				$status = $game->status;
+			} else {
+				$status = $score_service->getScoreEntryFrom($team_id)->status;
+			}
+			if (in_array($status, Configure::read('unplayed_status'))) {
+				throw new ForbiddenRedirectException(__('This game was not played.'),
+					['action' => 'submit', '?' => ['game' => $game->id, 'team' => $team_id]]);
 			}
 		} else {
 			// Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
@@ -265,4 +347,7 @@ class GamePolicy extends AppPolicy {
 		return $identity->isManagerOf($game) || $identity->isCoordinatorOf($game) || $identity->isCaptainOf($game);
 	}
 
+	public function canUnassign_official(IdentityInterface $identity, Game $game) {
+		return !empty($game->officials) && $identity->getIdentifier() == $game->officials[0]->id;
+	}
 }

@@ -26,6 +26,7 @@ use Cake\Utility\Inflector;
  * @property string $stat_tracking
  * @property string $tie_breaker
  * @property bool $carbon_flip
+ * @property int $officials
  *
  * @property \App\Model\Entity\Affiliate $affiliate
  * @property \App\Model\Entity\Division[] $divisions

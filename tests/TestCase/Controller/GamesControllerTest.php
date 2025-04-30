@@ -2208,7 +2208,7 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test submit_score method as a captain
+	 * Test submit method as a captain
 	 */
 	public function testSubmitScoreAsCaptain(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -2222,7 +2222,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 		$captain = $game->home_team->people[0];
 
-		$url = ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
+		$url = ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->subDays(1)));
@@ -2314,7 +2314,7 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test submit_score method while acting as a captain. All exactly the same assertions as above, just acting as the captain.
+	 * Test submit method while acting as a captain. All exactly the same assertions as above, just acting as the captain.
 	 */
 	public function testSubmitScoreActingAsCaptain(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -2328,7 +2328,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 		$captain = $game->home_team->people[0];
 
-		$url = ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
+		$url = ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->subDays(1)));
@@ -2401,7 +2401,7 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test submit_score method as a captain, matching existing score
+	 * Test submit method as a captain, matching existing score
 	 */
 	public function testSubmitMatchingScoreAsCaptain(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -2428,7 +2428,7 @@ class GamesControllerTest extends ControllerTestCase {
 		SpiritEntryFactory::make(['created_team_id' => $away->id, 'team_id' => $home->id, 'game_id' => $game->id])
 			->persist();
 
-		$url = ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $home->id]];
+		$url = ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $home->id]];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
@@ -2490,7 +2490,7 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test submit_score method as a captain, not matching existing score
+	 * Test submit method as a captain, not matching existing score
 	 */
 	public function testSubmitMismatchedScoreAsCaptain(): void {
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -2518,7 +2518,7 @@ class GamesControllerTest extends ControllerTestCase {
 		SpiritEntryFactory::make(['created_team_id' => $away->id, 'team_id' => $home->id, 'game_id' => $game->id])
 			->persist();
 
-		$url = ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $home->id]];
+		$url = ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $home->id]];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
@@ -2592,7 +2592,7 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test submit_score method as a captain, correcting an earlier incorrect submission
+	 * Test submit method as a captain, correcting an earlier incorrect submission
 	 */
 	public function testSubmitCorrectScoreAsCaptain(): void {
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -2633,7 +2633,7 @@ class GamesControllerTest extends ControllerTestCase {
 		])
 			->persist();
 
-		$url = ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $home->id]];
+		$url = ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $home->id]];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
@@ -2697,7 +2697,7 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test submit_score method as others
+	 * Test submit method as others
 	 */
 	public function testSubmitScoreAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2710,7 +2710,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'home_captain' => true,
 		]);
 
-		$url = ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
+		$url = ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));

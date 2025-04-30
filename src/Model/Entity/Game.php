@@ -4,6 +4,8 @@ namespace App\Model\Entity;
 use App\Core\ModuleRegistry;
 use App\Model\Table\GamesTable;
 use App\Module\Spirit;
+use App\Service\Games\ScoreService;
+use App\Service\Games\SpiritService;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -67,6 +69,7 @@ use InvalidArgumentException;
  * @property \App\Model\Entity\Note[] $notes
  * @property \App\Model\Entity\Stat[] $stats
  * @property \App\Model\Entity\Person[] $officials
+ * @property \App\Model\Entity\Team[] $team_officials
  *
  * @property string $display_name
  * @property string $home_dependency
@@ -143,16 +146,14 @@ class Game extends Entity {
 	 *  3) two scores entered, agreeing
 	 *  	- scores are entered as provided, as are spirit values.
 	 */
-	public function finalize() {
+	public function finalize(?ScoreEntry $home_score_entry, ?ScoreEntry $away_score_entry) {
 		// Initialize data to be saved
 		$spirit_obj = $this->division->league->hasSpirit() ? ModuleRegistry::getInstance()->load("Spirit:{$this->division->league->sotg_questions}") : null;
-
-		$home_score_entry = $this->getScoreEntry($this->home_team_id);
-		$away_score_entry = $this->getScoreEntry($this->away_team_id);
-		$penalty = Configure::read('scoring.missing_score_spirit_penalty');
+		$spirit_service = new SpiritService($this->spirit_entries ?? [], $spirit_obj);
+		$score_service = new ScoreService($this->score_entries ?? []);
 
 		if ($home_score_entry && $home_score_entry->person_id && $away_score_entry && $away_score_entry->person_id) {
-			if ($this->scoreEntriesAgree($home_score_entry, $away_score_entry)) {
+			if ($score_service->scoreEntriesAgree($home_score_entry, $away_score_entry)) {
 				$this->status = $home_score_entry->status;
 
 				if ($home_score_entry->status == 'normal') {
@@ -160,11 +161,6 @@ class Game extends Entity {
 					$this->home_score = $home_score_entry->score_for;
 					$this->away_score = $home_score_entry->score_against;
 					$this->home_carbon_flip = $home_score_entry->home_carbon_flip;
-				}
-
-				if ($spirit_obj && !in_array($home_score_entry->status, Configure::read('unplayed_status'))) {
-					$home_spirit_entry = $this->getSpiritEntry($this->home_team_id, $spirit_obj);
-					$away_spirit_entry = $this->getSpiritEntry($this->away_team_id, $spirit_obj);
 				}
 
 				$this->approved_by_id = APPROVAL_AUTOMATIC;
@@ -196,11 +192,7 @@ class Game extends Entity {
 			}
 
 			if ($spirit_obj && !in_array($home_score_entry->status, Configure::read('unplayed_status'))) {
-				$home_spirit_entry = TableRegistry::getTableLocator()->get('SpiritEntries')->patchEntity(
-					$this->getSpiritEntry($this->home_team_id, $spirit_obj),
-					[ 'score_entry_penalty' => - $penalty ]
-				);
-				$away_spirit_entry = $this->getSpiritEntry($this->away_team_id, $spirit_obj, true);
+				$spirit_service->addAwayPenaltyEntry($this);
 			}
 
 			$this->approved_by_id = APPROVAL_AUTOMATIC_HOME;
@@ -228,11 +220,7 @@ class Game extends Entity {
 			}
 
 			if ($spirit_obj && !in_array($away_score_entry->status, Configure::read('unplayed_status'))) {
-				$home_spirit_entry = $this->getSpiritEntry($this->home_team_id, $spirit_obj, true);
-				$away_spirit_entry = TableRegistry::getTableLocator()->get('SpiritEntries')->patchEntity(
-					$this->getSpiritEntry($this->away_team_id, $spirit_obj),
-					[ 'score_entry_penalty' => - $penalty ]
-				);
+				$spirit_service->addHomePenaltyEntry($this);
 			}
 
 			$this->approved_by_id = APPROVAL_AUTOMATIC_AWAY;
@@ -244,7 +232,7 @@ class Game extends Entity {
 		}
 
 		if ($spirit_obj && !in_array($this->status, Configure::read('unplayed_status'))) {
-			$this->spirit_entries = [$home_spirit_entry, $away_spirit_entry];
+			$this->spirit_entries = $spirit_service->getEntries();
 		} else {
 			$this->spirit_entries = [];
 		}
@@ -428,170 +416,6 @@ class Game extends Entity {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Retrieve finalized score entry for given team.
-	 *
-	 * @param int $team_id ID of the team to find the score entry from
-	 * @return ScoreEntry Entity with the requested score entry, or false if the team hasn't entered a final score yet.
-	 */
-	public function getScoreEntry($team_id) {
-		if (!$team_id) {
-			return null;
-		}
-
-		if (!empty($this->score_entries)) {
-			foreach ($this->score_entries as $entry) {
-				if ($entry->team_id == $team_id) {
-					return $entry;
-				}
-			}
-		}
-
-		try {
-			$score_entries_table = TableRegistry::getTableLocator()->get('ScoreEntries');
-			$entry = $score_entries_table->find()
-				->where([
-					'game_id' => $this->id,
-					'team_id' => $team_id,
-					'status !=' => 'in_progress',
-				])
-				->firstOrFail();
-		} catch (RecordNotFoundException $ex) {
-			return $score_entries_table->newEntity([
-				'game_id' => $this->id,
-				'team_id' => $team_id,
-				'person_id' => null,
-			]);
-		}
-
-		return $entry;
-	}
-
-	/**
-	 * Retrieve spirit entry submitted by the given team.
-	 *
-	 * @param int $team_id ID of the team to find the spirit entry from
-	 * @param Spirit $spirit_obj The object implementing the league-specific spirit system
-	 * @param bool $force Indication of whether we should "make up" a spirit entry for a team that didn't enter one
-	 * @param bool $raw Indication of whether we should make adjustments to the spirit entry based on game status
-	 * @return mixed Entity with the requested spirit entry, or false if the team hasn't entered a spirit yet.
-	 */
-	public function getSpiritEntry($team_id, Spirit $spirit_obj = null, $force = false, $raw = false) {
-		if (!$spirit_obj) {
-			return false;
-		}
-
-		$spirit_entries_table = TableRegistry::getTableLocator()->get('SpiritEntries');
-
-		if (!empty($this->spirit_entries)) {
-			foreach ($this->spirit_entries as $spirit) {
-				if ($spirit->created_team_id == $team_id) {
-					$entry = $spirit;
-				}
-			}
-		}
-
-		// We *might* need a default entry
-		$is_default = false;
-		if ($this->status == 'home_default') {
-			$is_default = true;
-			if ($team_id == $this->home_team_id) {
-				$default = $spirit_obj->expected(false);
-			} else {
-				$default = $spirit_obj->defaulted(false);
-			}
-		} else if ($this->status == 'away_default') {
-			$is_default = true;
-			if ($team_id == $this->home_team_id) {
-				$default = $spirit_obj->defaulted(false);
-			} else {
-				$default = $spirit_obj->expected(false);
-			}
-		} else if (!isset($entry)) {
-			$default = $spirit_obj->expected(false);
-		}
-
-		if (!isset($entry)) {
-			try {
-				$entry = $spirit_entries_table->find()
-					->where([
-						'game_id' => $this->id,
-						'created_team_id' => $team_id,
-					])
-					->firstOrFail();
-			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
-				if (!$force) {
-					return false;
-				}
-
-				$entry = $spirit_entries_table->newEntity(array_merge($default, [
-					// Spirit entry from the home team is for the away team...
-					'team_id' => $team_id == $this->home_team_id ? $this->away_team_id : $this->home_team_id,
-					'created_team_id' => $team_id,
-				]));
-			}
-		}
-
-		if ($raw) {
-			return $entry;
-		}
-
-		if (Configure::read('scoring.spirit_default') && $is_default) {
-			$entry = $spirit_entries_table->patchEntity($entry, $default);
-		}
-
-		return $entry;
-	}
-
-	/**
-	 * Retrieve the best score entry for a game.
-	 *
-	 * @return mixed Array with the best score entry, false if neither team has entered a score yet,
-	 * or null if there is no clear "best" entry.
-	 */
-	public function getBestScoreEntry() {
-		if (empty($this->score_entries)) {
-			return false;
-		}
-
-		switch (count($this->score_entries)) {
-			case 0:
-				return false;
-
-			case 1:
-				return current($this->score_entries);
-
-			case 2:
-				$entries = array_values($this->score_entries);
-				if ($this->scoreEntriesAgree($entries[0], $entries[1])) {
-					return $entries[0];
-				} else if ($entries[0]->status == 'in_progress' && $entries[1]->status != 'in_progress') {
-					return $entries[1];
-				} else if ($entries[0]->status != 'in_progress' && $entries[1]->status == 'in_progress') {
-					return $entries[0];
-				} else if ($entries[0]->status == 'in_progress' && $entries[1]->status == 'in_progress') {
-					return ($entries[0]->modified > $entries[1]->modified ? $entries[0] : $entries[1]);
-				}
-		}
-		return null;
-	}
-
-	/**
-	 * Compare two score entries
-	 */
-	private static function scoreEntriesAgree($one, $two)
-	{
-		if ($one->status == $two->status) {
-			if (in_array($one->status, ['normal', 'in_progress'])) {
-				// If carbon flips aren't enabled, both will have a score of 0 there, and they'll match anyway
-				return (($one->score_for == $two->score_against) && ($one->score_against == $two->score_for) && ($one->home_carbon_flip == $two->home_carbon_flip));
-			}
-			return true;
-		}
-
-		return false;
 	}
 
 	/**

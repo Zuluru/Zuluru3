@@ -149,12 +149,17 @@ if (Configure::read('scoring.carbon_flip')) {
 		'div' => 'input advanced',
 		'options' => Configure::read('options.enable'),
 		'empty' => $league->isNew() ? '---' : false,
-		'label' => __('Carbon Flip'),
 		'default' => Configure::read('scoring.spirit_numeric'),
 		'help' => __('Enable or disable entry of carbon flip results in score submission.'),
 	]);
 } else {
 	unset($tie_breakers['cf']);
+}
+if (Configure::read('feature.officials')) {
+	echo $this->Form->control('officials', [
+		'options' => Configure::read('options.officials'),
+		'help' => __('How are officials assigned to games in this league?'),
+	]);
 }
 
 $tie_breaker_options = [];

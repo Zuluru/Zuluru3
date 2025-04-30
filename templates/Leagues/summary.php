@@ -40,6 +40,12 @@ if (Configure::read('scoring.carbon_flip')):
 					<th><?= __('Carbon Flip?') ?></th>
 <?php
 endif;
+
+if (Configure::read('feature.officials')):
+?>
+					<th><?= __('Officials?') ?></th>
+<?php
+endif;
 ?>
 					<th><?= __('Max Score') ?></th>
 					<th><?= __('Schedule Attempts') ?></th>
@@ -59,7 +65,7 @@ foreach ($divisions as $division):
 		$affiliate_id = $division->league->affiliate_id;
 ?>
 				<tr>
-					<th colspan="<?= 5 + ($categories > 0) + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') ?>">
+					<th colspan="<?= 5 + ($categories > 0) + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') + Configure::read('feature.officials') ?>">
 						<h3 class="affiliate"><?= h($division->league->affiliate->name) ?></h3>
 					</th>
 				</tr>
@@ -71,7 +77,7 @@ foreach ($divisions as $division):
 		$sport = $division->league->sport;
 ?>
 				<tr>
-					<th colspan="<?= 5 + ($categories > 0) + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') ?>">
+					<th colspan="<?= 5 + ($categories > 0) + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') + Configure::read('feature.officials') ?>">
 						<h4 class="sport"><?= h(Inflector::humanize($division->league->sport)) ?></h4>
 					</th>
 				</tr>
@@ -108,6 +114,12 @@ endif;
 	if (Configure::read('scoring.carbon_flip')):
 ?>
 					<td><?= $division->league->carbon_flip ? __('Yes') : __('No') ?></td>
+<?php
+	endif;
+
+	if (Configure::read('feature.officials')):
+?>
+					<td><?= Configure::read("options.officials.{$division->league->officials}") ?></td>
 <?php
 	endif;
 ?>

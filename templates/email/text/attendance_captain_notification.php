@@ -5,7 +5,9 @@
  * @var \App\Model\Entity\Team $team
  * @var \App\Model\Entity\Team $opponent
  * @var \App\Model\Entity\Person $person
+ * @var string $captains
  * @var \App\Model\Entity\Attendance $attendance
+ * @var \Cake\I18n\FrozenDate $date
  */
 
 use Cake\Core\Configure;

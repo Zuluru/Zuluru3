@@ -5,7 +5,10 @@
  * @var \App\Module\Spirit $spirit_obj
  */
 
+use App\Model\Entity\Game;
 use App\Model\Table\SpiritEntriesTable;
+use App\Service\Games\ScoreService;
+use App\Service\Games\SpiritService;
 use Cake\Core\Configure;
 
 $this->Breadcrumbs->add(__('Divisions'));
@@ -23,7 +26,7 @@ $rows = $team_records = $questions = [];
 if ($division->league->numeric_sotg) {
 	$questions[] = 'entered_sotg';
 }
-if ($division->league->sotg_questions != 'none') {
+if ($division->league->sotg_questions !== 'none') {
 	$questions[] = 'assigned_sotg';
 }
 foreach ($spirit_obj->questions as $question => $detail) {
@@ -40,7 +43,10 @@ $min_women = 99;
 $max_women = 0;
 if (!empty($team_ids)) {
 	$team_records = [];
+	/** @var Game $game */
 	foreach ($division->games as $game) {
+		$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
+
 		foreach (['home_team' => 'away_team', 'away_team' => 'home_team'] as $team => $opp) {
 			if ($game->isFinalized()) {
 				$id = $game->$team->id;
@@ -56,7 +62,7 @@ if (!empty($team_ids)) {
 					];
 				}
 
-				$spirit_entry = $game->getSpiritEntry($game->$opp->id, $spirit_obj, true, true);
+				$spirit_entry = $spirit_service->getEntryFor($game->$team->id, $questions);
 				if ($spirit_entry) {
 					$spirit_entry->assigned_sotg = $spirit_obj->calculate($spirit_entry);
 					++ $team_records[$id]['games'];
@@ -66,7 +72,8 @@ if (!empty($team_ids)) {
 				}
 
 				if ($division->women_present) {
-					$score_entry = $game->getScoreEntry($id);
+					$score_service = new ScoreService($game->score_entries ?? []);
+					$score_entry = $score_service->getScoreEntryFrom($id);
 					if ($score_entry && !empty($score_entry->women_present)) {
 						if (!array_key_exists($score_entry->women_present, $team_records[$id]['gender'])) {
 							$team_records[$id]['gender'][$score_entry->women_present] = 0;
@@ -123,7 +130,6 @@ if (!empty($team_ids)) {
 		if ($division->league->numeric_sotg) {
 			$row[] = $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
-				'league' => $division->league,
 				'show_spirit_scores' => true,	// only ones allowed to even run this report
 				'value' => $team['summary']['entered_sotg'],
 			]);
@@ -132,7 +138,6 @@ if (!empty($team_ids)) {
 		if ($division->league->sotg_questions != 'none') {
 			$row[] = $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
-				'league' => $division->league,
 				'show_spirit_scores' => true,
 				'value' => $team['summary']['assigned_sotg'],
 			]);
@@ -149,7 +154,6 @@ if (!empty($team_ids)) {
 			if (!in_array($detail['type'], ['text', 'textarea'])) {
 				$row[] = $this->element('Spirit/symbol', [
 					'spirit_obj' => $spirit_obj,
-					'league' => $division->league,
 					'question' => $question,
 					'show_spirit_scores' => true,	// only ones allowed to even run this report
 					'value' => $team['summary'][$question] / $team['games'],
@@ -161,7 +165,6 @@ if (!empty($team_ids)) {
 		if (Configure::read('scoring.missing_score_spirit_penalty')) {
 			$row[] = $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
-				'league' => $division->league,
 				'question' => 'score_entry_penalty',
 				'show_spirit_scores' => true,
 				'value' => $team['summary']['score_entry_penalty'],
@@ -177,7 +180,6 @@ if (!empty($team_ids)) {
 	foreach ($overall as $question => $col) {
 		$average[] = [$this->element('Spirit/symbol', [
 			'spirit_obj' => $spirit_obj,
-			'league' => $division->league,
 			'question' => $question,
 			'show_spirit_scores' => true,	// only ones allowed to even run this report
 			'value' => array_sum($col) / $team_count,
@@ -276,16 +278,16 @@ foreach ($division->games as $game) {
 				$date_row = null;
 			}
 
-			if ($entry->created_team_id == $game->$team->id) {
+			if ($entry->team_id === $game->$opp->id) {
 				$row = [
 					$this->Html->link($game->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]),
-					$this->element('Teams/block', ['team' => $game->$team, 'show_shirt' => false]),
+					$entry->created_team_id === 0 ? __('Official') :
+						$this->element('Teams/block', ['team' => $game->$team, 'show_shirt' => false]),
 					$this->element('Teams/block', ['team' => $game->$opp, 'show_shirt' => false]),
 				];
 				if ($division->league->numeric_sotg) {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
-						'league' => $division->league,
 						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'value' => $entry->entered_sotg,
 					]);
@@ -293,7 +295,6 @@ foreach ($division->games as $game) {
 				if ($division->league->sotg_questions != 'none') {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
-						'league' => $division->league,
 						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'value' => $spirit_obj->calculate($entry),
 					]);
@@ -302,17 +303,15 @@ foreach ($division->games as $game) {
 					if (!in_array($detail['type'], ['text', 'textarea'])) {
 						$row[] = $this->element('Spirit/symbol', [
 							'spirit_obj' => $spirit_obj,
-							'league' => $division->league,
 							'question' => $question,
 							'show_spirit_scores' => true,	// only ones allowed to even run this report
-							'entry' => $entry,
+							'value' => $entry->$question,
 						]);
 					}
 				}
 				if (Configure::read('scoring.missing_score_spirit_penalty')) {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
-						'league' => $division->league,
 						'question' => 'score_entry_penalty',
 						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'value' => $entry->score_entry_penalty,

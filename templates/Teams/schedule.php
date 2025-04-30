@@ -2,9 +2,13 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Team $team
+ * @var \App\Module\Spirit|null $spirit_obj
  */
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Game;
+use App\Model\Entity\TeamEvent;
+use App\Service\Games\SpiritService;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\Routing\Router;
@@ -54,30 +58,25 @@ if (!empty($team['games'])):
 			<th><?= __('Attendance') ?></th>
 <?php
 	endif;
-
-	if ($annotate):
-?>
-			<th><?= __('Notes') ?></th>
-<?php
-	endif;
 ?>
 		</tr>
 <?php
+	/** @var Game|TeamEvent $game */
 	foreach ($team->games as $game):
 		$class = null;
 		$is_event = is_a($game, \App\Model\Entity\TeamEvent::class);
+		$show_game_spirit = false;
 		if (!$is_event) {
 			if (!$game->published) {
 				$class = ' class="unpublished"';
 			}
-			GamesTable::adjustEntryIndices($game);
 			$game->readDependencies();
 			if ($show_spirit && !in_array($game->status, Configure::read('unplayed_status')) &&
-				$game->isFinalized() && array_key_exists($team->id, $game->spirit_entries))
+				$game->isFinalized())
 			{
-				$entry = $game->spirit_entries[$team->id];
-			} else {
-				$entry = null;
+				$spirit_service = new SpiritService($game->spirit_entries, $spirit_obj);
+				$spirit = $spirit_service->getScoreFor($team->id, $team->division->league);
+				$show_game_spirit = true;
 			}
 		}
 ?>
@@ -126,19 +125,19 @@ if (!empty($team['games'])):
 			?></td>
 			<td class="actions"><?php
 			if (!$is_event) {
-				echo $this->Game->displayScore($game, $team->division, $team->division->league, $team->id);
+				echo $this->Game->score($game, $team->division, $team->id);
+				echo $this->Game->actions($game, $team->division, $team->division->league, $team->id);
 			}
 			?></td>
 <?php
 		if ($show_spirit):
 ?>
 			<td><?php
-			if (!$is_event) {
+			if ($show_game_spirit) {
 				echo $this->element('Spirit/symbol', [
 					'spirit_obj' => $spirit_obj,
-					'league' => $team->division->league,
 					'show_spirit_scores' => $show_spirit_scores,
-					'entry' => $entry,
+					'value' => $spirit,
 				]);
 			}
 			?></td>
@@ -174,16 +173,6 @@ if (!empty($team['games'])):
 					})->toArray();
 					echo implode(' / ', $counts);
 				}
-			}
-			?></td>
-<?php
-		endif;
-
-		if ($annotate):
-?>
-			<td class="actions"><?php
-			if (!$is_event) {
-				echo $this->Html->link(__('Add'), ['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]]);
 			}
 			?></td>
 <?php

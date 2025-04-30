@@ -72,6 +72,13 @@ if ($this->Authorize->can('edit_schedule', $league)):
 		<dd class="col-sm-9 mb-0"><?= $league->carbon_flip ? __('Yes') : __('No') ?></dd>
 <?php
 	endif;
+
+	if (Configure::read('feature.officials')):
+?>
+		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= Configure::read("options.officials.{$league->officials}") ?></dd>
+<?php
+	endif;
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Expected Max Score') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->Number->format($league->expected_max_score) ?></dd>

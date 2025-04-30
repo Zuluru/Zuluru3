@@ -437,7 +437,7 @@ class TeamPolicy extends AppPolicy {
 		return false;
 	}
 
-	public function canSubmit_score(IdentityInterface $identity, Team $team) {
+	public function canSubmit(IdentityInterface $identity, Team $team) {
 		return $identity->isCaptainOf($team);
 	}
 
@@ -492,4 +492,7 @@ class TeamPolicy extends AppPolicy {
 		return false;
 	}
 
+	public function canAssign_official(IdentityInterface $identity, Team $team) {
+		return $identity->isCaptainOf($team);
+	}
 }

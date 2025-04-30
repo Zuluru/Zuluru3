@@ -5,6 +5,7 @@
  * @var string $label
  * @var array $options
  * @var bool $secure
+ * @var ?string $desc
  */
 
 $answers = [];

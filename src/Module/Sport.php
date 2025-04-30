@@ -7,6 +7,7 @@
  */
 namespace App\Module;
 
+use App\Service\Games\ScoreService;
 use Cake\ORM\TableRegistry;
 use App\Model\Entity\Game;
 use App\Model\Table\StatsTable;
@@ -413,8 +414,9 @@ class Sport {
 			}
 		}
 
-		$entry = $game->getScoreEntry($team_id);
-		if ($entry->person_id) {
+		$score_service = new ScoreService($game->score_entries ?? []);
+		$entry = $score_service->getScoreEntryFrom($team_id);
+		if ($entry && $entry->person_id) {
 			// Use our score entry
 			if ($entry->status != 'in_progress' && $entry->score_for > $entry->score_against) {
 				return 1;
@@ -424,8 +426,8 @@ class Sport {
 		}
 
 		$opponent_id = ($game->home_team_id == $team_id ? $game->away_team_id : $game->home_team_id);
-		$entry = $game->getScoreEntry($opponent_id);
-		if ($entry->person_id) {
+		$entry = $score_service->getScoreEntryFrom($opponent_id);
+		if ($entry && $entry->person_id) {
 			// Use opponent's score entry
 			if ($entry->status != 'in_progress' && $entry->score_for < $entry->score_against) {
 				return 1;
@@ -479,8 +481,9 @@ class Sport {
 			}
 		}
 
-		$entry = $game->getScoreEntry($team_id);
-		if ($entry->person_id) {
+		$score_service = new ScoreService($game->score_entries ?? []);
+		$entry = $score_service->getScoreEntryFrom($team_id);
+		if ($entry && $entry->person_id) {
 			// Use our score entry
 			if ($entry->status != 'in_progress' && $entry->score_for < $entry->score_against) {
 				return 1;
@@ -490,8 +493,8 @@ class Sport {
 		}
 
 		$opponent_id = ($game->home_team_id == $team_id ? $game->away_team_id : $game->home_team_id);
-		$entry = $game->getScoreEntry($opponent_id);
-		if ($entry->person_id) {
+		$entry = $score_service->getScoreEntryFrom($opponent_id);
+		if ($entry && $entry->person_id) {
 			// Use opponent's score entry
 			if ($entry->status != 'in_progress' && $entry->score_for > $entry->score_against) {
 				return 1;
@@ -569,7 +572,7 @@ class Sport {
 		$ret = 0;
 		foreach ($minutes as $m) {
 			if (strpos($m, '.') !== false) {
-				list($m,$s) = explode('.', $m);
+				[$m,$s] = explode('.', $m);
 			} else {
 				$s = 0;
 			}

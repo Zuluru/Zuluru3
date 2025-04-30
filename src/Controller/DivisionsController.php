@@ -639,6 +639,8 @@ class DivisionsController extends AppController {
 							'DependencyPool',
 						],
 						'Pools',
+						'Officials',
+						'TeamOfficials',
 					],
 				]
 			]);
@@ -1213,6 +1215,7 @@ class DivisionsController extends AppController {
 	public function spirit() {
 		$id = $this->getRequest()->getQuery('division');
 		try {
+			/** @var Division $division */
 			$division = $this->Divisions->get($id, [
 				'contain' => [
 					'Teams',

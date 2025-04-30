@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Team $team
+ * @var App\Module\Spirit $spirit_obj
  */
 
 use Cake\Core\Configure;
@@ -60,7 +61,6 @@ foreach ($team->games as $game) {
 				if (!in_array($detail['type'], ['text', 'textarea'])) {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
-						'league' => $team->division->league,
 						'question' => $question,
 						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'entry' => $entry,
@@ -70,7 +70,6 @@ foreach ($team->games as $game) {
 			if (Configure::read('scoring.missing_score_spirit_penalty')) {
 				$row[] = $this->element('Spirit/symbol', [
 					'spirit_obj' => $spirit_obj,
-					'league' => $team->division->league,
 					'question' => 'score_entry_penalty',
 					'show_spirit_scores' => true,	// only ones allowed to even run this report
 					'value' => $entry->score_entry_penalty,
