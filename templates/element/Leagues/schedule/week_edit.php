@@ -179,8 +179,7 @@ foreach ($games as $game):
 		if ($league->officials == OFFICIALS_ADMIN) {
 			echo $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'league' => $league]);
 		} else {
-			// @todo: This doesn't populate with any pre-existing selected team
-			echo $this->Form->control("games.{$game->id}.team_officials._ids.0", [
+			echo $this->Form->control("games.{$game->id}.team_officials.0.id", [
 				'label' => false,
 				'type' => 'select',
 				'options' => $teams,
