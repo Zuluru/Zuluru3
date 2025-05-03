@@ -336,7 +336,6 @@ class GamesController extends AppController {
 		$this->Authorization->authorize($game);
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 		$game->readDependencies();
-		$game->resetEntryIndices();
 
 		// Spirit score entry validation comes from the spirit module
 		if ($game->division->league->hasSpirit()) {
@@ -372,7 +371,6 @@ class GamesController extends AppController {
 			$game = $this->Games->patchEntity($game, $data, [
 				'associated' => ['ScoreEntries', 'ScoreEntries.Allstars', 'SpiritEntries', 'Officials', 'TeamOfficials'],
 			]);
-			$game->resetEntryIndices();
 
 			// If the allstar submissions come from the submitting team, then the home allstars
 			// are recorded under the home team's score submission, array index 0, and the away
@@ -2226,7 +2224,7 @@ class GamesController extends AppController {
 		}
 
 		$score_service = new ScoreService($game->score_entries ?? []);
-		$opponent_score = $score_service->getScoreEntryFrom($opponent->id);
+		$opponent_score = $score_service->getOrFindScoreEntryFrom($opponent->id, $game->id);
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// TODO: Move these checks to rules?

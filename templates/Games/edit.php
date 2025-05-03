@@ -107,7 +107,7 @@ if (Configure::read('feature.officials')):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
 		<dd class="col-sm-9 mb-0"><?php
-			echo $this->Form->control('officials._ids', [
+			echo $this->Form->control('officials.0.id', [
 				'label' => false,
 				'options' => $officials,
 				'multiple' => true,
@@ -128,7 +128,7 @@ if (Configure::read('feature.officials')):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Officials From') ?></dt>
 		<dd class="col-sm-9 mb-0"><?php
-			echo $this->Form->control('team_officials._ids.0', [
+			echo $this->Form->control('team_officials.0.id', [
 				'label' => false,
 				'type' => 'select',
 				'options' => $teams,
@@ -215,6 +215,11 @@ endif;
 $score_service = new ScoreService($game->score_entries ?? []);
 $homeScoreEntry = $score_service->getScoreEntryFrom($game->home_team_id);
 $awayScoreEntry = $score_service->getScoreEntryFrom($game->away_team_id);
+
+if ($game->division->league->hasSpirit()) {
+	$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
+}
+
 if (!empty($game->score_entries)):
 ?>
 		<h3><?= __('Score as entered') ?></h3>
@@ -315,7 +320,6 @@ if (!empty($game->score_entries)):
 				</tr>
 <?php
 	if ($game->division->league->hasSpirit()):
-		$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
 ?>
 				<tr>
 					<td><?= __('Spirit Assigned') ?></td>
@@ -457,14 +461,32 @@ endif;
 	</fieldset>
 
 <?php
-if ($game->division->league->hasSpirit()) {
-	echo $this->element('Spirit/input', [
-		'for_team' => $game->home_team,
-		'from_team' => $game->away_team,
-		'game' => $game,
-		'spirit_obj' => $spirit_obj,
-		'index' => 0,
-	]);
+if (isset($spirit_service)) {
+	$submit_by = Configure::read('scoring.spirit_entry_by');
+	if ($submit_by != SPIRIT_BY_OFFICIAL) {
+		// Captain spirit score
+		echo $this->element('Spirit/input', [
+			'for_team' => $game->home_team,
+			'from_team' => $game->away_team,
+			'game' => $game,
+			'spirit_obj' => $spirit_obj,
+			'spirit_service' => $spirit_service,
+			'score_service' => $score_service,
+			'is_official' => false,
+		]);
+	}
+	if ($submit_by != SPIRIT_BY_CAPTAIN) {
+		// Official spirit score
+		echo $this->element('Spirit/input', [
+			'for_team' => $game->home_team,
+			'from_team' => $game->away_team,
+			'game' => $game,
+			'spirit_obj' => $spirit_obj,
+			'spirit_service' => $spirit_service,
+			'score_service' => $score_service,
+			'is_official' => true,
+		]);
+	}
 }
 
 if ($game->division->allstars != 'never'):
@@ -505,14 +527,31 @@ if ($game->division->allstars != 'never'):
 <?php
 endif;
 
-if ($game->division->league->hasSpirit()) {
-	echo $this->element('Spirit/input', [
-		'for_team' => $game->away_team,
-		'from_team' => $game->home_team,
-		'game' => $game,
-		'spirit_obj' => $spirit_obj,
-		'index' => 1,
-	]);
+if (isset($spirit_service)) {
+	if ($submit_by != SPIRIT_BY_OFFICIAL) {
+		// Captain spirit score
+		echo $this->element('Spirit/input', [
+			'for_team' => $game->away_team,
+			'from_team' => $game->home_team,
+			'game' => $game,
+			'spirit_obj' => $spirit_obj,
+			'spirit_service' => $spirit_service,
+			'score_service' => $score_service,
+			'is_official' => false,
+		]);
+	}
+	if ($submit_by != SPIRIT_BY_CAPTAIN) {
+		// Official spirit score
+		echo $this->element('Spirit/input', [
+			'for_team' => $game->away_team,
+			'from_team' => $game->home_team,
+			'game' => $game,
+			'spirit_obj' => $spirit_obj,
+			'spirit_service' => $spirit_service,
+			'score_service' => $score_service,
+			'is_official' => true,
+		]);
+	}
 }
 
 if ($game->division->allstars != 'never'):

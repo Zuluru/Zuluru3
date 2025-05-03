@@ -62,7 +62,7 @@ if (!empty($team_ids)) {
 					];
 				}
 
-				$spirit_entry = $spirit_service->getEntryFor($game->$team->id, $questions);
+				$spirit_entry = $spirit_service->getAverageEntryFor($game->$team->id, $questions);
 				if ($spirit_entry) {
 					$spirit_entry->assigned_sotg = $spirit_obj->calculate($spirit_entry);
 					++ $team_records[$id]['games'];

@@ -152,7 +152,7 @@ class ZuluruGameHelper extends Helper {
 		}
 
 		if ($this->Authorize->can('submit', $resource)) {
-			if ($score_service->hasScoreEntryFrom($team_id)) {
+			if ($score_service->hasScoreEntryFrom($team_id) && $this->Authorize->can('submit_score', $resource)) {
 				$links[] = $this->Html->link(
 					__('Edit Score'),
 					['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $team_id]]);
@@ -163,7 +163,7 @@ class ZuluruGameHelper extends Helper {
 			} else {
 				$links[] = $this->Html->link(
 					__('Submit'),
-					['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $team_id]]);
+					['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $resource->is_official ? null : $team_id]]);
 			}
 		}
 

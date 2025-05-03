@@ -54,15 +54,13 @@ endforeach;
 </div>
 <div class="actions columns">
 	<?php
+	$links = [$this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', '?' => ['person' => $official->id]])];
 	if ($all) {
-		$links = [
-			$this->Html->link(__('Upcoming Games'), ['action' => 'officiating_schedule'], ['class' => $this->Bootstrap->navPillLinkClasses()]),
-		];
+		$links[] = $this->Html->link(__('Upcoming Games'), ['action' => 'officiating_schedule'], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 	} else {
-		$links = [
-			$this->Html->link(__('All Games'), ['action' => 'officiating_schedule', '?' => ['all' => true]], ['class' => $this->Bootstrap->navPillLinkClasses()]),
-		];
+		$links[] = $this->Html->link(__('All Games'), ['action' => 'officiating_schedule', '?' => ['all' => true]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 	}
+
 	echo $this->Bootstrap->navPills($links);
 	?>
 </div>

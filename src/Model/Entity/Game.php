@@ -509,31 +509,6 @@ class Game extends Entity {
 		$this->{$type} = $dependency;
 	}
 
-	public function resetEntryIndices() {
-		// For the edit page, we need the home team's entries in index 0, and the away team in 1.
-		// This needs to accommodate the situation where there's only a single entry so far.
-		$score_entries = $spirit_entries = [];
-		foreach ($this->score_entries as $entry) {
-			if ($entry->team_id == $this->home_team_id) {
-				$score_entries[0] = $entry;
-			} else {
-				$score_entries[1] = $entry;
-			}
-		}
-		ksort($score_entries);
-		foreach ($this->spirit_entries as $entry) {
-			if ($entry->team_id == $this->home_team_id) {
-				$spirit_entries[0] = $entry;
-			} else {
-				$spirit_entries[1] = $entry;
-			}
-		}
-		ksort($spirit_entries);
-
-		$this->score_entries = $score_entries;
-		$this->spirit_entries = $spirit_entries;
-	}
-
 	public function getAttendance(array $attendances, array $days): ?Attendance {
 		if ($this->id) {
 			return collection($attendances)->firstMatch(['game_id' => $this->id]);

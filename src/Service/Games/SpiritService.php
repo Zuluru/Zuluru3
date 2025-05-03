@@ -43,9 +43,28 @@ class SpiritService
 	}
 
 	/**
+	 * Return the array index of the desired spirit entry, for getting input forms to line up correctly.
+	 */
+	public function getEntryIndexFor(?int $team_id, bool $from_official): ?int
+	{
+		if (!$team_id) {
+			return null;
+		}
+
+		foreach ($this->entries as $key => $entry) {
+			$entry_from_official = $entry->created_team_id === 0;
+			if ($team_id === $entry->team_id && $from_official === $entry_from_official) {
+				return $key;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Return an entity representing the average of all extant spirit entries for the specified team.
 	 */
-	public function getEntryFor(?int $team_id, array $questions): ?SpiritEntry
+	public function getAverageEntryFor(?int $team_id, array $questions): ?SpiritEntry
 	{
         $entries = $this->getEntriesFor($team_id);
         if (empty($entries)) {

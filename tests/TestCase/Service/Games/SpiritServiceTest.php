@@ -16,7 +16,7 @@ class SpiritServiceTest extends TestCase
 	/**
 	 * Test getEntry method
 	 */
-	public function testGetEntryFor(): void {
+	public function testgetAverageEntryFor(): void {
 		/** @var \App\Model\Entity\Game $spirit_game */
 		$spirit_game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'spirit' => true,
@@ -26,13 +26,14 @@ class SpiritServiceTest extends TestCase
 		$this->assertNotNull($spirit_obj);
 		$spirit_service = new SpiritService($spirit_game->spirit_entries ?? [], $spirit_obj);
 
-		$entry = $spirit_service->getEntryFor($spirit_game->away_team_id, []);
+		// @todo: Handle the questions parameter here, and more complex scenarios
+		$entry = $spirit_service->getAverageEntryFor($spirit_game->away_team_id, []);
 		$this->assertFalse($entry->isNew());
 		$this->assertEquals($spirit_game->id, $entry->game_id);
 		$this->assertEquals($spirit_game->home_team_id, $entry->created_team_id);
 		$this->assertEquals($spirit_game->away_team_id, $entry->team_id);
 
-		$entry = $spirit_service->getEntryFor($spirit_game->home_team_id, []);
+		$entry = $spirit_service->getAverageEntryFor($spirit_game->home_team_id, []);
 		$this->assertFalse($entry->isNew());
 		$this->assertEquals($spirit_game->id, $entry->game_id);
 		$this->assertEquals($spirit_game->away_team_id, $entry->created_team_id);
@@ -42,8 +43,8 @@ class SpiritServiceTest extends TestCase
 		$unscored_game = $this->loadFixtureScenario(SingleGameScenario::class);
 		$spirit_service = new SpiritService($unscored_game->spirit_entries ?? [], $spirit_obj);
 
-		$this->assertNull($spirit_service->getEntryFor($unscored_game->home_team_id, []));
-		$this->assertNull($spirit_service->getEntryFor($unscored_game->away_team_id, []));
+		$this->assertNull($spirit_service->getAverageEntryFor($unscored_game->home_team_id, []));
+		$this->assertNull($spirit_service->getAverageEntryFor($unscored_game->away_team_id, []));
 	}
 
 	/**

@@ -4,7 +4,7 @@
  * @var \App\Model\Entity\Game $game
  * @var \App\Model\Entity\Team $for_team
  * @var \App\Module\Spirit $spirit_obj
- * @var int $index
+ * @var string $prefix
  */
 
 use Cake\Core\Configure;

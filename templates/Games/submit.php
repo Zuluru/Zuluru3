@@ -10,6 +10,8 @@
  * @var bool $is_official
  */
 
+use App\Service\Games\ScoreService;
+use App\Service\Games\SpiritService;
 use Cake\Core\Configure;
 
 $this->Breadcrumbs->add(__('Games'));
@@ -167,17 +169,38 @@ if ($this->Authorize->can('submit_score', $resource)):
 endif;
 
 if ($this->Authorize->can('submit_spirit', $resource)) {
+	$score_service = new ScoreService($game->score_entries ?? []);
+	$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
+
 	if ($is_official) {
 		// Officials submit spirit scores for both teams at the same time.
 		echo $this->element('Spirit/input', [
-			'index' => 0, 'for_team' => $this_team, 'from_team' => $opponent, 'game' => $game, 'spirit_obj' => $spirit_obj, 'is_official' => $is_official
+			'for_team' => $this_team,
+			'from_team' => $opponent,
+			'game' => $game,
+			'spirit_obj' => $spirit_obj,
+			'spirit_service' => $spirit_service,
+			'score_service' => $score_service,
+			'is_official' => true,
 		]);
 		echo $this->element('Spirit/input', [
-			'index' => 1, 'for_team' => $opponent, 'from_team' => $this_team, 'game' => $game, 'spirit_obj' => $spirit_obj, 'is_official' => $is_official
+			'for_team' => $opponent,
+			'from_team' => $this_team,
+			'game' => $game,
+			'spirit_obj' => $spirit_obj,
+			'spirit_service' => $spirit_service,
+			'score_service' => $score_service,
+			'is_official' => true,
 		]);
 	} else {
 		echo $this->element('Spirit/input', [
-			'index' => 0, 'for_team' => $opponent, 'from_team' => $this_team, 'game' => $game, 'spirit_obj' => $spirit_obj, 'is_official' => $is_official,
+			'for_team' => $opponent,
+			'from_team' => $this_team,
+			'game' => $game,
+			'spirit_obj' => $spirit_obj,
+			'spirit_service' => $spirit_service,
+			'score_service' => $score_service,
+			'is_official' => false,
 		]);
 	}
 }
