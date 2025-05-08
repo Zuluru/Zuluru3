@@ -5,20 +5,21 @@
  * @var \App\Module\Spirit $spirit_obj
  */
 
+use App\Model\Entity\Game;
 use Cake\Core\Configure;
 
 $fp = fopen('php://output','w+');
 $header = [
 	__('Team'),
 	__('TeamID'),
-	__('Submitted By'),
+	__('Entry By'),
 	__('Team Score'),
 	__('Opp Score'),
 ];
 if ($division->league->numeric_sotg) {
 	$header[] = __('Spirit');
 }
-if ($division->league->sotg_questions != 'none') {
+if ($division->league->sotg_questions !== 'none') {
 	$header[] = __('Calc Spirit');
 }
 if (Configure::read('scoring.missing_score_spirit_penalty')) {
@@ -34,18 +35,19 @@ fputcsv($fp, $header);
 
 $teams = collection($division->teams)->extract('id')->toArray();
 $results = [];
+/** @var Game $game */
 foreach ($division->games as $game) {
-	foreach (['home_team' => 'away_team', 'away_team' => 'home_team'] as $team => $opp) {
-		if (!$game->isFinalized()) {
-			continue;
-		}
+	if (!$game->isFinalized()) {
+		continue;
+	}
 
+	foreach (['home_team' => 'away_team', 'away_team' => 'home_team'] as $team => $opp) {
 		foreach ($game->spirit_entries as $spirit_entry) {
-			if (!in_array($spirit_entry->team_id, $teams)) {
+			if (!in_array($spirit_entry->team_id, $teams) || $spirit_entry->team_id != $game->$team->id) {
 				continue;
 			}
 
-			$game_results[] = [
+			$game_results = [
 				$game->$team->name,
 				$game->$team->id,
 				$spirit_entry->created_team_id ? $game->$opp->name : __('Official'),

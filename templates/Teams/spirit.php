@@ -43,13 +43,15 @@ foreach ($team->games as $game) {
 	foreach ($game->spirit_entries as $entry) {
 		if ($entry->team_id == $team->id) {
 			if ($entry->created_team_id == $game->home_team->id) {
-				$from = $game->home_team;
+				$from = $this->element('Teams/block', ['team' => $game->home_team, 'show_shirt' => false]);
+			} else if ($entry->created_team_id == 0) {
+				$from = __('Official');
 			} else {
-				$from = $game->away_team;
+				$from = $this->element('Teams/block', ['team' => $game->away_team, 'show_shirt' => false]);
 			}
 			$row = [
 				$this->Html->link($this->Time->date($game->game_slot->game_date), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]),
-				$this->element('Teams/block', ['team' => $from, 'show_shirt' => false]),
+				$from,
 			];
 			if ($team->division->league->numeric_sotg) {
 				$row[] = $entry->entered_sotg;
@@ -63,7 +65,7 @@ foreach ($team->games as $game) {
 						'spirit_obj' => $spirit_obj,
 						'question' => $question,
 						'show_spirit_scores' => true,	// only ones allowed to even run this report
-						'entry' => $entry,
+						'value' => $entry->$question,
 					]);
 				}
 			}

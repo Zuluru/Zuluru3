@@ -45,43 +45,45 @@ if (!empty($team_ids)) {
 	$team_records = [];
 	/** @var Game $game */
 	foreach ($division->games as $game) {
+		if (!$game->isFinalized()) {
+			continue;
+		}
+
 		$spirit_service = new SpiritService($game->spirit_entries ?? [], $spirit_obj);
 
 		foreach (['home_team' => 'away_team', 'away_team' => 'home_team'] as $team => $opp) {
-			if ($game->isFinalized()) {
-				$id = $game->$team->id;
-				if (!in_array($id, $team_ids)) {
-					continue;
-				}
-				if (!array_key_exists($id, $team_records)) {
-					$team_records[$id] = [
-						'details' => $game->$team,
-						'summary' => array_fill_keys($questions, null),
-						'gender' => [],
-						'games' => 0,
-					];
-				}
+			$id = $game->$team->id;
+			if (!in_array($id, $team_ids)) {
+				continue;
+			}
+			if (!array_key_exists($id, $team_records)) {
+				$team_records[$id] = [
+					'details' => $game->$team,
+					'summary' => array_fill_keys($questions, null),
+					'gender' => [],
+					'games' => 0,
+				];
+			}
 
-				$spirit_entry = $spirit_service->getAverageEntryFor($game->$team->id, $questions);
-				if ($spirit_entry) {
-					$spirit_entry->assigned_sotg = $spirit_obj->calculate($spirit_entry);
-					++ $team_records[$id]['games'];
-					foreach ($questions as $question) {
-						$team_records[$id]['summary'][$question] += $spirit_entry[$question];
-					}
+			$spirit_entry = $spirit_service->getAverageEntryFor($game->$team->id, $questions);
+			if ($spirit_entry) {
+				$spirit_entry->assigned_sotg = $spirit_obj->calculate($spirit_entry);
+				++ $team_records[$id]['games'];
+				foreach ($questions as $question) {
+					$team_records[$id]['summary'][$question] += $spirit_entry[$question];
 				}
+			}
 
-				if ($division->women_present) {
-					$score_service = new ScoreService($game->score_entries ?? []);
-					$score_entry = $score_service->getScoreEntryFrom($id);
-					if ($score_entry && !empty($score_entry->women_present)) {
-						if (!array_key_exists($score_entry->women_present, $team_records[$id]['gender'])) {
-							$team_records[$id]['gender'][$score_entry->women_present] = 0;
-						}
-						++ $team_records[$id]['gender'][$score_entry->women_present];
-						$min_women = min($min_women, $score_entry->women_present);
-						$max_women = max($max_women, $score_entry->women_present);
+			if ($division->women_present) {
+				$score_service = new ScoreService($game->score_entries ?? []);
+				$score_entry = $score_service->getScoreEntryFrom($id);
+				if ($score_entry && !empty($score_entry->women_present)) {
+					if (!array_key_exists($score_entry->women_present, $team_records[$id]['gender'])) {
+						$team_records[$id]['gender'][$score_entry->women_present] = 0;
 					}
+					++ $team_records[$id]['gender'][$score_entry->women_present];
+					$min_women = min($min_women, $score_entry->women_present);
+					$max_women = max($max_women, $score_entry->women_present);
 				}
 			}
 		}
@@ -236,8 +238,8 @@ if (!empty($team_ids)) {
 <?php
 $header = [
 	__('Game'),
-	__('Entry By'),
 	__('Given To'),
+	__('Entry By'),
 ];
 if ($division->league->numeric_sotg) {
 	$header[] = __('Entered');
@@ -273,79 +275,82 @@ foreach ($division->games as $game) {
 
 	foreach (['home_team' => 'away_team', 'away_team' => 'home_team'] as $team => $opp) {
 		foreach ($game->spirit_entries as $entry) {
+			if ($entry->team_id !== $game->$team->id) {
+				continue;
+			}
+
 			if ($date_row) {
 				$rows[] = $date_row;
 				$date_row = null;
 			}
 
-			if ($entry->team_id === $game->$opp->id) {
-				$row = [
-					$this->Html->link($game->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]),
-					$entry->created_team_id === 0 ? __('Official') :
-						$this->element('Teams/block', ['team' => $game->$team, 'show_shirt' => false]),
+			$row = [
+				$this->Html->link($game->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]),
+				$this->element('Teams/block', ['team' => $game->$team, 'show_shirt' => false]),
+				$entry->created_team_id === 0 ? __('Official') :
 					$this->element('Teams/block', ['team' => $game->$opp, 'show_shirt' => false]),
-				];
-				if ($division->league->numeric_sotg) {
+			];
+			if ($division->league->numeric_sotg) {
+				$row[] = $this->element('Spirit/symbol', [
+					'spirit_obj' => $spirit_obj,
+					'show_spirit_scores' => true,	// only ones allowed to even run this report
+					'value' => $entry->entered_sotg,
+				]);
+			}
+			if ($division->league->sotg_questions != 'none') {
+				$row[] = $this->element('Spirit/symbol', [
+					'spirit_obj' => $spirit_obj,
+					'show_spirit_scores' => true,	// only ones allowed to even run this report
+					'value' => $spirit_obj->calculate($entry),
+				]);
+			}
+			foreach ($spirit_obj->questions as $question => $detail) {
+				if (!in_array($detail['type'], ['text', 'textarea'])) {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
+						'question' => $question,
 						'show_spirit_scores' => true,	// only ones allowed to even run this report
-						'value' => $entry->entered_sotg,
+						'value' => $entry->$question,
 					]);
-				}
-				if ($division->league->sotg_questions != 'none') {
-					$row[] = $this->element('Spirit/symbol', [
-						'spirit_obj' => $spirit_obj,
-						'show_spirit_scores' => true,	// only ones allowed to even run this report
-						'value' => $spirit_obj->calculate($entry),
-					]);
-				}
-				foreach ($spirit_obj->questions as $question => $detail) {
-					if (!in_array($detail['type'], ['text', 'textarea'])) {
-						$row[] = $this->element('Spirit/symbol', [
-							'spirit_obj' => $spirit_obj,
-							'question' => $question,
-							'show_spirit_scores' => true,	// only ones allowed to even run this report
-							'value' => $entry->$question,
-						]);
-					}
-				}
-				if (Configure::read('scoring.missing_score_spirit_penalty')) {
-					$row[] = $this->element('Spirit/symbol', [
-						'spirit_obj' => $spirit_obj,
-						'question' => 'score_entry_penalty',
-						'show_spirit_scores' => true,	// only ones allowed to even run this report
-						'value' => $entry->score_entry_penalty,
-					]);
-				}
-				if (Configure::read('scoring.most_spirited') && $division->most_spirited != 'never') {
-					if (!empty($entry->most_spirited)) {
-						$row[] = $this->element('People/block', ['person' => $entry->most_spirited]);
-					} else {
-						$row[] = '';
-					}
-				}
-				$rows[] = $row;
-				if (!empty($entry->comments)) {
-					$rows[] = [
-						[__('Comment for entry above:'), ['colspan' => 2]],
-						[$entry->comments, ['class' => 'spirit-comments', 'colspan' => $colcount - 2]],
-					];
-				}
-				if (!empty($entry->highlights)) {
-					$rows[] = [
-						[__('Highlight for entry above:'), ['colspan' => 2]],
-						[$entry->highlights, ['class' => 'spirit-highlights', 'colspan' => $colcount - 2]],
-					];
 				}
 			}
-		}
-		foreach ($game->incidents as $incident) {
-			if ($incident->team_id == $game->$team->id) {
+			if (Configure::read('scoring.missing_score_spirit_penalty')) {
+				$row[] = $this->element('Spirit/symbol', [
+					'spirit_obj' => $spirit_obj,
+					'question' => 'score_entry_penalty',
+					'show_spirit_scores' => true,	// only ones allowed to even run this report
+					'value' => $entry->score_entry_penalty,
+				]);
+			}
+			if (Configure::read('scoring.most_spirited') && $division->most_spirited != 'never') {
+				if (!empty($entry->most_spirited)) {
+					$row[] = $this->element('People/block', ['person' => $entry->most_spirited]);
+				} else {
+					$row[] = '';
+				}
+			}
+			$rows[] = $row;
+			if (!empty($entry->comments)) {
 				$rows[] = [
-					__('Incident for entry above:'),
-					$incident->type,
-					[$incident->details, ['class' => 'spirit-incident', 'colspan' => $colcount - 2]],
+					[__('Comment for entry above:'), ['colspan' => 2]],
+					[$entry->comments, ['class' => 'spirit-comments', 'colspan' => $colcount - 2]],
 				];
+			}
+			if (!empty($entry->highlights)) {
+				$rows[] = [
+					[__('Highlight for entry above:'), ['colspan' => 2]],
+					[$entry->highlights, ['class' => 'spirit-highlights', 'colspan' => $colcount - 2]],
+				];
+			}
+
+			foreach ($game->incidents as $incident) {
+				if ($incident->team_id == $entry->created_team_id) {
+					$rows[] = [
+						__('Incident for entry above:'),
+						$incident->type,
+						[$incident->details, ['class' => 'spirit-incident', 'colspan' => $colcount - 2]],
+					];
+				}
 			}
 		}
 	}

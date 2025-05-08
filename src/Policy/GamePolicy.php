@@ -174,15 +174,15 @@ class GamePolicy extends AppPolicy {
 	}
 
 	public function canSubmit(IdentityInterface $identity, ContextResource $resource) {
-		if (!$identity->can('submit_score', $resource) && !$identity->can('submit_spirit', $resource)) {
-			return false;
-		}
-
 		$game = $resource->resource();
 		$redirect = ['action' => 'view', '?' => ['game' => $game->id]];
 
 		if (empty($game->home_team_id) || empty($game->away_team_id)) {
 			throw new ForbiddenRedirectException(__('The opponent for that game has not been determined, so a score cannot yet be submitted.'), $redirect);
+		}
+
+		if (!$identity->can('submit_score', $resource) && !$identity->can('submit_spirit', $resource)) {
+			return false;
 		}
 
 		if (!$resource->is_official) {
