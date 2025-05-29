@@ -42,6 +42,13 @@ class SpiritService
         return collection($this->entries)->match(compact('team_id'))->toList();
 	}
 
+	public function hasOfficialSpiritEntry(): bool
+	{
+		return collection($this->entries)->some(function (SpiritEntry $entry) {
+			return $entry->created_team_id === 0;
+		});
+	}
+
 	/**
 	 * Return the array index of the desired spirit entry, for getting input forms to line up correctly.
 	 */

@@ -554,7 +554,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division->id]]);
 	}
 
-	private function gameRegex(int $game_id, string $time, Facility $facility, int $field, Team $home, Team $away, string $status, bool $edit, bool $submit = false): string {
+	private function gameRegex(int $game_id, string $time, Facility $facility, int $field, Team $home, Team $away, string $status, bool $edit, bool $submit = false, bool $officials = false): string {
 		static $base = null;
 		if (!$base) {
 			$base = Configure::read('App.base');
@@ -572,8 +572,13 @@ class DivisionsControllerTest extends ControllerTestCase {
 		} else if ($submit) {
 			$actions_str = "<td class=\"actions\">{$status}\s*<span class=\"actions\">.*<a href=\"$base/games/submit\?game={$game_id}[^>]*\"";
 		}
+		if ($officials) {
+			$officials_str = '<td>Unassigned</td>';
+		} else {
+			$officials_str = '';
+		}
 
-		return "#$game_str\s*$facility_str\s*$home_str\s*$away_str\s*$actions_str#ms";
+		return "#$game_str\s*$facility_str\s*$officials_str\s*$home_str\s*$away_str\s*$actions_str#ms";
 	}
 
 	/**
@@ -589,7 +594,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$day = date('w') + 1;
 
 		/** @var \App\Model\Entity\League $league */
-		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, [
+			'affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day,
+			'league_details' => ['officials' => OFFICIALS_ADMIN]
+		]);
 		[$season, $playoffs] = $league->divisions;
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
@@ -597,28 +605,29 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Admins get the schedule with edit links
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $admin->id);
+		$this->assertResponseContains('Officials');
 
 		// First week of games
-		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true));
-		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', true));
-		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', true));
-		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', true));
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', true, false, true));
 
 		// Second week
-		$this->assertResponseRegExp($this->gameRegex($games[4]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '0 - 6\s*\(default\)', true));
-		$this->assertResponseRegExp($this->gameRegex($games[5]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '6 - 0\s*\(default\)', true));
-		$this->assertResponseRegExp($this->gameRegex($games[6]->id, '9:00PM-11:00PM', $facility, 1, $orange, $white, '17 - 12', true));
-		$this->assertResponseRegExp($this->gameRegex($games[7]->id, '9:00PM-11:00PM', $facility, 2, $black, $purple, '15 - 15', true));
+		$this->assertResponseRegExp($this->gameRegex($games[4]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '0 - 6\s*\(default\)', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[5]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '6 - 0\s*\(default\)', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[6]->id, '9:00PM-11:00PM', $facility, 1, $orange, $white, '17 - 12', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[7]->id, '9:00PM-11:00PM', $facility, 2, $black, $purple, '15 - 15', true, false, true));
 
 		// Third week
-		$this->assertResponseRegExp($this->gameRegex($games[8]->id, '7:00PM-9:00PM', $facility, 1, $red, $blue, '17 - 12\s*\(unofficial\)', true));
-		$this->assertResponseRegExp($this->gameRegex($games[9]->id, '7:00PM-9:00PM', $facility, 2, $green, $yellow, 'score mismatch', true));
-		$this->assertResponseRegExp($this->gameRegex($games[10]->id, '9:00PM-11:00PM', $facility, 1, $white, $purple, 'not entered', true));
-		$this->assertResponseRegExp($this->gameRegex($games[11]->id, '9:00PM-11:00PM', $facility, 2, $black, $orange, 'not entered', true));
+		$this->assertResponseRegExp($this->gameRegex($games[8]->id, '7:00PM-9:00PM', $facility, 1, $red, $blue, '17 - 12\s*\(unofficial\)', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[9]->id, '7:00PM-9:00PM', $facility, 2, $green, $yellow, 'score mismatch', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[10]->id, '9:00PM-11:00PM', $facility, 1, $white, $purple, 'not entered', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[11]->id, '9:00PM-11:00PM', $facility, 2, $black, $orange, 'not entered', true, false, true));
 
 		// Week 4 games aren't published, but admins can see them
-		$this->assertResponseRegExp($this->gameRegex($games[12]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '', true));
-		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true));
+		$this->assertResponseRegExp($this->gameRegex($games[12]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '', true, false, true));
+		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true, false, true));
 
 		// Confirm that there are appropriate links for weeks with games that aren't yet finalized
 		$date = FrozenDate::now()->next($day)->subWeeks(1)->toDateString();
@@ -968,7 +977,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Intentionally not adding the volunteer on this league, so that they have zero extra permissions
 		/** @var \App\Model\Entity\League $league */
-		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliate, 'scores' => true, 'playoffs' => true]);
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, [
+			'affiliate' => $affiliate, 'scores' => true, 'playoffs' => true,
+			'league_details' => ['officials' => OFFICIALS_ADMIN]
+		]);
 		$season = $league->divisions[0];
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
@@ -976,6 +988,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Anonymous browsers get the schedule with minimal links
 		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]]);
+		$this->assertResponseNotContains('Officials');
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));

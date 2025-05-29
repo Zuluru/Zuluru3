@@ -5,13 +5,13 @@ use Migrations\AbstractMigration;
 
 class RenameRank extends AbstractMigration
 {
-    /**
-     * Change Method.
-     */
-    public function change(): void
-    {
+	/**
+	 * Change Method.
+	 */
+	public function change(): void
+	{
 		$this->table('teams_facilities')
 			->renameColumn('rank', 'ranking')
 			->update();
-    }
+	}
 }

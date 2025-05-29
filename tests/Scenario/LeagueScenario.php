@@ -47,6 +47,7 @@ class LeagueScenario implements FixtureScenarioInterface {
 		$args['league_details'] += [
 			'open' => $open, 'close' => $open->addWeeks(8), 'is_open' => true,
 			'games_before_repeat' => 4, 'schedule_attempts' => 10,
+			'officials' => OFFICIALS_NONE,
 		];
 
 		$args['division_details'] += [

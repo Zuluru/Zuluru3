@@ -5,6 +5,7 @@ use App\Authorization\ContextResource;
 use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Game;
 use App\Service\Games\ScoreService;
+use App\Service\Games\SpiritService;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
 use Cake\Http\Exception\GoneException;
@@ -174,6 +175,7 @@ class GamePolicy extends AppPolicy {
 	}
 
 	public function canSubmit(IdentityInterface $identity, ContextResource $resource) {
+		/** @var Game $game */
 		$game = $resource->resource();
 		$redirect = ['action' => 'view', '?' => ['game' => $game->id]];
 
@@ -192,6 +194,13 @@ class GamePolicy extends AppPolicy {
 			}
 
 			if ($game->isFinalized()) {
+				throw new ForbiddenRedirectException(__('The score for that game has already been finalized.'), $redirect);
+			}
+		} else if ($game->isFinalized()) {
+			$score_service = new ScoreService($game->score_entries ?? []);
+			$spirit_service = new SpiritService($game->spirit_entries ?? [], null);
+			// Block official from submitting if the game is finalized and there is a submission from them (score or spirit, since both come at the same time)
+			if ($score_service->hasOfficialScoreEntry() || $spirit_service->hasOfficialSpiritEntry()) {
 				throw new ForbiddenRedirectException(__('The score for that game has already been finalized.'), $redirect);
 			}
 		}

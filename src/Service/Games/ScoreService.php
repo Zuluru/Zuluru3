@@ -24,6 +24,12 @@ class ScoreService
 		return $entry && $entry->person_id;
 	}
 
+	public function hasOfficialScoreEntry(): bool
+	{
+		// @todo: Score entries from officials are not yet supported
+		return false;
+	}
+
 	/**
 	 * Retrieve finalized score entry for given team.
 	 *

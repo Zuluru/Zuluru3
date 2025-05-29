@@ -14,9 +14,9 @@ class SpiritServiceTest extends TestCase
 	use ScenarioAwareTrait;
 
 	/**
-	 * Test getEntry method
+	 * Test getAverageEntryFor method
 	 */
-	public function testgetAverageEntryFor(): void {
+	public function testGetAverageEntryFor(): void {
 		/** @var \App\Model\Entity\Game $spirit_game */
 		$spirit_game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'spirit' => true,
@@ -48,9 +48,9 @@ class SpiritServiceTest extends TestCase
 	}
 
 	/**
-	 * Test getEntry method
+	 * Test getDefaultEntryFor method
 	 */
-	public function testBla(): void {
+	public function testGetDefaultEntryFor(): void {
 		/** @var \App\Model\Entity\Game $unscored_game */
 		$unscored_game = $this->loadFixtureScenario(SingleGameScenario::class);
 		$spirit_obj = ModuleRegistry::getInstance()->load("Spirit:{$unscored_game->division->league->sotg_questions}");

@@ -464,6 +464,7 @@ class LeaguesController extends AppController {
 						],
 					],
 					'ScoreEntries',
+					'SpiritEntries',
 					'HomeTeam',
 					'HomePoolTeam' => [
 						'DependencyPool',

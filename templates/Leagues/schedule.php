@@ -92,7 +92,7 @@ if (!empty($league->games)):
 						<th><?= __('Time') ?></th>
 						<th><?= __(Configure::read("sports.{$league->sport}.field_cap")) ?></th>
 <?php
-	if (Configure::read('feature.officials') && $this->Authorize->getIdentity() && $league->officials):
+	if ($has_officials):
 ?>
 						<th><?= __('Officials') ?></th>
 <?php

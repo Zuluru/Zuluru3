@@ -2459,6 +2459,7 @@ class GamesController extends AppController {
 					'AwayTeam',
 					'GameSlots' => ['Fields' => ['Facilities']],
 					'ScoreEntries',
+					'SpiritEntries',
 					'Stats' => [
 						'queryBuilder' => function (Query $q) use ($team_id) {
 							if ($team_id) {

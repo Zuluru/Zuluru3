@@ -304,6 +304,13 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'feature',
+				'name' => 'officials',
+				'value' => 1,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'feature',
 				'name' => 'public',
 				'value' => 0,
 				'affiliate_id' => null,

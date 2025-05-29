@@ -2110,6 +2110,7 @@ class PeopleController extends AppController {
 							return $q->where(['ScoreEntries.team_id IN' => $team_ids]);
 						}
 					],
+					'SpiritEntries',
 				])
 				->where([
 					'Games.published' => true,
@@ -2158,6 +2159,12 @@ class PeopleController extends AppController {
 					->find('withAttendance', compact('people'))
 					->contain([
 						'Divisions' => ['Days', 'Leagues'],
+						'ScoreEntries' => [
+							'queryBuilder' => function (Query $q) use ($team_ids) {
+								return $q->where(['ScoreEntries.team_id IN' => $team_ids]);
+							}
+						],
+						'SpiritEntries',
 					])
 					->where([
 						'Games.published' => true,
@@ -2249,6 +2256,8 @@ class PeopleController extends AppController {
 					->contain([
 						'Divisions' => ['Leagues'],
 						'Officials',
+						'ScoreEntries',
+						'SpiritEntries',
 					])
 					->where([
 						'OfficiatedGames.published' => true,
@@ -2315,6 +2324,8 @@ class PeopleController extends AppController {
 			->contain([
 				'Divisions' => ['Leagues'],
 				'Officials',
+				'ScoreEntries',
+				'SpiritEntries',
 			]);
 
 		$all = $this->getRequest()->getQuery('all');

@@ -46,6 +46,12 @@ class ZuluruGameHelperTest extends TestCase {
 	}
 
 	/**
+	 * Test score_string method
+	 */
+	public function testScoreString(): void {
+	}
+
+	/**
 	 * Test actions method
 	 */
 	public function testActions(): void {

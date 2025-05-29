@@ -5,12 +5,12 @@ use Migrations\AbstractMigration;
 
 class AddOfficialIdToGames extends AbstractMigration
 {
-    /**
-     * Change Method.
-     */
-    public function change(): void
-    {
-        $this->table('games_officials')
+	/**
+	 * Change Method.
+	 */
+	public function change(): void
+	{
+		$this->table('games_officials')
 			->addColumn('game_id', \Phinx\Db\Table\Column::INTEGER, [
 				'default' => null,
 				'null' => false,
@@ -25,7 +25,7 @@ class AddOfficialIdToGames extends AbstractMigration
 			])
 			->addIndex(['game_id'])
 			->addIndex(['official_id'])
-        	->create();
+			->create();
 
 		$this->table('leagues')
 			->addColumn('officials', \Phinx\Db\Table\Column::INTEGER, [
@@ -34,5 +34,5 @@ class AddOfficialIdToGames extends AbstractMigration
 				'after' => 'carbon_flip',
 			])
 			->update();
-    }
+	}
 }

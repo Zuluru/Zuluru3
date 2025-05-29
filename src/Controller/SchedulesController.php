@@ -1263,6 +1263,7 @@ class SchedulesController extends AppController {
 						'GameSlots' => ['Fields' => ['Facilities']],
 						'Divisions' => ['Leagues' => ['Affiliates']],
 						'ScoreEntries',
+						'SpiritEntries',
 						'HomeTeam',
 						'HomePoolTeam' => ['DependencyPool'],
 						'AwayTeam',

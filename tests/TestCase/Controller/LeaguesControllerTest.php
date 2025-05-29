@@ -6,6 +6,7 @@ use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\LeagueScenario;
 use App\Test\Scenario\LeagueWithFullScheduleScenario;
 use Cake\I18n\FrozenDate;
+use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -527,10 +528,25 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 		// Anyone is allowed to see the schedule
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]], $admin->id);
+		$this->assertResponseNotContains('Officials');
+
+		$league->officials = OFFICIALS_ADMIN;
+		$this->assertNotFalse(TableRegistry::getTableLocator()->get('Leagues')->save($league));
+
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]], $admin->id);
+		$this->assertResponseContains('Officials');
+
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]], $manager->id);
+		$this->assertResponseContains('Officials');
+
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]], $volunteer->id);
+		$this->assertResponseContains('Officials');
+
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]], $player->id);
+		$this->assertResponseContains('Officials');
+
 		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]]);
+		$this->assertResponseNotContains('Officials');
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}

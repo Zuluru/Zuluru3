@@ -630,6 +630,7 @@ class DivisionsController extends AppController {
 							],
 						],
 						'ScoreEntries',
+						'SpiritEntries',
 						'HomeTeam',
 						'HomePoolTeam' => [
 							'DependencyPool',
