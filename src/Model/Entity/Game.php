@@ -360,12 +360,12 @@ class Game extends Entity {
 			}
 			if ($this->getOriginal('home_score') >= $this->getOriginal('away_score')) {
 				$this->home_team->rating -= $this->rating_points;
-				if ($this->away_tem) {
+				if ($this->away_team) {
 					$this->away_team->rating += $this->rating_points;
 				}
 			} else {
 				$this->home_team->rating += $this->rating_points;
-				if ($this->away_tem) {
+				if ($this->away_team) {
 					$this->away_team->rating -= $this->rating_points;
 				}
 			}
@@ -407,14 +407,14 @@ class Game extends Entity {
 			$change = $ratings_obj->calculateRatingsChange($this->home_score, $this->away_score,
 				$ratings_obj->calculateExpectedWin($this->home_team->rating, $this->away_team->rating));
 			$this->home_team->rating += $change;
-			if ($this->away_tem) {
+			if ($this->away_team) {
 				$this->away_team->rating -= $change;
 			}
 		} else {
 			$change = $ratings_obj->calculateRatingsChange($this->home_score, $this->away_score,
 				$ratings_obj->calculateExpectedWin($this->away_team->rating, $this->home_team->rating));
 			$this->home_team->rating -= $change;
-			if ($this->away_tem) {
+			if ($this->away_team) {
 				$this->away_team->rating += $change;
 			}
 		}
@@ -673,10 +673,14 @@ class Game extends Entity {
 
 			case 'pool':
 			case 'copy':
-				$dependency = $pool->dependency();
-				$alias = $pool->alias;
-				if (!empty($alias)) {
-					$dependency = "$alias [$dependency]";
+				if (!$pool) {
+					$dependency = 'Unknown';
+				} else {
+					$dependency = $pool->dependency();
+					$alias = $pool->alias;
+					if (!empty($alias)) {
+						$dependency = "$alias [$dependency]";
+					}
 				}
 				break;
 		}

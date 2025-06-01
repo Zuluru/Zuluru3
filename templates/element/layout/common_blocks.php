@@ -58,7 +58,7 @@ if (!$this->fetch('third_party_css')) {
 		'BootstrapUI./css/bootstrap.min',
 		'BootstrapUI./font/bootstrap-icons',
 		'BootstrapUI./font/bootstrap-icon-sizes',
-	]);
+	], ['fullBase' => true]);
 	$this->end();
 }
 
@@ -68,7 +68,7 @@ if (!$this->fetch('zuluru_css')) {
 		'zuluru/layout.css',
 		'zuluru/look.css',
 		'pace/themes/pace-theme-minimal',
-	]);
+	], ['fullBase' => true]);
 	$this->end();
 }
 
@@ -90,7 +90,7 @@ $css = Configure::read('App.additionalCss');
 if (!empty($css)) {
 	// These files are assumed to come from the normal location, not the Zuluru location.
 	// A complete path can always be given, if required.
-	echo $this->Html->css($css);
+	echo $this->Html->css($css, ['fullBase' => true]);
 }
 
 /**
@@ -131,7 +131,7 @@ paceOptions = {
 	}
 };
 ");
-	echo $this->Html->script(['pace.min.js']);
+	echo $this->Html->script(['pace.min.js'], ['fullBase' => true]);
 	$this->end();
 }
 
@@ -157,7 +157,7 @@ if (Configure::read('feature.ckeditor') && Configure::read('feature.ckeditor_lic
 	$ckeditorKey = Configure::read('feature.ckeditor_license');
 	echo $this->Html->scriptBlock("const LICENSE_KEY = '$ckeditorKey';");
 	echo $this->Html->script('https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.umd.js', ['crossorigin' => 'anonymous']);
-	echo $this->Html->script('ckeditor.js');
+	echo $this->Html->script(['ckeditor.js'], ['fullBase' => true]);
 	$this->end();
 }
 
@@ -200,7 +200,7 @@ if (!$this->fetch('bootstrap_scripts')) {
 	echo $this->Html->script([
 		'BootstrapUI./js/popper.min',
 		'BootstrapUI./js/bootstrap.min',
-	]);
+	], ['fullBase' => true]);
 	$this->end();
 }
 
@@ -208,7 +208,7 @@ if (!$this->fetch('zuluru_script')) {
 	$this->start('zuluru_script');
 	echo $this->Html->script([
 		'zuluru.js',
-	]);
+	], ['fullBase' => true]);
 	$this->end();
 }
 
