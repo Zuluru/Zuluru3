@@ -375,7 +375,8 @@ abstract class LeagueType {
 			foreach ($games as $game) {
 				$validate = ($game->isNew() ? 'scheduleAdd' : 'scheduleEdit');
 				$double_header = $division->_options->double_header ?? false;
-				if (!$games_table->save($game, ['validate' => $validate, 'double_header' => $double_header, 'games' => $games, 'game_slots' => $division->used_slots])) {
+				$double_booking = $division->_options->double_booking ?? false;
+				if (!$games_table->save($game, ['validate' => $validate, 'double_header' => $double_header, 'double_booking' => $double_booking, 'games' => $games, 'game_slots' => $division->used_slots])) {
 					$errors = [__('Failed to save a game.')];
 					foreach ($game->getErrors() as $field => $error) {
 						$errors[] = $field . ': ';

@@ -498,10 +498,14 @@ class Game extends Entity {
 
 			case 'pool':
 			case 'copy':
-				$dependency = $pool->dependency();
-				$alias = $pool->alias;
-				if (!empty($alias)) {
-					$dependency = "$alias [$dependency]";
+				if (!$pool) {
+					$dependency = 'Unknown';
+				} else {
+					$dependency = $pool->dependency();
+					$alias = $pool->alias;
+					if (!empty($alias)) {
+						$dependency = "$alias [$dependency]";
+					}
 				}
 				break;
 		}

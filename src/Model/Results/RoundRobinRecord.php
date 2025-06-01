@@ -42,7 +42,7 @@ class RoundRobinRecord {
 		$this->team_id = $team_id;
 	}
 
-	public function addResult(int $opp_id, int $score_for, int $score_against, int $cf_for, ?float $spirit_for, Sport $sport_obj, bool $default, bool $played) {
+	public function addResult(?int $opp_id, int $score_for, int $score_against, int $cf_for, ?float $spirit_for, Sport $sport_obj, bool $default, bool $played) {
 		// What type of result was this?
 		if ($score_for > $score_against) {
 			++ $this->wins;
