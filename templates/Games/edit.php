@@ -353,7 +353,7 @@ if (!empty($game->score_entries)):
 <?php
 endif;
 
-if (!$preliminary && $game->game_slot->start_time->isPast()):
+if (!$preliminary):
 	if ($homeScoreEntry && $homeScoreEntry->id) {
 		echo $this->Form->hidden('score_entries.0.id', [
 			'value' => $homeScoreEntry->id,
