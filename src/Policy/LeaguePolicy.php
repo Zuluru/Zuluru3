@@ -18,7 +18,7 @@ class LeaguePolicy extends AppPolicy {
 	}
 
 	public function canEdit(IdentityInterface $identity, League $league) {
-		return $identity->isManagerOf($league) ||  $identity->isCoordinatorOf($league);
+		return $identity->isManagerOf($league) || $identity->isCoordinatorOf($league);
 	}
 
 	public function canDelete(IdentityInterface $identity, League $league) {
@@ -38,11 +38,11 @@ class LeaguePolicy extends AppPolicy {
 	}
 
 	public function canParticipation(IdentityInterface $identity, League $league) {
-		return $identity->isManagerOf($league) ||  $identity->isCoordinatorOf($league);
+		return $identity->isManagerOf($league) || $identity->isCoordinatorOf($league);
 	}
 
 	public function canEdit_schedule(IdentityInterface $identity, League $league) {
-		return $identity->isManagerOf($league) ||  $identity->isCoordinatorOf($league);
+		return $identity->isManagerOf($league) || $identity->isCoordinatorOf($league);
 	}
 
 	public function canStats(IdentityInterface $identity = null, League $league) {
@@ -62,7 +62,7 @@ class LeaguePolicy extends AppPolicy {
 
 		// If it's league-assigned officials, only league people get to see it
 		if ($league->officials === OFFICIALS_ADMIN) {
-			return $identity->isManagerOf($league) ||  $identity->isCoordinatorOf($league);
+			return $identity->isManagerOf($league) || $identity->isCoordinatorOf($league) || $identity->isOfficial();
 		}
 
 		// Team-assigned officials are visible to anyone
