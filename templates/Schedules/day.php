@@ -38,15 +38,15 @@ else:
 	$is_tournament = collection($games)->some(function ($game) { return $game->type != SEASON_GAME; });
 
 	$sport = $last_slot = null;
-	$has_officials = Configure::read('feature.officials') && $this->Authorize->getIdentity();
-	$can_assign = $has_officials && $this->Authorize->getIdentity()->isManager();
 	foreach ($games as $game):
+		$show_officials = $this->Authorize->can('show_officials', $game->division->league);
+		$can_assign = $show_officials && $this->Authorize->getIdentity()->isManager();
 		if ($game->division->league->sport != $sport):
 			$sport = $game->division->league->sport;
 			if (count(Configure::read('options.sport')) > 1):
 ?>
 			<tr>
-				<th colspan="<?= 5 + $is_tournament + $has_officials - $can_assign ?>"><?= Inflector::humanize(__($sport)) ?></th>
+				<th colspan="<?= 5 + $is_tournament + $show_officials - $can_assign ?>"><?= Inflector::humanize(__($sport)) ?></th>
 <?php
 				if ($can_assign):
 ?>
@@ -72,7 +72,7 @@ else:
 				<th><?= __('Home') ?></th>
 				<th><?= __('Away') ?></th>
 <?php
-			if ($has_officials):
+			if ($show_officials):
 ?>
 				<th><?= __('Officials') ?></th>
 <?php
@@ -129,7 +129,7 @@ else:
 					}
 				?></td>
 <?php
-			if ($has_officials):
+			if ($show_officials):
 ?>
 				<td><?= $this->element('Games/officials', [
 					'game' => $game,

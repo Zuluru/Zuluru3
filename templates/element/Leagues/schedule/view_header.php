@@ -12,14 +12,14 @@
  * @var bool $is_tournament
  * @var bool $multi_day
  * @var bool $has_dependent_games
- * @var bool $has_officials
+ * @var bool $show_officials
  */
 
 use Cake\Core\Configure;
 ?>
 
 <tr>
-	<th colspan="<?= 3 + $multi_day + $has_officials ?>"><a name="<?= $week[0]->toDateString() ?>"><?= $this->Time->dateRange($week[0], $week[1]) ?></a></th>
+	<th colspan="<?= 3 + $multi_day + $show_officials ?>"><a name="<?= $week[0]->toDateString() ?>"><?= $this->Time->dateRange($week[0], $week[1]) ?></a></th>
 	<th colspan="<?= 2 + !$competition ?>" class="actions splash-action">
 <?php
 if (!isset($division) && count($league->divisions) == 1) {

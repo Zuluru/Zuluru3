@@ -4,7 +4,7 @@
  * @var \App\Model\Entity\Division $division
  * @var \App\Model\Entity\League $league
  * @var bool $multi_day
- * @var bool $has_officials
+ * @var bool $show_officials
  * @var \Cake\I18n\FrozenDate[] $week
  */
 
@@ -41,7 +41,7 @@ if (!$published && !$can_edit) {
 	return;
 }
 
-echo $this->element('Leagues/schedule/view_header', compact('division', 'league', 'week', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'multi_day', 'has_dependent_games', 'has_officials'));
+echo $this->element('Leagues/schedule/view_header', compact('division', 'league', 'week', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'multi_day', 'has_dependent_games', 'show_officials'));
 
 $last_date = $last_slot = null;
 foreach ($games as $game):
@@ -54,7 +54,7 @@ foreach ($games as $game):
 	$game->readDependencies();
 	$same_date = ($game->game_slot->game_date === $last_date);
 	$same_slot = ($game->game_slot->id === $last_slot);
-	echo $this->element('Leagues/schedule/game_view', compact('division', 'league', 'game', 'competition', 'is_tournament', 'multi_day', 'has_officials', 'same_date', 'same_slot'));
+	echo $this->element('Leagues/schedule/game_view', compact('division', 'league', 'game', 'competition', 'is_tournament', 'multi_day', 'show_officials', 'same_date', 'same_slot'));
 	$last_date = $game->game_slot->game_date;
 	$last_slot = $game->game_slot->id;
 endforeach;

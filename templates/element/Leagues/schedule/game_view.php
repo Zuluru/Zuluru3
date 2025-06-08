@@ -9,7 +9,7 @@
  * @var bool $same_date
  * @var bool $same_slot
  * @var bool $competition
- * @var bool $has_officials
+ * @var bool $show_officials
  */
 
 ?>
@@ -32,13 +32,6 @@ endif;
 	}
 	?></td>
 	<td><?= (!$same_slot) ? $this->element('Fields/block', ['field' => $game->game_slot->field]) : '' ?></td>
-<?php
-	if ($has_officials):
-?>
-	<td><?= $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'team_officials' => $game->team_officials, 'league' => $league]) ?></td>
-<?php
-	endif;
-?>
 	<td><?php
 	if (empty($game->home_team)) {
 		if ($game->has('home_dependency')) {
@@ -64,6 +57,12 @@ if (!$competition):
 		echo $this->element('Teams/block', ['team' => $game->away_team, 'options' => ['max_length' => 16]]);
 	}
 	?></td>
+<?php
+endif;
+
+if ($show_officials):
+?>
+	<td><?= $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'team_officials' => $game->team_officials, 'league' => $league]) ?></td>
 <?php
 endif;
 ?>

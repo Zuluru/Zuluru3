@@ -54,4 +54,18 @@ class LeaguePolicy extends AppPolicy {
 		return Configure::read('feature.public') || ($identity && $identity->isLoggedIn());
 	}
 
+	public function canShow_officials(IdentityInterface $identity = null, League $league) {
+		// No officials for anyone not logged in, or if the feature isn't in use for this league
+		if (!$identity || !Configure::read('feature.officials') || !$league->officials) {
+			return false;
+		}
+
+		// If it's league-assigned officials, only league people get to see it
+		if ($league->officials === OFFICIALS_ADMIN) {
+			return $identity->isManagerOf($league) ||  $identity->isCoordinatorOf($league);
+		}
+
+		// Team-assigned officials are visible to anyone
+		return true;
+	}
 }

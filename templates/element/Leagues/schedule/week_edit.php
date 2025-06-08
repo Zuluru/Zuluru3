@@ -9,7 +9,7 @@ use BootstrapUI\View\Helper\FormHelper;
  * @var \App\Model\Entity\League $league
  * @var bool $multi_day
  * @var bool $is_tournament
- * @var bool $has_officials
+ * @var bool $show_officials
  * @var \Cake\I18n\FrozenDate $edit_date
  * @var \App\Model\Entity\GameSlot[] $game_slots
  * @var \Cake\I18n\FrozenDate[] $week
@@ -107,16 +107,16 @@ foreach ($games as $game) {
 $cross_division = (count($season_divisions) > 1);
 
 if ($only_some_divisions || !$is_season) {
-	echo $this->element('Leagues/schedule/view_header', compact('league', 'week', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'multi_day', 'has_dependent_games', 'has_officials'));
+	echo $this->element('Leagues/schedule/view_header', compact('league', 'week', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'multi_day', 'has_dependent_games', 'show_officials'));
 } else {
-	echo $this->element('Leagues/schedule/edit_header', compact('league', 'week', 'competition', 'id_field', 'id', 'is_tournament', 'multi_day', 'has_officials'));
+	echo $this->element('Leagues/schedule/edit_header', compact('league', 'week', 'competition', 'id_field', 'id', 'is_tournament', 'multi_day', 'show_officials'));
 }
 ?>
 
 <?php
 if ($editing_tournament):
 ?>
-<tr><td colspan="<?= 5 + $multi_day + $has_officials + !$competition ?>" class="warning-message"><?= __('For normal usage, it is safest to only change {0} values for tournament or playoff games; editing of other values should be reserved for extreme situations.', __('Time/{0}', __(Configure::read("sports.{$league->sport}.field_cap")))) ?></td></tr>
+<tr><td colspan="<?= 5 + $multi_day + $show_officials + !$competition ?>" class="warning-message"><?= __('For normal usage, it is safest to only change {0} values for tournament or playoff games; editing of other values should be reserved for extreme situations.', __('Time/{0}', __(Configure::read("sports.{$league->sport}.field_cap")))) ?></td></tr>
 <?php
 endif;
 
@@ -137,7 +137,7 @@ foreach ($games as $game):
 	$same_slot = ($game->game_slot->id === $last_slot);
 	if (!$this->Authorize->can('edit', $game)) {
 		if ($game->published) {
-			echo $this->element('Leagues/schedule/game_view', compact('game', 'competition', 'is_tournament', 'multi_day', 'has_officials', 'same_date', 'same_slot'));
+			echo $this->element('Leagues/schedule/game_view', compact('game', 'competition', 'is_tournament', 'multi_day', 'show_officials', 'same_date', 'same_slot'));
 			$last_date = $game->game_slot->game_date;
 			$last_slot = $game->game_slot->id;
 		}
@@ -172,25 +172,6 @@ foreach ($games as $game):
 			'empty' => '---',
 		]);
 	?></td>
-<?php
-	if ($has_officials):
-?>
-	<td><?php
-		if ($league->officials == OFFICIALS_ADMIN) {
-			echo $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'league' => $league]);
-		} else {
-			echo $this->Form->control("games.{$game->id}.team_officials.0.id", [
-				'label' => false,
-				'type' => 'select',
-				'options' => $teams,
-				'empty' => '---',
-				'title' => __('Select the team that will be providing officials for this game'),
-			]);
-		}
-	?></td>
-<?php
-	endif;
-?>
 	<td><?php
 		if ($game->type !== SEASON_GAME) {
 			$ids = [];
@@ -328,7 +309,26 @@ foreach ($games as $game):
 	?></td>
 <?php
 	endif;
+?><?php
+	if ($show_officials):
 ?>
+	<td><?php
+		if ($league->officials == OFFICIALS_ADMIN) {
+			echo $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'league' => $league]);
+		} else {
+			echo $this->Form->control("games.{$game->id}.team_officials.0.id", [
+				'label' => false,
+				'type' => 'select',
+				'options' => $teams,
+				'empty' => '---',
+				'title' => __('Select the team that will be providing officials for this game'),
+			]);
+		}
+	?></td>
+<?php
+	endif;
+?>
+
 	<td></td>
 </tr>
 
@@ -337,7 +337,7 @@ endforeach;
 ?>
 
 <tr>
-	<td colspan="<?= 3 + $multi_day + $has_officials + !$competition ?>"><?php
+	<td colspan="<?= 3 + $multi_day + $show_officials + !$competition ?>"><?php
 		echo $this->Form->control('options.publish', [
 			'label' => __('Set as published for player viewing?'),
 			'type' => 'checkbox',

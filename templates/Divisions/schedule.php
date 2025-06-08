@@ -68,7 +68,7 @@ if (!empty($division->games)):
 				<thead>
 <?php
 	$competition = ($division->schedule_type === 'competition');
-	$has_officials = Configure::read('feature.officials') && $this->Authorize->getIdentity() && $division->league->officials;
+	$show_officials = $this->Authorize->can('show_officials', $division->league);
 ?>
 					<tr>
 						<th><?= $is_tournament ? __('Game') : '' ?></th>
@@ -81,18 +81,17 @@ if (!empty($division->games)):
 ?>
 						<th><?= __('Time') ?></th>
 						<th><?= __(Configure::read("sports.{$division->league->sport}.field_cap")) ?></th>
-<?php
-	if ($has_officials):
-?>
-						<th><?= __('Officials') ?></th>
-<?php
-	endif;
-?>
 						<th><?= $competition ? __('Team') : __('Home') ?></th>
 <?php
 	if (!$competition):
 ?>
 						<th><?= __('Away') ?></th>
+<?php
+	endif;
+
+	if ($show_officials):
+?>
+						<th><?= __('Officials') ?></th>
 <?php
 	endif;
 ?>
@@ -103,9 +102,9 @@ if (!empty($division->games)):
 <?php
 	foreach ($weeks as $week) {
 		if ($edit_date >= $week[0] && $edit_date <= $week[1]) {
-			echo $this->element('Leagues/schedule/week_edit', array_merge(['league' => $division->league], compact('week', 'multi_day', 'game_slots', 'is_tournament', 'has_officials')));
+			echo $this->element('Leagues/schedule/week_edit', array_merge(['league' => $division->league], compact('week', 'multi_day', 'game_slots', 'is_tournament', 'show_officials')));
 		} else {
-			echo $this->element('Leagues/schedule/week_view', array_merge(['league' => $division->league], compact('week', 'multi_day', 'has_officials')));
+			echo $this->element('Leagues/schedule/week_view', array_merge(['league' => $division->league], compact('week', 'multi_day', 'show_officials')));
 		}
 	}
 ?>

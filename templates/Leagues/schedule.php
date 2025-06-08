@@ -78,7 +78,7 @@ if (!empty($league->games)):
 				<thead>
 <?php
 	$competition = collection($league->divisions ?? [])->every(function ($division) { return $division->schedule_type == 'competition'; });
-	$has_officials = Configure::read('feature.officials') && $this->Authorize->getIdentity() && $league->officials;
+	$show_officials = $this->Authorize->can('show_officials', $league);
 ?>
 					<tr>
 						<th><?= $is_tournament ? __('Game') : '' ?></th>
@@ -91,18 +91,17 @@ if (!empty($league->games)):
 ?>
 						<th><?= __('Time') ?></th>
 						<th><?= __(Configure::read("sports.{$league->sport}.field_cap")) ?></th>
-<?php
-	if ($has_officials):
-?>
-						<th><?= __('Officials') ?></th>
-<?php
-	endif;
-?>
 						<th><?= $competition ? __('Team') : __('Home') ?></th>
 <?php
 	if (!$competition):
 ?>
 						<th><?= __('Away') ?></th>
+<?php
+	endif;
+
+	if ($show_officials):
+?>
+						<th><?= __('Officials') ?></th>
 <?php
 	endif;
 ?>
@@ -113,9 +112,9 @@ if (!empty($league->games)):
 <?php
 	foreach ($weeks as $week) {
 		if ($edit_date >= $week[0] && $edit_date <= $week[1]) {
-			echo $this->element('Leagues/schedule/week_edit', compact('league', 'week', 'multi_day', 'game_slots', 'is_tournament', 'has_officials'));
+			echo $this->element('Leagues/schedule/week_edit', compact('league', 'week', 'multi_day', 'game_slots', 'is_tournament', 'show_officials'));
 		} else {
-			echo $this->element('Leagues/schedule/week_view', compact('league', 'week', 'multi_day', 'has_officials'));
+			echo $this->element('Leagues/schedule/week_view', compact('league', 'week', 'multi_day', 'show_officials'));
 		}
 	}
 ?>
