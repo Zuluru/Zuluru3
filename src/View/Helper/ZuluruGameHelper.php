@@ -105,8 +105,8 @@ class ZuluruGameHelper extends Helper {
 			$away_links = [];
 		}
 
-		$resource = new ContextResource($game, ['team_id' => $game->away_team_id, 'league' => $league, 'stat_types' => $league->stat_types, 'is_official' => true]);
-		$official_links = $this->participant_actions($score_entry, $resource, $game, $game->away_team_id, $score_service, $division);
+		$resource = new ContextResource($game, ['league' => $league, 'stat_types' => $league->stat_types, 'is_official' => true]);
+		$official_links = $this->participant_actions($score_entry, $resource, $game, null, $score_service, $division);
 
 		$links = [];
 

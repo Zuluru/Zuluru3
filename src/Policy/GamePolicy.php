@@ -272,7 +272,7 @@ class GamePolicy extends AppPolicy {
 				throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 			}
 
-			if (!$identity->isManagerOf($game) && !$identity->isCoordinatorOf($game) && !$identity->isOfficialOf($game) && !$identity->isCaptainOf($team)) {
+			if (!$identity->isCaptainOf($team)) {
 				return false;
 			}
 
