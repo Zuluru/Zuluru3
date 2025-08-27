@@ -124,6 +124,17 @@ const editorConfig = {
 		options: [10, 12, 14, 'default', 18, 20, 22],
 		supportAllValues: true
 	},
+	fontColor: {
+		colorPicker: {
+			// Use 'hex' format for output instead of 'hsl', which is not well supported in email clients yet.
+			format: 'hex'
+		}
+	},
+	fontBackgroundColor: {
+		colorPicker: {
+			format: 'hex'
+		}
+	},
 	heading: {
 		options: [
 			{
