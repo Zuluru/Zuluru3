@@ -50,7 +50,7 @@ $carbon_flip_options = [
 				if ($game->has('home_dependency')) {
 					echo " ({$game->home_dependency})";
 				}
-				if ($game->division->schedule_type != 'tournament') {
+				if ($game->division->schedule_type === 'ratings_ladder') {
 					echo __(' ({0})', __('currently rated: {0}', $game->home_team->rating));
 					if (!$preliminary && !$game->isFinalized() && $game->division->schedule_type !== 'competition' && $game->away_team) {
 						printf(' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game->home_team->rating, $game->away_team->rating) * 100, __('chance to win'));
@@ -74,7 +74,7 @@ if ($game->division->schedule_type !== 'competition'):
 				if ($game->has('away_dependency')) {
 					echo " ({$game->away_dependency})";
 				}
-				if ($game->division->schedule_type != 'tournament') {
+				if ($game->division->schedule_type === 'ratings_ladder') {
 					echo __(' ({0})', __('currently rated: {0}', $game->away_team->rating));
 					if (!$preliminary && !$game->isFinalized()) {
 						printf(' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game->away_team->rating, $game->home_team->rating) * 100, __('chance to win'));

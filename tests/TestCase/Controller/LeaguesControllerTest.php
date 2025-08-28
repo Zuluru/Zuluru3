@@ -543,7 +543,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('Officials');
 
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]], $player->id);
-		$this->assertResponseContains('Officials');
+		$this->assertResponseNotContains('Officials');
 
 		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'schedule', '?' => ['league' => $league->id]]);
 		$this->assertResponseNotContains('Officials');

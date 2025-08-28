@@ -17,6 +17,7 @@ class DiverseUsersScenario implements FixtureScenarioInterface {
 	 * - manager
 	 * - volunteer
 	 * - player
+	 * - official
 	 *
 	 * Each of these can be:
 	 * - true to create a new person in that role
@@ -62,6 +63,10 @@ class DiverseUsersScenario implements FixtureScenarioInterface {
 			},
 			'player' => function (PersonFactory $factory, array $details = []) use ($affiliates) {
 				return $factory->player($details)
+					->with('Affiliates', $affiliates[0]);
+			},
+			'official' => function (PersonFactory $factory, array $details = []) use ($affiliates) {
+				return $factory->official($details)
 					->with('Affiliates', $affiliates[0]);
 			},
 		];

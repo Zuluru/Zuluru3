@@ -38,6 +38,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 	 * - away_player: bool|Person
 	 * - home_sub: bool|Person
 	 * - away_sub: bool|Person
+	 * - official: bool|Person
 	 */
 	public function load(...$args): Game {
 		switch (count($args)) {
@@ -106,7 +107,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				$home_captain = $home->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $home->id, 'role' => 'captain']))
 					->persist();
-			} else {
+			} else if ($args['home_captain'] !== false) {
 				$home_captain = $home->people[] = $args['home_captain'];
 				TeamsPersonFactory::make(['team_id' => $home->id, 'person_id' => $args['home_captain']->id, 'role' => 'captain'])->persist();
 			}
@@ -118,7 +119,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				$away_captain = $away->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $away->id, 'role' => 'captain']))
 					->persist();
-			} else {
+			} else if ($args['away_captain'] !== false) {
 				$away_captain = $away->people[] = $args['away_captain'];
 				TeamsPersonFactory::make(['team_id' => $away->id, 'person_id' => $args['away_captain']->id, 'role' => 'captain'])->persist();
 			}
@@ -129,7 +130,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				$home->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $home->id, 'role' => 'player']))
 					->persist();
-			} else {
+			} else if ($args['home_player'] !== false) {
 				$home->people[] = $args['home_player'];
 				TeamsPersonFactory::make(['team_id' => $home->id, 'person_id' => $args['home_player']->id, 'role' => 'player'])->persist();
 			}
@@ -140,7 +141,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				$away->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $away->id, 'role' => 'player']))
 					->persist();
-			} else {
+			} else if ($args['away_player'] !== false) {
 				$away->people[] = $args['away_player'];
 				TeamsPersonFactory::make(['team_id' => $away->id, 'person_id' => $args['away_player']->id, 'role' => 'player'])->persist();
 			}
@@ -151,7 +152,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				$home->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $home->id, 'role' => 'substitute']))
 					->persist();
-			} else {
+			} else if ($args['home_sub'] !== false) {
 				$home->people[] = $args['home_sub'];
 				TeamsPersonFactory::make(['team_id' => $home->id, 'person_id' => $args['home_sub']->id, 'role' => 'substitute'])->persist();
 			}
@@ -162,9 +163,20 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				$away->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $away->id, 'role' => 'substitute']))
 					->persist();
-			} else {
+			} else if ($args['away_sub'] !== false) {
 				$away->people[] = $args['away_sub'];
 				TeamsPersonFactory::make(['team_id' => $away->id, 'person_id' => $args['away_sub']->id, 'role' => 'substitute'])->persist();
+			}
+		}
+
+		if (array_key_exists('official', $args)) {
+			if ($args['official'] === true) {
+				$official = PersonFactory::make()->official()
+					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $away->id, 'role' => 'substitute']))
+					->persist();
+				$game->officials = [$official];
+			} else if ($args['official'] !== false) {
+				$game->officials = [$args['official']];
 			}
 		}
 

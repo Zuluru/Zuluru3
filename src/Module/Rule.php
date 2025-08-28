@@ -130,7 +130,11 @@ abstract class Rule {
 		// we add a unique number to the end of the name, and specify the className in the
 		// options.
 		try {
-			$rule_obj = ModuleRegistry::getInstance()->load("Rule:{$rule}" . \App\Lib\fake_id(), ['className' => "Rule:{$rule}"]);
+			// The module registry does Inflector::underscore on what it receives as a class name. If the rule name is
+			// all caps, this causes issues. We want to be case insensitive about rule names anyway, so make it all
+			// lower case to avoid all that.
+			$lower = strtolower($rule);
+			$rule_obj = ModuleRegistry::getInstance()->load("Rule:{$lower}" . \App\Lib\fake_id(), ['className' => "Rule:{$lower}"]);
 			if ($rule_obj && $rule_obj->parse($config)) {
 				return [$rule_obj, $rule_obj->parse_error];
 			}

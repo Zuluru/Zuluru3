@@ -58,6 +58,18 @@ class ControllerTestCase extends TestCase {
 		$this->_csrfToken = false;
 	}
 
+	protected function withSetting(string $category, string $name, string $value) {
+		$settingsTable = TableRegistry::getTableLocator()->get('Settings');
+		$setting = $settingsTable->find()->where(compact('category', 'name'))->first();
+		if ($setting) {
+			$setting->value = $value;
+			$settingsTable->save($setting);
+		} else {
+			$setting = $settingsTable->newEntity(compact('category', 'name', 'value'));
+			$settingsTable->save($setting);
+		}
+	}
+
 	/**
 	 * @param $personId int|int[]
 	 * @return void

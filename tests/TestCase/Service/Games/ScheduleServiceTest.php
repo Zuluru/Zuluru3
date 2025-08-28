@@ -9,6 +9,7 @@ use App\Service\Games\ScheduleService;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\LeagueWithFullScheduleScenario;
 use Bootstrap\Controller\Component\FlashComponent;
+use Cake\Cache\Cache;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -49,6 +50,7 @@ class ScheduleServiceTest extends TestCase
 	public function tearDown(): void {
 		unset($this->Service);
 		unset($this->Flash);
+		Cache::clear('long_term');
 
 		parent::tearDown();
 	}

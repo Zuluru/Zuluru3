@@ -51,17 +51,30 @@ class GamesControllerTest extends ControllerTestCase {
 		parent::tearDown();
 	}
 
+	public function dataForTestView()
+	{
+		return [
+			[OFFICIALS_NONE],
+			[OFFICIALS_ADMIN],
+		];
+	}
+
 	/**
 	 * Test view method
+	 *
+	 * @dataProvider dataForTestView
 	 */
-	public function testView(): void {
+	public function testView(int $officials): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
+
+		$this->withSetting('feature', 'officials', (string)($officials !== OFFICIALS_NONE));
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $affiliates[0],
 			'coordinator' => $volunteer,
+			'official' => $officials !== OFFICIALS_NONE,
 			// Make sure that we're after the game date
 			'game_date' => FrozenDate::now()->subDays(1),
 			'home_score' => 17,
@@ -70,6 +83,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'away_score' => 12,
 			// Both teams need captains
 			'away_captain' => true,
+			'league_details' => ['officials' => $officials],
 		]);
 
 		$home = $game->home_team;
@@ -89,6 +103,11 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('<dt class="col-sm-3 text-end">Round</dt>');
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
+		if ($officials === OFFICIALS_NONE) {
+			$this->assertResponseNotContains('Officials');
+		} else {
+			$this->assertResponseContains('Officials');
+		}
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseContains('/games/note?game=' . $game->id);
 		$this->assertResponseContains('/games/edit?game=' . $game->id);
@@ -116,6 +135,11 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $manager->id);
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
+		if ($officials === OFFICIALS_NONE) {
+			$this->assertResponseNotContains('Officials');
+		} else {
+			$this->assertResponseContains('Officials');
+		}
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseContains('/games/note?game=' . $game->id);
 		$this->assertResponseContains('/games/edit?game=' . $game->id);
@@ -131,6 +155,11 @@ class GamesControllerTest extends ControllerTestCase {
 		// Coordinators are allowed to view games
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
 		$this->assertResponseContains('Captain Emails');
+		if ($officials === OFFICIALS_NONE) {
+			$this->assertResponseNotContains('Officials');
+		} else {
+			$this->assertResponseContains('Officials');
+		}
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseContains('/games/note?game=' . $game->id);
 		$this->assertResponseContains('/games/edit?game=' . $game->id);
@@ -139,20 +168,42 @@ class GamesControllerTest extends ControllerTestCase {
 		// Captains are allowed to view games, perhaps with slightly more permission than players
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $home->people[0]->id);
 		$this->assertResponseContains('Captain Emails');
+		if ($officials === OFFICIALS_NONE) {
+			$this->assertResponseNotContains('Officials');
+		} else {
+			$this->assertResponseContains('Officials');
+		}
 		$this->assertResponseContains('/games/attendance?team=' . $home->id . '&amp;game=' . $game->id);
 		$this->assertResponseContains('/games/note?game=' . $game->id);
 		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
 		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
 
+		// Officials are allowed to view games, if they exist
+		if ($officials !== OFFICIALS_NONE) {
+			$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $game->officials[0]->id);
+			$this->assertResponseNotContains('Captain Emails');
+			$this->assertResponseContains('Officials');
+			$this->assertResponseNotContains('/games/attendance?team=' . $home->id . '&amp;game=' . $game->id);
+			$this->assertResponseContains('/games/note?game=' . $game->id);
+			$this->assertResponseNotContains('/games/edit?game=' . $game->id);
+			$this->assertResponseNotContains('/games/delete?game=' . $game->id);
+		}
+
 		// Others are allowed to view games, but have no edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $player->id);
 		$this->assertResponseNotContains('Captain Emails');
+		if ($officials === OFFICIALS_NONE) {
+			$this->assertResponseNotContains('Officials');
+		} else {
+			$this->assertResponseContains('Officials');
+		}
 		$this->assertResponseContains('/games/attendance?team=' . $home->id . '&amp;game=' . $game->id);
 		$this->assertResponseContains('/games/note?game=' . $game->id);
 		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
 		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
 
 		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]);
+		$this->assertResponseNotContains('Officials');
 
 		// TODO: All the different options for carbon flips, spirit, rating points, approved by.
 		//$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">Carbon Flip</dt>\s*<dd class="col-sm-9 mb-0">Red won</dd>#ms');
@@ -379,16 +430,33 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseCode(410);
 	}
 
+	public function testIcalOfficial(): void {
+	}
+
+	public function dataForTestEditAsAdmin()
+	{
+		return [
+			[OFFICIALS_NONE],
+			[OFFICIALS_ADMIN],
+		];
+	}
+
 	/**
 	 * Test edit method as an admin
+	 *
+	 * @dataProvider dataForTestEditAsAdmin
 	 */
-	public function testEditAsAdmin(): void {
+	public function testEditAsAdmin(int $officials): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
+
+		$this->withSetting('feature', 'officials', (string)($officials !== OFFICIALS_NONE));
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $affiliates[0],
+			'official' => $officials !== OFFICIALS_NONE,
+			'league_details' => ['officials' => $officials],
 		]);
 
 		// Admins are allowed to edit
@@ -2746,7 +2814,7 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Admins are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2774,7 +2842,7 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Managers are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2803,7 +2871,7 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Coordinators are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}

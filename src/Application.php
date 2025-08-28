@@ -259,6 +259,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	}
 
 	public function getAuthorizationService(ServerRequestInterface $request): AuthorizationServiceInterface {
+		return self::getAuthorizationServiceStatic($request);
+	}
+
+	public static function getAuthorizationServiceStatic(ServerRequestInterface $request): AuthorizationServiceInterface {
 		$resolver = new ResolverCollection([
 			new OrmResolver(),
 			new TypeResolver([

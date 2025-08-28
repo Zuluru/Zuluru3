@@ -578,7 +578,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 			$officials_str = '';
 		}
 
-		return "#$game_str\s*$facility_str\s*$officials_str\s*$home_str\s*$away_str\s*$actions_str#ms";
+		return "#$game_str\s*$facility_str\s*$home_str\s*$away_str\s*$officials_str\s*$actions_str#ms";
 	}
 
 	/**

@@ -66,7 +66,7 @@ endif;
 				if ($game->has('home_dependency')) {
 					echo " ({$game->home_dependency})";
 				}
-				if ($game->division->schedule_type !== 'tournament') {
+				if ($game->division->schedule_type === 'ratings_ladder') {
 					echo __(' ({0})', __('currently rated: {0}', $game->home_team->rating));
 				}
 			}
@@ -89,7 +89,7 @@ if ($game->division->schedule_type !== 'competition'):
 				if ($game->has('away_dependency')) {
 					echo " ({$game->away_dependency})";
 				}
-				if ($game->division->schedule_type !== 'tournament') {
+				if ($game->division->schedule_type === 'ratings_ladder') {
 					echo __(' ({0})', __('currently rated: {0}', $game->away_team->rating));
 				}
 			}

@@ -52,22 +52,26 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 			$open = $division->open;
 
 			// Week 1
-			$division->games[] = GameFactory::make([
+			$division->games[] = $game = GameFactory::make([
 				'division_id' => $division->id, 'home_team_id' => $bears->id, 'away_team_id' => $lions->id,
 			])
 				->with('GameSlots', GameSlotFactory::make(['game_date' => $open, 'assigned' => true])
 					->with('Fields', $fields[$key * 2])
 				)
 				->persist();
+			$game->home_team = $bears;
+			$game->away_team = $lions;
 
 			// Week 2
-			$division->games[] = GameFactory::make([
+			$division->games[] = $game = GameFactory::make([
 				'division_id' => $division->id, 'home_team_id' => $bears->id, 'away_team_id' => $lions->id,
 			])
 				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(1), 'assigned' => true])
 					->with('Fields', $fields[$key * 2])
 				)
 				->persist();
+			$game->home_team = $bears;
+			$game->away_team = $lions;
 		}
 
 		return $league;

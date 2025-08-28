@@ -155,4 +155,11 @@ class PersonFactory extends BaseFactory
 			->with('Users');
 	}
 
+	public function official(array $data = []): self {
+		return $this
+			->patchData($data)
+			->withGroup(GROUP_OFFICIAL)
+			->with('Users');
+	}
+
 }

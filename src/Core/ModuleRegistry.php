@@ -15,30 +15,32 @@ use App\Exception\MissingModuleException;
  *
  * Handles loading, constructing and binding events for module objects.
  */
-class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface {
+class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface
+{
 
 	use EventDispatcherTrait;
 
 	/**
 	 * The instance of the registry.
-	 *
-	 * @var \App\Core\ModuleRegistry
 	 */
-	private static $instance = null;
+	private static ?ModuleRegistry $instance = null;
+
+	/**
+	 * List of plugins that the registry will search for modules
+	 */
+	private static array $plugins = [];
 
 	/**
 	 * The controller that this registry was initialized with.
-	 *
-	 * @var \Cake\Controller\Controller
 	 */
-	protected $_Controller = null;
+	protected ?Controller $_Controller = null;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param \Cake\Controller\Controller|null $controller Controller instance.
 	 */
-	public function __construct(Controller $controller = null) {
+	public function __construct(?Controller $controller = null) {
 		self::$instance =& $this;
 		if ($controller) {
 			$this->setController($controller);
@@ -61,6 +63,11 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 			new ModuleRegistry();
 		}
 		return self::$instance;
+	}
+
+	public static function registerPlugin(string $plugin, string $path): void
+	{
+		static::$plugins[$plugin] = $path;
 	}
 
 	public static function getModuleList($type) {
@@ -86,7 +93,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 	 * @return string|false Either the correct classname or false.
 	 */
 	protected function _resolveClassName(string $class): ?string {
-		list($class, $type) = $this->moduleSplit($class);
+		[$class, $type] = $this->moduleSplit($class);
 		return App::className($class, 'Module', $type);
 	}
 
@@ -101,7 +108,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 	 * @throws \App\Exception\MissingModuleException
 	 */
 	protected function _throwMissingClassError(string $class, ?string $plugin): void {
-		list($class, $type) = $this->moduleSplit($class);
+		[$class, $type] = $this->moduleSplit($class);
 		throw new MissingModuleException([
 			'class' => $class . $type,
 			'plugin' => $plugin
@@ -131,7 +138,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 	private function moduleSplit($name)	{
 		if (strpos($name, ':') !== false) {
 			$parts = explode(':', $name, 2);
-			$parts[1] = Inflector::camelize(strtolower($parts[1]));
+			$parts[1] = Inflector::camelize(Inflector::underscore($parts[1]));
 			return $parts;
 		}
 		return [$name, ''];

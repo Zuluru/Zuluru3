@@ -86,7 +86,10 @@ class ZuluruGameHelper extends Helper {
 		return $text;
 	}
 
-	public function actions(Game $game, Division $division, League $league, ?bool $show_score_for_team = false): string
+	/**
+	 * This is intended for internal use only, to make unit testing more robust.
+	 */
+	public function actionLinks(Game $game, Division $division, League $league, ?int $show_score_for_team = null): array
 	{
 		$score_service = new ScoreService($game->score_entries ?? []);
 		$score_entry = $score_service->getBestScoreEntry();
@@ -114,7 +117,7 @@ class ZuluruGameHelper extends Helper {
 			$this->Authorize->can('stats', $league)
 		) {
 			$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
-				['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id, 'team' => $show_score_for_team ?? null]],
+				['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id, 'team' => $show_score_for_team]],
 				['alt' => __('Game Stats'), 'title' => __('Game Stats')]);
 		}
 
@@ -130,15 +133,32 @@ class ZuluruGameHelper extends Helper {
 		}
 
 		if (!empty($home_links) && !empty($away_links)) {
-			return $this->Html->tag('span',
-				implode("\n", $links) . implode("\n", $official_links) . '<br>' .
-				$this->Text->truncate($game->home_team->name ?? '', 18) . ': ' . implode("\n", $home_links) . '<br>' .
-				$this->Text->truncate($game->away_team->name ?? '', 18) . ': ' . implode("\n", $away_links),
-				['class' => 'actions']
-			);
+			// There are links for both the home and away team; put the team names with them to distinguish
+			return [
+				'' => array_merge($links, $official_links),
+				$this->Text->truncate($game->home_team->name ?? '', 18) => $home_links,
+				$this->Text->truncate($game->away_team->name ?? '', 18) => $away_links,
+			];
 		}
 
-		return $this->Html->tag('span', implode("\n", array_merge($links, $official_links, $home_links, $away_links)), ['class' => 'actions']);
+		$all_links = array_merge($links, $official_links, $home_links, $away_links);
+		if (empty($all_links)) {
+			return [];
+		}
+
+		return ['' => $all_links];
+	}
+
+	public function actions(Game $game, Division $division, League $league, ?int $show_score_for_team = null): string
+	{
+		$links = $this->actionLinks($game, $division, $league, $show_score_for_team);
+		$return = [];
+
+		foreach ($links as $name => $group) {
+			$return[] = ($name ? $name . ': ' : '') . implode("\n", $group);
+		}
+
+		return $this->Html->tag('span', implode('<br>', $return), ['class' => 'actions']);
 	}
 
 	private function participant_actions($score_entry, ContextResource $resource, Game $game, ?int $team_id, ScoreService $score_service, Division $division): array

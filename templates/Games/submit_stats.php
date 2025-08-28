@@ -4,6 +4,9 @@
  * @var \App\Model\Entity\Game $game
  * @var int $team_id
  * @var \App\Module\Sport $sport_obj
+ * @var \App\Model\Entity\Team|null $attendance
+ * @var \App\Model\Entity\Team|null $home_attendance
+ * @var \App\Model\Entity\Team|null $away_attendance
  */
 
 $this->Breadcrumbs->add(__('Games'));

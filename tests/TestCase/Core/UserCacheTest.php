@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller\Component;
 
 use App\Core\UserCache;
+use Cake\Cache\Cache;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
@@ -33,6 +34,7 @@ class UserCacheTest extends TestCase {
 	 */
 	public function tearDown(): void {
 		unset($this->UserCache);
+		Cache::clear('long_term');
 
 		parent::tearDown();
 	}

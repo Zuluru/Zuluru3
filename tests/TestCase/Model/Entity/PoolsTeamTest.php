@@ -11,7 +11,7 @@ use Cake\TestSuite\TestCase;
  */
 class PoolsTeamTest extends TestCase {
 
-	public function dataForDependencyTest()
+	public function dataForTestDependency()
 	{
 		return [
 			[
@@ -45,7 +45,7 @@ class PoolsTeamTest extends TestCase {
 	/**
 	 * Test dependency method
 	 *
-	 * @dataProvider dataForDependencyTest
+	 * @dataProvider dataForTestDependency
 	 * @return void
 	 */
 	public function testDependency(array $poolsTeamArgs, array $dependencyPoolArgs, string $expectedDependency) {

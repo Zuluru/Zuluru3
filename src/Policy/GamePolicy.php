@@ -219,11 +219,12 @@ class GamePolicy extends AppPolicy {
 		$submit_by = Configure::read('scoring.score_entry_by');
 		switch ($submit_by) {
 			case SCORE_BY_CAPTAIN:
-				return $identity->isCaptainOf($resource->team_id);
+				return $resource->team_id && $identity->isCaptainOf($resource->team_id);
 			case SCORE_BY_OFFICIAL:
-				return $identity->isOfficialOf($game);
+				return !$resource->team_id && $identity->isOfficialOf($game);
 			case SCORE_BY_BOTH:
-				return $identity->isCaptainOf($resource->team_id) || $identity->isOfficialOf($game);
+				return ($resource->team_id && $identity->isCaptainOf($resource->team_id)) ||
+					(!$resource->team_id && $identity->isOfficialOf($game));
 		}
 
 		return false;
@@ -238,11 +239,12 @@ class GamePolicy extends AppPolicy {
 		$submit_by = Configure::read('scoring.spirit_entry_by');
 		switch ($submit_by) {
 			case SPIRIT_BY_CAPTAIN:
-				return $identity->isCaptainOf($resource->team_id);
+				return $resource->team_id && $identity->isCaptainOf($resource->team_id);
 			case SPIRIT_BY_OFFICIAL:
-				return $identity->isOfficialOf($game);
+				return !$resource->team_id && $identity->isOfficialOf($game);
 			case SPIRIT_BY_BOTH:
-				return $identity->isCaptainOf($resource->team_id) || $identity->isOfficialOf($game);
+				return ($resource->team_id && $identity->isCaptainOf($resource->team_id)) ||
+					(!$resource->team_id && $identity->isOfficialOf($game));
 		}
 
 		return false;
