@@ -61,9 +61,13 @@ class API extends \App\Http\API {
 			$audit['time'] = $matches[2];
 		}
 
-		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ssl_description'] ?? '');
-
-		return [true, $audit, $registration_ids, $debit_ids];
+		// Validate the response code
+		if ($audit['response_code'] == 0) {
+			[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ssl_description'] ?? '');
+			return [true, $audit, $registration_ids, $debit_ids];
+		} else {
+			return [false, $audit, [], []];
+		}
 	}
 
 	public function canRefund(Payment $payment): bool {

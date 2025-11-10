@@ -2170,7 +2170,7 @@ class TeamsController extends AppController {
 		}
 
 		// Check if this person can even be added
-		$can_add = $this->_canAdd($person, $team);
+		$can_add = $this->_canAdd($person, $team, null, null, true, false, false, true);
 		if ($can_add !== true) {
 			$this->Flash->html('{0}', ['params' => ['class' => 'warning', 'replacements' => [$can_add]]]);
 			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
@@ -2205,7 +2205,7 @@ class TeamsController extends AppController {
 		$this->Authorization->authorize(new ContextResource($team, ['person' => $person, 'roster' => $person ? $person->_joinData : null, 'division' => $team->division, 'code' => $this->getRequest()->getQuery('code')]));
 
 		// Check if this person can even be added
-		$can_add = $this->_canAdd($person, $team, $person->_joinData->role, $person->_joinData->status, true, $this->getRequest()->is('ajax'));
+		$can_add = $this->_canAdd($person, $team, $person->_joinData->role, $person->_joinData->status, true, $this->getRequest()->is('ajax'), false, true);
 		if ($can_add !== true) {
 			$identity = $this->Authentication->getIdentity();
 			if ($identity && $identity->isLoggedIn() && !empty($this->can_add_rule_obj) && !empty($this->can_add_rule_obj->redirect)) {
@@ -2502,12 +2502,16 @@ class TeamsController extends AppController {
 		}
 	}
 
-	protected function _canAdd($person, $team, $role = null, $status = null, $strict = true, $text_reason = false, $absolute_url = false) {
+	protected function _canAdd($person, $team, $role = null, $status = null, $strict = true, $text_reason = false, $absolute_url = false, $player_perspective = false) {
+		if (!$person->complete) {
+			if ($player_perspective) {
+				return __('You must complete your profile before you can join a team. Log in and go to My Profile -> Edit to complete this step.');
+			} else {
+				return __('This person has not yet completed their profile. Please contact them directly to have them complete their profile.');
+			}
+		}
 		if ($person->status == 'new') {
 			return __('New players must be approved by an administrator before they can be added to a team; this normally happens within one business day.');
-		}
-		if (!$person->complete) {
-			return __('This person has not yet completed their profile. Please contact them directly to have them complete their profile.');
 		}
 
 		// Maybe use the rules engine to decide if this person can be added to this roster

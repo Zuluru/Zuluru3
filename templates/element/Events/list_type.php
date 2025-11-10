@@ -19,7 +19,7 @@ foreach ($events as $event):
 	if (count($event->prices) === 1):
 ?>
 <tr class="select_id_<?= $event->id ?>">
-	<td><?= $this->Html->link($event->name, ['action' => 'view', '?' => ['event' => $event->id]]) ?></td>
+	<td><h6><?= $this->Html->link($event->name, ['action' => 'view', '?' => ['event' => $event->id]]) ?></h6></td>
 	<td><?php
 	$cost = $event->prices[0]->total;
 	if ($cost > 0) {
@@ -36,7 +36,7 @@ foreach ($events as $event):
 	else:
 ?>
 <tr class="select_id_<?= $event->id ?>">
-	<td colspan="4"><h5><?= $this->Html->link($event->name, ['action' => 'view', '?' => ['event' => $event->id]]) ?></h5></td>
+	<td colspan="4"><h6><?= $this->Html->link($event->name, ['action' => 'view', '?' => ['event' => $event->id]]) ?></h6></td>
 	<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
 </tr>
 <?php

@@ -16,7 +16,7 @@ foreach ($message as $key => $part) {
 		]);
 	}
 }
-$message = implode(' ', $message);
+$message = $this->Html->para(null, implode(' ', $message));
 
 if (isset($params['class']) && is_string($params['class'])) {
 	$class = "alert-{$params['class']}";

@@ -330,7 +330,7 @@ class EventPolicy extends AppPolicy {
 				if ($price->open->isFuture() && (!$identity || !$identity->isManagerOf($event))) {
 					$price->canRegister = [
 						'allowed' => false,
-						'text' => __('Registration for {0} is not yet open.', $name),
+						'text' => __('Registration for {0} is does not open until {1}.', $name, $price->open->format('Y-m-d')),
 						'class' => 'closed',
 					];
 					continue;

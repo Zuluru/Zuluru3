@@ -340,8 +340,8 @@ else:
 				</tr>
 				<tr>
 					<td><?= __('Entry Time') ?></td>
-					<td><?= $homeScoreEntry ? $this->Time->datetime($homeScoreEntry->modified) : '' ?></td>
-					<td><?= $awayScoreEntry ? $this->Time->datetime($awayScoreEntry->modified) : '' ?></td>
+					<td><?= $homeScoreEntry && $homeScoreEntry->modified ? $this->Time->datetime($homeScoreEntry->modified) : '' ?></td>
+					<td><?= $awayScoreEntry && $awayScoreEntry->modified ? $this->Time->datetime($awayScoreEntry->modified) : '' ?></td>
 				</tr>
 <?php
 		if ($show_spirit):
