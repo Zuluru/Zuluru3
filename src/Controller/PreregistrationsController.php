@@ -117,8 +117,8 @@ class PreregistrationsController extends AppController {
 			// we redirect to the page that handles that. This lets us add a batch
 			// of similar preregistrations easily with the "return" parameter.
 			// Any other post will be from the search form, handled below.
-			if ($this->getRequest()->is(['post']) && !empty($this->getRequest()->getData('event'))) {
-				return $this->redirect($this->getRequest()->getData());
+			if ($person_id && $this->getRequest()->is(['post']) && !empty($this->getRequest()->getData('event'))) {
+				return $this->redirect(['action' => 'add', '?' => ['event' => $this->getRequest()->getData('event'), 'person' => $person_id]]);
 			} else if ($this->getRequest()->is('ajax')) {
 				// Handle a post to the search form or a pagination link
 				$this->_handlePersonSearch(['event']);
