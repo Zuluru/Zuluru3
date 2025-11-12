@@ -3,9 +3,9 @@ namespace App\Controller;
 
 use App\Authorization\ContextResource;
 use App\Model\Table\GamesTable;
-use Authorization\Exception\MissingIdentityException;
+use App\Policy\MissingIdentityResult;
+use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -15,7 +15,6 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use App\PasswordHasher\HasherTrait;
 use App\Model\Entity\Allstar;
-use App\Model\Entity\Game;
 use App\Model\Entity\Team;
 use App\Model\Table\PeopleTable;
 
@@ -823,7 +822,7 @@ class GamesController extends AppController {
 
 		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		if (!$person_id) {
-			throw new MissingIdentityException();
+			throw new ForbiddenException(new MissingIdentityResult(), ['attendance_change', self::class]);
 		}
 
 		$captains_contain = [

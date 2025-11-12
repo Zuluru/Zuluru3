@@ -2,11 +2,12 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Division;
 use App\Model\Entity\Registration;
 use App\Model\Entity\Team;
+use App\Policy\RedirectResult;
 use App\View\Helper\ZuluruHtmlHelper;
+use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Core\Exception\CakeException;
@@ -493,8 +494,11 @@ class TeamsController extends AppController {
 		// We just need to display the message that might come with a failure.
 		try {
 			$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]), 'roster_add');
-		} catch (ForbiddenRedirectException $ex) {
-			$this->set(['warning_message' => $ex->getMessage()]);
+		} catch (ForbiddenException $ex) {
+			$result = $ex->getResult();
+			if ($result instanceof RedirectResult && $result->getReason()) {
+				$this->set(['warning_message' => $result->getReason()]);
+			}
 		} catch (\Exception $ex) {
 		}
 

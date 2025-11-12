@@ -2,19 +2,25 @@
 namespace App\Policy;
 
 use App\Authorization\ContextResource;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\MailingList;
 use App\PasswordHasher\HasherTrait;
-use Authorization\Exception\MissingIdentityException;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 
 class MailingListPolicy extends AppPolicy {
 
 	use HasherTrait;
 
 	public function before($identity, $resource, $action) {
-		$this->blockAnonymousExcept($identity, $action, ['unsubscribe']);
-		$this->blockLocked($identity);
+		$result = $this->blockAnonymousExcept($identity, $action, ['unsubscribe']);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
+
+		$result = $this->blockLocked($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 	}
 
 	public function canIndex(IdentityInterface $identity, $controller) {
@@ -45,12 +51,12 @@ class MailingListPolicy extends AppPolicy {
 		// Authenticate the hash code
 		if ($resource->has('code')) {
 			if (!$resource->has('person_id')) {
-				throw new MissingIdentityException();
+				return new MissingIdentityResult();
 			}
 
 			$code = $resource->code;
 			if (!$this->_checkHash([$resource->person_id, $resource->resource()->id], $code)) {
-				throw new ForbiddenRedirectException(__('The authorization code is invalid.'));
+				return new RedirectResult(__('The authorization code is invalid.'));
 			}
 
 			return true;
@@ -58,7 +64,7 @@ class MailingListPolicy extends AppPolicy {
 
 		// If there wasn't a code, then anyone not logged in cannot proceed
 		if (!$identity) {
-			throw new MissingIdentityException();
+			return new MissingIdentityResult();
 		}
 
 		return true;

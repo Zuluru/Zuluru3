@@ -12,7 +12,7 @@ class PricePolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canDelete(IdentityInterface $identity, Price $price) {

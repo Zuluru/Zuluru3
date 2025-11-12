@@ -2,7 +2,6 @@
 namespace App\Policy;
 
 use App\Authorization\ContextResource;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Division;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
@@ -11,7 +10,7 @@ class DivisionPolicy extends AppPolicy {
 
 	public function canScores(IdentityInterface $identity = null, Division $division) {
 		if (in_array($division->schedule_type, ['competition', 'none'])) {
-			throw new ForbiddenRedirectException(__('Invalid schedule type.'),
+			return new RedirectResult(__('Invalid schedule type.'),
 				['controller' => 'Leagues', 'action' => 'index']);
 		}
 
@@ -64,7 +63,7 @@ class DivisionPolicy extends AppPolicy {
 
 	public function canApprove_scores(IdentityInterface $identity, Division $division) {
 		if (in_array($division->schedule_type, ['competition', 'none'])) {
-			throw new ForbiddenRedirectException(__('Invalid schedule type.'),
+			return new RedirectResult(__('Invalid schedule type.'),
 				['controller' => 'Leagues', 'action' => 'index']);
 		}
 
@@ -77,7 +76,7 @@ class DivisionPolicy extends AppPolicy {
 
 	public function canInitialize_dependencies(IdentityInterface $identity, Division $division) {
 		if (in_array($division->schedule_type, ['competition', 'none'])) {
-			throw new ForbiddenRedirectException(__('Invalid schedule type.'),
+			return new RedirectResult(__('Invalid schedule type.'),
 				['controller' => 'Leagues', 'action' => 'index']);
 		}
 
@@ -86,7 +85,7 @@ class DivisionPolicy extends AppPolicy {
 
 	public function canDelete_stage(IdentityInterface $identity, Division $division) {
 		if (in_array($division->schedule_type, ['competition', 'none'])) {
-			throw new ForbiddenRedirectException(__('Invalid schedule type.'),
+			return new RedirectResult(__('Invalid schedule type.'),
 				['controller' => 'Leagues', 'action' => 'index']);
 		}
 
@@ -99,7 +98,7 @@ class DivisionPolicy extends AppPolicy {
 
 	public function canEdit_schedule(IdentityInterface $identity, Division $division) {
 		if ($division->schedule_type == 'none') {
-			throw new ForbiddenRedirectException(__('Invalid schedule type.'),
+			return new RedirectResult(__('Invalid schedule type.'),
 				['controller' => 'Leagues', 'action' => 'index']);
 		}
 
@@ -131,7 +130,7 @@ class DivisionPolicy extends AppPolicy {
 
 	public function canView_score_entries(IdentityInterface $identity, Division $division) {
 		if (in_array($division->schedule_type, ['competition', 'none'])) {
-			throw new ForbiddenRedirectException(__('Invalid schedule type.'),
+			return new RedirectResult(__('Invalid schedule type.'),
 				['controller' => 'Leagues', 'action' => 'index']);
 		}
 

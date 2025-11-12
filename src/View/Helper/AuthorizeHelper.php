@@ -67,11 +67,7 @@ class AuthorizeHelper extends Helper {
 			throw new \InvalidArgumentException('No resource passed to "can" function.');
 		}
 
-		try {
-			return $this->_authorize->can($this->_identity, $action, $resource);
-		} catch (ForbiddenException $ex) {
-			return false;
-		}
+		return $this->_authorize->can($this->_identity, $action, $resource);
 	}
 
 	/**

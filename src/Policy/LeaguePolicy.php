@@ -1,16 +1,23 @@
 <?php
 namespace App\Policy;
 
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\League;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 
 class LeaguePolicy extends AppPolicy {
 
 	public function before($identity, $resource, $action) {
-		$this->blockAnonymousExcept($identity, $action, ['stats']);
-		$this->blockLocked($identity);
+		$result = $this->blockAnonymousExcept($identity, $action, ['stats']);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
+
+		$result = $this->blockLocked($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 	}
 
 	public function canAdd(IdentityInterface $identity, $controller) {
@@ -47,7 +54,7 @@ class LeaguePolicy extends AppPolicy {
 
 	public function canStats(IdentityInterface $identity = null, League $league) {
 		if (!$league->hasStats()) {
-			throw new ForbiddenRedirectException(__('This league does not have stat tracking enabled.'),
+			return new RedirectResult(__('This league does not have stat tracking enabled.'),
 				['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]]);
 		}
 
