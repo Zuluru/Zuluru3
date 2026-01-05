@@ -2,9 +2,6 @@
 namespace App;
 
 use App\Authentication\ActAsIdentity;
-use App\Core\UserCache;
-use App\Exception\ForbiddenRedirectException;
-use App\Exception\LockedIdentityException;
 use App\Http\Middleware\ActAsMiddleware;
 use App\Http\Middleware\CookiePathMiddleware;
 use App\Middleware\AffiliateConfigurationLoader;
@@ -14,6 +11,8 @@ use App\Middleware\LocalizationMiddleware;
 use App\Middleware\NamedRoutingMiddleware;
 use App\Middleware\UnauthorizedHandler\RedirectFlashHandler;
 use App\Model\Entity\Plugin;
+use App\Policy\MissingIdentityResult;
+use App\Policy\RedirectResult;
 use App\Policy\TypeResolver;
 use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
@@ -26,7 +25,6 @@ use Authorization\AuthorizationServiceInterface;
 use Authorization\AuthorizationServiceProviderInterface;
 use Authorization\Exception\Exception;
 use Authorization\Exception\ForbiddenException;
-use Authorization\Exception\MissingIdentityException;
 use Authorization\Middleware\AuthorizationMiddleware;
 use Authorization\Middleware\UnauthorizedHandler\HandlerInterface;
 use Authorization\Policy\OrmResolver;
@@ -512,48 +510,31 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 							'unauthenticatedUrl' => Router::url(Configure::read('App.urls.login')),
 							'unauthorizedUrl' => Router::url('/'),
 							'exceptions' => [
-								MissingIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
-									$request->getFlash()->error(__('You must login to access full site functionality.'));
-									$url = $subject->getUrl($request, array_merge($options, ['referrer' => true, 'unauthenticated' => true]));
-									$response = new Response();
+								ForbiddenException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
+									$result = $exception->getResult();
+									$url = [];
 
-									return $response
-										->withHeader('Location', $url)
-										->withStatus($options['statusCode']);
-								},
-								ForbiddenRedirectException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
-									$url = $exception->getUrl();
+									if ($result instanceof MissingIdentityResult) {
+										$url = $subject->getUrl($request, array_merge($options, ['referrer' => true, 'unauthenticated' => true]));
+										$request->getFlash()->error(__('You must login to access full site functionality.'));
+									} else if ($result instanceof RedirectResult) {
+										$url = $result->getUrl();
+
+										if ($result->getReason()) {
+											$flashOptions = $result->getOptions();
+											$flashOptions['element'] = $result->getElement();
+											$request->getFlash()->set($result->getReason(), $flashOptions);
+										}
+									} else {
+										$request->getFlash()->error(__('You do not have permission to access that page.'));
+									}
+
 									if (empty($url)) {
 										$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
 									} else if (is_array($url)) {
 										$url = Router::url($url);
 									}
-									if ($exception->getMessage()) {
-										$flashOptions = $exception->getOptions();
-										$flashOptions['element'] = $exception->getClass();
-										$request->getFlash()->set($exception->getMessage(), $flashOptions);
-									}
-									$response = new Response();
 
-									return $response
-										->withHeader('Location', $url)
-										->withStatus($options['statusCode']);
-								},
-								LockedIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
-									$request->getFlash()->error(__('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
-										__(UserCache::getInstance()->read('Person.status')),
-										__('contact {0}', Configure::read('email.admin_name'))
-									));
-									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
-									$response = new Response();
-
-									return $response
-										->withHeader('Location', $url)
-										->withStatus($options['statusCode']);
-								},
-								ForbiddenException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
-									$request->getFlash()->error(__('You do not have permission to access that page.'));
-									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
 									$response = new Response();
 
 									return $response

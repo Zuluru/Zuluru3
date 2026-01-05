@@ -2,7 +2,8 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
-use Authorization\Exception\MissingIdentityException;
+use App\Policy\MissingIdentityResult;
+use Authorization\Exception\ForbiddenException;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -248,7 +249,7 @@ class TeamEventsController extends AppController {
 		$id = $this->getRequest()->getQuery('event');
 		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		if (!$person_id) {
-			throw new MissingIdentityException();
+			throw new ForbiddenException(new MissingIdentityResult(), ['attendance_change', self::class]);
 		}
 
 		$captains_contain = [

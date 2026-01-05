@@ -1,7 +1,6 @@
 <?php
 namespace App\Policy;
 
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Credit;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
@@ -13,7 +12,7 @@ class CreditPolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canIndex(IdentityInterface $identity, $controller) {
@@ -39,7 +38,7 @@ class CreditPolicy extends AppPolicy {
 
 		// Check whether we can even transfer this
 		if ($credit->balance <= 0) {
-			throw new ForbiddenRedirectException(__('This credit has already been spent.'), ['/']);
+			return new RedirectResult(__('This credit has already been spent.'), ['/']);
 		}
 
 		return true;
@@ -52,7 +51,7 @@ class CreditPolicy extends AppPolicy {
 
 		// Check whether we can even delete this
 		if ($credit->amount_used > 0) {
-			throw new ForbiddenRedirectException(__('Credits that have been even partially spent cannot be deleted.'), ['/']);
+			return new RedirectResult(__('Credits that have been even partially spent cannot be deleted.'), ['/']);
 		}
 
 		return true;

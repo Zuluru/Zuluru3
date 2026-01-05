@@ -5,12 +5,11 @@ use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
 use App\Core\UserCache;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Event;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 
 class EventPolicy extends AppPolicy {
 
@@ -24,8 +23,15 @@ class EventPolicy extends AppPolicy {
 			return false;
 		}
 
-		$this->blockAnonymousExcept($identity, $action, ['wizard']);
-		$this->blockLocked($identity);
+		$result = $this->blockAnonymousExcept($identity, $action, ['wizard']);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
+
+		$result = $this->blockLocked($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 	}
 
 	public function canAdmin(IdentityInterface $identity, $controller) {
@@ -34,7 +40,7 @@ class EventPolicy extends AppPolicy {
 
 	public function canWizard(IdentityInterface $identity = null, $resource) {
 		if (!$identity || !$identity->isLoggedIn()) {
-			throw new ForbiddenRedirectException(__('The registration wizard only works when you are logged in.'), ['controller' => 'Events', 'action' => 'index']);
+			return new RedirectResult(__('The registration wizard only works when you are logged in.'), ['controller' => 'Events', 'action' => 'index']);
 		}
 
 		return true;
@@ -70,7 +76,7 @@ class EventPolicy extends AppPolicy {
 
 	public function canWaiting(IdentityInterface $identity, Event $event) {
 		if (!Configure::read('feature.waiting_list')) {
-			throw new ForbiddenRedirectException(__('Waiting lists are not enabled on this site.'));
+			return new RedirectResult(__('Waiting lists are not enabled on this site.'));
 		}
 
 		return $identity->isManagerOf($event) || $identity->isCoordinatorOf($event);
@@ -125,7 +131,7 @@ class EventPolicy extends AppPolicy {
 			return true;
 		}
 
-		throw new ForbiddenRedirectException('{0}',
+		return new RedirectResult('{0}',
 			$redirect ? $resource->redirect : ['controller' => 'Events', 'action' => 'wizard'],
 			'html', ['params' => ['replacements' => $resource->notices, 'class' => 'warning']]);
 	}
