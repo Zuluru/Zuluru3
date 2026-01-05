@@ -16,6 +16,7 @@ use Cake\Cache\Cache;
 use Cake\Chronos\ChronosInterface;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -817,6 +818,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a captain
 	 */
 	public function testScheduleAsCaptain(): void {
+		// Set the time to 8pm. Otherwise, the submit link won't be shown for week 3 games when the test is run on a Monday
+		FrozenTime::setTestNow(FrozenTime::now()->hour(20));
+
 		[$admin, $volunteer, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
@@ -880,6 +884,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$bears, $lions] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
 		$this->assertResponseNotContains('/games/submit');
+
+		FrozenTime::setTestNow();
 	}
 
 	/**

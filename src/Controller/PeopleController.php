@@ -2098,6 +2098,7 @@ class PeopleController extends AppController {
 	}
 
 	private function _schedule($people, $team_ids) {
+		$limit = 4;
 		if (!empty($team_ids)) {
 			$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
 			$games_table = TableRegistry::getTableLocator()->get('Games');
