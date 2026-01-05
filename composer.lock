@@ -329,20 +329,20 @@
         },
         {
             "name": "cakephp/authorization",
-            "version": "2.4.0",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/authorization.git",
-                "reference": "94fadea13efdc624e1da7a5c1c35f962ba78cc98"
+                "reference": "27c9d551d37c663b7c61819e24c2e45ec043b8f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cakephp/authorization/zipball/94fadea13efdc624e1da7a5c1c35f962ba78cc98",
-                "reference": "94fadea13efdc624e1da7a5c1c35f962ba78cc98",
+                "url": "https://api.github.com/repos/cakephp/authorization/zipball/27c9d551d37c663b7c61819e24c2e45ec043b8f8",
+                "reference": "27c9d551d37c663b7c61819e24c2e45ec043b8f8",
                 "shasum": ""
             },
             "require": {
-                "cakephp/http": "^4.0",
+                "cakephp/http": "^4.2",
                 "php": ">=7.2",
                 "psr/http-client": "^1.0",
                 "psr/http-message": "^1.0",
@@ -391,7 +391,7 @@
                 "issues": "https://github.com/cakephp/authorization/issues",
                 "source": "https://github.com/cakephp/authorization"
             },
-            "time": "2023-11-10T20:55:18+00:00"
+            "time": "2024-10-18T13:24:21+00:00"
         },
         {
             "name": "cakephp/bake",
@@ -8038,9 +8038,9 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "psy/psysh": 0,
+        "zuluru/cakephp-jquery": 20,
         "zuluru/cakephp-bootstrap": 20,
-        "zuluru/cakephp-jquery": 20
+        "psy/psysh": 0
     },
     "prefer-stable": true,
     "prefer-lowest": false,
@@ -8049,6 +8049,6 @@
         "ext-intl": "*",
         "ext-json": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "plugin-api-version": "2.6.0"
 }

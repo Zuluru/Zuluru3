@@ -12,7 +12,7 @@ class UploadPolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canPhoto(IdentityInterface $identity, Upload $upload) {

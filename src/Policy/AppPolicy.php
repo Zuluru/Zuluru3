@@ -1,21 +1,27 @@
 <?php
 namespace App\Policy;
 
-use App\Exception\LockedIdentityException;
-use Authorization\Exception\ForbiddenException;
 use Authorization\Policy\BeforePolicyInterface;
+use Authorization\Policy\Result;
+use Authorization\Policy\ResultInterface;
 
 class AppPolicy implements BeforePolicyInterface {
 
 	public function before($identity, $resource, $action) {
-		$this->blockAnonymous($identity);
-		$this->blockLocked($identity);
+		$result = $this->blockAnonymous($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
+
+		$result = $this->blockLocked($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 	}
 
 	public function blockAnonymous($identity) {
 		if (!$identity) {
-			// @todo Cake4: Change all policies to return objects with reasons instead of throwing exceptions, and handle those instead in the custom RedirectFlashHandler
-			throw new ForbiddenException();
+			return new Result(false);
 		}
 	}
 
@@ -24,12 +30,12 @@ class AppPolicy implements BeforePolicyInterface {
 			return;
 		}
 
-		$this->blockAnonymous($identity);
+		return $this->blockAnonymous($identity);
 	}
 
 	public function blockLocked($identity) {
 		if ($identity && $identity->getOriginalData()->person->status == 'locked') {
-			throw new LockedIdentityException();
+			return new LockedResult();
 		}
 	}
 
@@ -38,7 +44,7 @@ class AppPolicy implements BeforePolicyInterface {
 			return;
 		}
 
-		$this->blockLocked($identity);
+		return $this->blockLocked($identity);
 	}
 
 	public function allowAdmin($identity) {

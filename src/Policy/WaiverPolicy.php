@@ -3,7 +3,6 @@ namespace App\Policy;
 
 use App\Authorization\ContextResource;
 use App\Controller\AppController;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Waiver;
 use App\Model\Table\WaiversTable;
 use Authorization\IdentityInterface;
@@ -33,24 +32,24 @@ class WaiverPolicy extends AppPolicy {
 	public function canSign(IdentityInterface $identity, ContextResource $resource) {
 		$waiver = $resource->resource();
 		if (!$waiver->active) {
-			throw new ForbiddenRedirectException(__('Invalid waiver.'));
+			return new RedirectResult(__('Invalid waiver.'));
 		}
 
 		// Make sure they're waivering for a valid date
 		$date = $resource->date;
 		if (!$date || !$waiver->canSign($date) || $resource->valid_from === false) {
-			throw new ForbiddenRedirectException(__('Invalid waiver date.'));
+			return new RedirectResult(__('Invalid waiver date.'));
 		}
 
 		// Check if they have already signed this waiver
 		$person = $resource->person;
 		if (WaiversTable::signed($person->waivers_people, $date)) {
-			throw new ForbiddenRedirectException(__('You have already accepted this waiver.'));
+			return new RedirectResult(__('You have already accepted this waiver.'));
 		}
 
 		// Don't allow adults to sign a waiver on behalf of another adult
 		if (!$identity->isMe($person) && !AppController::_isChild($person)) {
-			throw new ForbiddenRedirectException(__('You are not allowed to accept this waiver on behalf of another person.'));
+			return new RedirectResult(__('You are not allowed to accept this waiver on behalf of another person.'));
 		}
 
 		return true;

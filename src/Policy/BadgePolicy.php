@@ -1,9 +1,9 @@
 <?php
 namespace App\Policy;
 
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Badge;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 
 class BadgePolicy extends AppPolicy {
@@ -13,7 +13,7 @@ class BadgePolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canIndex(IdentityInterface $identity, $controller) {
@@ -33,7 +33,7 @@ class BadgePolicy extends AppPolicy {
 			return true;
 		}
 
-		throw new ForbiddenRedirectException(__('Invalid badge.'), ['action' => 'index']);
+		return new RedirectResult(__('Invalid badge.'), ['action' => 'index']);
 	}
 
 	public function canAdd(IdentityInterface $identity, $controller) {
@@ -49,14 +49,16 @@ class BadgePolicy extends AppPolicy {
 	}
 
 	public function canNominate_badge(IdentityInterface $identity, Badge $badge) {
-		// This will either return true, in which case further checks are done, or throw an exception.
-		$this->canView($identity, $badge);
+		$result = $this->canView($identity, $badge);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 
 		if ($badge->category == 'nominated' || ($badge->category == 'assigned' && $identity->isManagerOf($badge))) {
 			return true;
 		}
 
-		throw new ForbiddenRedirectException(__('This badge must be earned, not granted.'), ['action' => 'index']);
+		return new RedirectResult(__('This badge must be earned, not granted.'), ['action' => 'index']);
 	}
 
 	public function canApprove_badge(IdentityInterface $identity, Badge $badge) {

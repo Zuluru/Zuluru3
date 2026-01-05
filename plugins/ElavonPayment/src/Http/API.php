@@ -62,7 +62,7 @@ class API extends \App\Http\API {
 		}
 
 		// Validate the response code
-		if ($audit['response_code'] == 0) {
+		if (array_key_exists('response_code', $audit) && $audit['response_code'] == 0) {
 			[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ssl_description'] ?? '');
 			return [true, $audit, $registration_ids, $debit_ids];
 		} else {
