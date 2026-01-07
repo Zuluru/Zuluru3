@@ -7,6 +7,7 @@ use App\Test\Scenario\LeagueWithMinimalScheduleScenario;
 use App\TestSuite\AuthorizationHelperTrait;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Cake\View\View;
@@ -62,14 +63,81 @@ class ZuluruGameHelperTest extends TestCase {
 	 * Test actionLinks method for games in the future
 	 */
 	public function testFutureActionLinks(): void {
-		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $captain1, $player, $captain2, $official] = $this->loadFixtureScenario(DiverseUsersScenario::class, [
+			'admin', 'volunteer', 'player', 'player', 'player', 'official',
+		]);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, [
 			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+			'day_id' => (date('w') + 2) % 7 + 1, // 3 days from now, but in the range of 1-7
+			'league_details' => ['open' => FrozenDate::now()->subDays(4)],
+			'division_details' => ['open' => FrozenDate::now()->subDays(4)],
 		]);
 		$division = $league->divisions[0];
-		$game = $division->games[0];
+		$game = $division->games[1];
+		$game->officials = [$official];
+
+		$game->home_team->teams_people = [
+			TeamsPersonFactory::make(['role' => 'captain', 'team_id' => $game->home_team_id])->with('People', $captain1)->persist(),
+			TeamsPersonFactory::make(['role' => 'player', 'team_id' => $game->home_team_id])->with('People', $player)->persist(),
+		];
+		$game->away_team->teams_people = [
+			TeamsPersonFactory::make(['role' => 'captain', 'team_id' => $game->away_team_id])->with('People', $captain2)->persist(),
+		];
+
+		// Unauthorized user gets no links at all
+		$helper = new ZuluruGameHelper(new View());
+		$links = $helper->actionLinks($game, $division, $league);
+		$this->assertEmpty($links);
+
+		// Check links for admin
+		$helper = $this->createHelper(ZuluruGameHelper::class, $admin->id);
+		$links = $helper->actionLinks($game, $division, $league);
+		$this->assertCount(1, $links);
+		$this->assertArrayHasKey('', $links);
+		$this->assertCount(1, $links['']);
+		$this->assertStringContainsString('/games/edit', $links[''][0]);
+
+		// Check links for coordinator
+		$helper = $this->createHelper(ZuluruGameHelper::class, $volunteer->id);
+		$links = $helper->actionLinks($game, $division, $league);
+		$this->assertCount(1, $links);
+		$this->assertArrayHasKey('', $links);
+		$this->assertCount(1, $links['']);
+		$this->assertStringContainsString('/games/edit', $links[''][0]);
+
+		// Check links for captain
+		$helper = $this->createHelper(ZuluruGameHelper::class, $captain1->id);
+		$links = $helper->actionLinks($game, $division, $league);
+		$this->assertCount(1, $links);
+		$this->assertArrayHasKey('', $links);
+		$this->assertCount(1, $links['']);
+		$this->assertStringContainsString("/games/ical/{$game->id}/{$game->home_team_id}/game.ics", $links[''][0]);
+
+		// Check links for other captain
+		$helper = $this->createHelper(ZuluruGameHelper::class, $captain2->id);
+		$links = $helper->actionLinks($game, $division, $league);
+		$this->assertCount(1, $links);
+		$this->assertArrayHasKey('', $links);
+		$this->assertCount(1, $links['']);
+		$this->assertStringContainsString("/games/ical/{$game->id}/{$game->away_team_id}/game.ics", $links[''][0]);
+
+		// Check links for player
+		$helper = $this->createHelper(ZuluruGameHelper::class, $player->id);
+		$links = $helper->actionLinks($game, $division, $league);
+		$this->assertCount(1, $links);
+		$this->assertArrayHasKey('', $links);
+		$this->assertCount(1, $links['']);
+		$this->assertStringContainsString("/games/ical/{$game->id}/{$game->home_team_id}/game.ics", $links[''][0]);
+
+		// Check links for official
+		$helper = $this->createHelper(ZuluruGameHelper::class, $official->id);
+		$links = $helper->actionLinks($game, $division, $league);
+		$this->assertCount(1, $links);
+		$this->assertArrayHasKey('', $links);
+		$this->assertCount(1, $links['']);
+		$this->assertStringContainsString("/games/ical/{$game->id}/game.ics", $links[''][0]);
 	}
 
 	public function dataForPastActionLinks(): array
@@ -90,12 +158,7 @@ class ZuluruGameHelperTest extends TestCase {
 		Configure::write('scoring.score_entry_by', $score_by);
 
 		[$admin, $volunteer, $captain1, $player, $captain2, $official] = $this->loadFixtureScenario(DiverseUsersScenario::class, [
-			'admin',
-			'volunteer',
-			'player',
-			'player',
-			'player',
-			'official',
+			'admin', 'volunteer', 'player', 'player', 'player', 'official',
 		]);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */

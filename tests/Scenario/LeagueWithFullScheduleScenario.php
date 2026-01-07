@@ -7,6 +7,7 @@ use App\Model\Entity\Division;
 use App\Model\Entity\Field;
 use App\Model\Entity\Game;
 use App\Model\Entity\League;
+use App\Model\Entity\Person;
 use App\Model\Entity\Team;
 use App\Test\Factory\DivisionFactory;
 use App\Test\Factory\DivisionsDayFactory;
@@ -31,7 +32,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 
 	use ScenarioAwareTrait;
 
-	private function addGame(Division $division, Team $home, Team $away, FrozenDate $date, Field $field, array $game_options = []): Game {
+	private function addGame(Division $division, Team $home, Team $away, FrozenDate $date, Field $field, array $game_options = [], ?Person $official = null): Game {
 		$slot_options = ['game_date' => $date, 'assigned' => true];
 		if (array_key_exists('late', $game_options)) {
 			$late_start = FrozenTime::createFromTime(21);
@@ -46,8 +47,13 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 		]))
 			->with('GameSlots', GameSlotFactory::make($slot_options)
 				->with('Fields', $field)
-			)
-			->persist();
+			);
+
+		if ($official) {
+			$game = $game->with('Officials', $official);
+		}
+
+		$game = $game->persist();
 
 		// Populate the expected game associations
 		// @todo: Does this need to populate the divisions_gameslots table too?
@@ -84,9 +90,13 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 			'scores' => false,
 			'spirit' => false,
 			'playoffs' => false,
-			'day_id' => ChronosInterface::MONDAY,
+			// Some schedule-based things will return different results if run before game time on the current date than
+			// after game time. This will ensure we get a day number that's not the current day of the week, but matches
+			// the possible values for ChronosInterface.
+			'day_id' => date('w') + 1,
 			'additional_slots' => 0,
 			'additional_weeks' => 1,
+			'official' => null,
 		];
 
 		/** @var League $league */
@@ -116,7 +126,8 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 
 			// Week 1
 			$game = $division->games[] = $this->addGame($division_copy, $red, $yellow, $open, $fields[$key * 2],
-				['home_score' => 17, 'away_score' => 5, 'rating_points' => 13, 'approved_by_id' => APPROVAL_AUTOMATIC]
+				['home_score' => 17, 'away_score' => 5, 'rating_points' => 13, 'approved_by_id' => APPROVAL_AUTOMATIC],
+				$args['official']
 			);
 
 			if ($args['spirit']) {

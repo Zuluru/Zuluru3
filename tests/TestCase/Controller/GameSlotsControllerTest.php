@@ -286,12 +286,14 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * Test submit method as a captain
 	 */
 	public function testSubmitScoreAsCaptain(): void {
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
 	 * Test submit method as an official
 	 */
 	public function testSubmitScoreAsOfficial(): void {
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**

@@ -32,6 +32,13 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 				throw new \BadMethodCallException('Scenario only accepts an array of named parameters.');
 		}
 
+		$args += [
+			// Some schedule-based things will return different results if run before game time on the current date than
+			// after game time. This will ensure we get a day number that's not the current day of the week, but matches
+			// the possible values for ChronosInterface.
+			'day_id' => date('w') + 1,
+		];
+
 		/** @var League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, $args);
 

@@ -430,9 +430,6 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseCode(410);
 	}
 
-	public function testIcalOfficial(): void {
-	}
-
 	public function dataForTestEditAsAdmin()
 	{
 		return [

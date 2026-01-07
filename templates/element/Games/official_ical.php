@@ -21,7 +21,7 @@ $field_url = Router::url(['controller' => 'Facilities', 'action' => 'view', '?' 
 
 // output game
 $description = __('Officiating {0} at {1} on {2}',
-	$this->element('Divisions/block', ['division' => $game->division, 'field' => 'long_league_name']),
+	$game->division->long_league_name,
 	ical_encode($field),
 	$this->Time->iCalDateTimeRange($game->game_slot)
 );

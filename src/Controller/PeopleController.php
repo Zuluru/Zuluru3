@@ -2778,8 +2778,9 @@ class PeopleController extends AppController {
 		if (Configure::read('feature.officials') && !empty($person->user_groups)) {
 			$this->set('officiated_games', $this->People->OfficiatedGames
 				->find('officiatingSchedule', ['official_id' => $id])
+				->contain(['Divisions' => ['Leagues']])
 				->where([
-					'Games.published' => true,
+					'OfficiatedGames.published' => true,
 				])
 				->order(['GameSlots.game_date', 'GameSlots.game_start'])
 				->toArray());

@@ -3,22 +3,27 @@ namespace App\Test\TestCase\Controller;
 
 use App\Model\Entity\Affiliate;
 use App\Model\Entity\Badge;
+use App\Model\Entity\League;
 use App\Model\Entity\Person;
 use App\Model\Entity\Upload;
 use App\Model\Table\PeopleTable;
 use App\Test\Factory\BadgeFactory;
 use App\Test\Factory\BadgesPersonFactory;
+use App\Test\Factory\FacilityFactory;
 use App\Test\Factory\NoteFactory;
 use App\Test\Factory\PeoplePersonFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\SettingFactory;
 use App\Test\Factory\SkillFactory;
 use App\Test\Factory\TaskFactory;
+use App\Test\Factory\TeamsPersonFactory;
 use App\Test\Factory\UploadFactory;
 use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\LeagueWithFullScheduleScenario;
 use App\Test\Scenario\LeagueWithRostersScenario;
 use App\Test\Scenario\SingleGameScenario;
 use App\TestSuite\ZuluruEmailTrait;
+use App\View\Helper\ZuluruTimeHelper;
 use Cake\Core\Configure;
 use Cake\Database\TypeFactory;
 use Cake\Filesystem\Folder;
@@ -2113,6 +2118,39 @@ class PeopleControllerTest extends ControllerTestCase {
 	}
 
 	/**
+	 * Test officiating_schedule method
+	 */
+	public function testOfficiatingSchedule(): void {
+		[$admin, $official] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'official']);
+		$affiliates = $admin->affiliates;
+
+		SettingFactory::make([
+			'person_id' => $official->id,
+			'category' => 'personal',
+			'name' => 'enable_ical',
+			'value' => true,
+		])
+			->persist();
+
+		/** @var League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, [
+			'affiliate' => $affiliates[0], 'scores' => true, 'official' => $official,
+			'league_details' => ['officials' => OFFICIALS_ADMIN],
+		]);
+		$game = $league->divisions[0]->games[0];
+
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'officiating_schedule', '?' => ['official' => $official->id]]);
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'officiating_schedule', '?' => ['official' => $official->id]],
+			$admin->id, '/',
+			'No games on the officiating schedule.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'officiating_schedule'],
+			$official->id, '/',
+			'No games on the officiating schedule.');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'officiating_schedule', '?' => ['all' => true]], $official->id);
+		$this->assertResponseContains('<a href="/games/view?game=' . $game->id . '">7:00PM-9:00PM</a>');
+	}
+
+	/**
 	 * Test act_as method
 	 */
 	public function testActAs(): void {
@@ -2642,10 +2680,11 @@ class PeopleControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test ical method
+	 * Test ical method for a player
 	 */
-	public function testIcal(): void {
+	public function testIcalPlayer(): void {
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		$affiliates = $admin->affiliates;
 
 		SettingFactory::make([
 			'person_id' => $player->id,
@@ -2655,12 +2694,77 @@ class PeopleControllerTest extends ControllerTestCase {
 		])
 			->persist();
 
-		// Can get the ical feed for anyone with the option enabled
+		/** @var League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, [
+			'affiliate' => $affiliates[0], 'scores' => true,
+			'league_details' => ['officials' => OFFICIALS_ADMIN],
+		]);
+		$game = $league->divisions[0]->games[0];
+		$facility = FacilityFactory::get($game->game_slot->field->facility_id);
+
+		// Put the player on a team
+		TeamsPersonFactory::make(['team_id' => $game->home_team_id, 'person_id' => $player->id, 'role' => 'player'])
+			->persist();
+
+		// Cannot get the ical feed for someone with the option disabled
 		$this->get(['controller' => 'People', 'action' => 'ical', $admin->id]);
 		$this->assertResponseCode(410);
+
+		// Can get the ical feed for anyone with the option enabled
 		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'ical', $player->id]);
 
-		$this->markTestIncomplete('More scenarios to test above.');
+		$start = ZuluruTimeHelper::iCal($game->game_slot->start_time);
+		$end = ZuluruTimeHelper::iCal($game->game_slot->end_time);
+		$domain = Configure::read('App.domain');
+
+		$this->assertResponseContains('BEGIN:VCALENDAR');
+		$this->assertResponseContains("CALNAME:{$player->full_name}'s schedule from TZA");
+		$this->assertResponseContains("UID:P{$game->id}@{$domain}");
+		$this->assertResponseContains("DTSTART:{$start}");
+		$this->assertResponseContains("DTEND:{$end}");
+		$this->assertResponseContains("/facilities/view?facility={$game->game_slot->field->facility_id}");
+		$this->assertResponseContains($facility->location_street);
+		$this->assertResponseContains("SUMMARY:{$game->home_team->name} (home) vs {$game->away_team->name} (away)");
+	}
+
+	/**
+	 * Test ical method for game officials
+	 */
+	public function testIcalOfficial(): void {
+		[$admin, $official] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'official']);
+		$affiliates = $admin->affiliates;
+
+		SettingFactory::make([
+			'person_id' => $official->id,
+			'category' => 'personal',
+			'name' => 'enable_ical',
+			'value' => true,
+		])
+			->persist();
+
+		/** @var League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, [
+			'affiliate' => $affiliates[0], 'scores' => true, 'official' => $official,
+			'league_details' => ['officials' => OFFICIALS_ADMIN],
+		]);
+		$game = $league->divisions[0]->games[0];
+		$facility = FacilityFactory::get($game->game_slot->field->facility_id);
+
+		// Can get the ical feed for anyone with the option enabled
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'ical', $official->id]);
+
+		$start = ZuluruTimeHelper::iCal($game->game_slot->start_time);
+		$end = ZuluruTimeHelper::iCal($game->game_slot->end_time);
+		$domain = Configure::read('App.domain');
+
+		$this->assertResponseContains('BEGIN:VCALENDAR');
+		$this->assertResponseContains("CALNAME:{$official->full_name}'s schedule from TZA");
+		$this->assertResponseContains("UID:O{$game->id}@{$domain}");
+		$this->assertResponseContains("DTSTART:{$start}");
+		$this->assertResponseContains("DTEND:{$end}");
+		$this->assertResponseContains("/facilities/view?facility={$facility->id}");
+		$this->assertResponseContains($facility->location_street);
+		$this->assertResponseContains("SUMMARY:Officiating {$league->divisions[0]->long_league_name} at");
 	}
 
 	/**

@@ -589,17 +589,13 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
-		// Some schedule-based things will return different results if run before game time on the current date than
-		// after game time. This will ensure we get a day number that's not the current day of the week, but matches
-		// the possible values for ChronosInterface.
-		$day = date('w') + 1;
-
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, [
-			'affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day,
+			'affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true,
 			'league_details' => ['officials' => OFFICIALS_ADMIN]
 		]);
 		[$season, $playoffs] = $league->divisions;
+		$day = $season->days[0]->id;
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
@@ -666,11 +662,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
-		$day = date('w') + 1;
-
 		/** @var \App\Model\Entity\League $league */
-		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
 		[$season, $playoffs] = $league->divisions;
+		$day = $season->days[0]->id;
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
@@ -737,11 +732,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
-		$day = date('w') + 1;
-
 		/** @var \App\Model\Entity\League $league */
-		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
 		[$season, $playoffs] = $league->divisions;
+		$day = $season->days[0]->id;
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
@@ -818,9 +812,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a captain
 	 */
 	public function testScheduleAsCaptain(): void {
-		// Set the time to 8pm. Otherwise, the submit link won't be shown for week 3 games when the test is run on a Monday
-		FrozenTime::setTestNow(FrozenTime::now()->hour(20));
-
 		[$admin, $volunteer, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
