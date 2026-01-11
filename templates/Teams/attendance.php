@@ -26,6 +26,7 @@ $this->Breadcrumbs->add($team->name);
 	<h2><?= __('Season Attendance') ?></h2>
 <?php
 $all_items = $event_attendance;
+$can_invite = $this->Authorize->can('invite_sub', $team);
 
 if (count($days) > 1) {
 	$prefix = __('Week of') . ' ';
@@ -163,7 +164,7 @@ if ($this->Authorize->can('display_gender', new ContextResource($team, ['divisio
 				}
 			}
 		}
-		if (!empty($counts)):
+		if (!empty($counts) || ($can_invite && $status === ATTENDANCE_INVITED)):
 			$low = Text::slug(strtolower($description), '_');
 			$icon = $this->Html->iconImg("attendance_{$low}_dedicated_24.png");
 ?>
@@ -178,6 +179,20 @@ if ($this->Authorize->can('display_gender', new ContextResource($team, ['divisio
 								echo array_sum($counts[$key]);
 							} else {
 								echo implode(' / ', $counts[$key]);
+							}
+						}
+						if ($can_invite && $status === ATTENDANCE_INVITED) {
+							$item = $all_items[$key];
+							if (is_a($item, \App\Model\Entity\Game::class)) {
+								if ($item->id) {
+									echo $this->Html->iconLink('attendance_invited_dedicated_24.png',
+										['controller' => 'Games', 'action' => 'invite_sub', '?' => ['game' => $item->id, 'team' => $team->id]],
+										['alt' => __('Invite Sub'), 'title' => __('Invite Sub')]);
+								} else {
+									echo $this->Html->iconLink('attendance_invited_dedicated_24.png',
+										['controller' => 'Games', 'action' => 'invite_sub', '?' => ['date' => $this->Time->format($item->game_slot->game_date, 'y-MM-dd'), 'team' => $team->id]],
+										['alt' => __('Invite Sub'), 'title' => __('Invite Sub')]);
+								}
 							}
 						}
 					?></td>

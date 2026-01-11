@@ -1187,10 +1187,7 @@ class AppController extends Controller {
 				$this->set('search_error', __('The search terms used are too general. Please be more specific.'));
 			} else {
 				// Set the default pagination order; query params may override it.
-				// TODO: Multiple default sort fields break pagination links.
-				// https://github.com/cakephp/cakephp/issues/7324 has related info.
-				//$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
-				$this->paginate['order'] = ['People.last_name' => 'ASC'];
+				$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
 
 				$this->People = $this->fetchTable('People');
 				$query = $this->People->find()
@@ -1238,6 +1235,10 @@ class AppController extends Controller {
 					$query->matching('UserGroups', function (Query $q) use ($conditions) {
 						return $q->where(['UserGroups.id IN' => $conditions['group_id IN']]);
 					});
+					unset($conditions['group_id IN']);
+				}
+				if (!empty($conditions)) {
+					$query->andWhere($conditions);
 				}
 
 				$this->set('people', $this->paginate($query));

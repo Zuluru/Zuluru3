@@ -1709,7 +1709,7 @@ class TeamsController extends AppController {
 
 		$this->set(compact('team'));
 
-		$this->_handlePersonSearch(['team'], ['group_id IN' => [GROUP_PLAYER,GROUP_COACH]]);
+		$this->_handlePersonSearch(['team'], ['group_id IN' => [GROUP_PLAYER, GROUP_COACH]]);
 
 		// Only show teams from divisions that have some schedule type
 		$teams = array_reverse($this->UserCache->read('AllTeams'));

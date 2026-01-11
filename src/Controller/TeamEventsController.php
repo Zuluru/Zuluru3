@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Authorization\ContextResource;
 use App\Policy\MissingIdentityResult;
+use App\Service\Games\AttendanceService;
 use Authorization\Exception\ForbiddenException;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
@@ -333,13 +334,15 @@ class TeamEventsController extends AppController {
 			}
 
 			$days_to_event = FrozenDate::now()->diffInDays($date, false);
+			$service = new AttendanceService($this->Flash, $this->getRequest()->is('ajax'));
 
 			if (array_key_exists('status', $data) && $data['status'] == 'comment') {
 				// Comments that come via Ajax will have the status set to comment, which is not useful.
 				unset($data['status']);
-				$result = $this->_updateAttendanceComment($data, $attendance, $team_event, $date, $team, $is_me, $days_to_event, $past);
+				$result = $service->updateEventAttendanceComment($data, $attendance, $team_event, $date, $team, $is_me, $days_to_event, $past);
 			} else {
-				$result = $this->_updateAttendanceStatus($data, $attendance, $team_event, $date, $team, $is_captain, $is_me, $days_to_event, $past, $attendance_options);
+				$role = $attendance->person->teams[0]->_joinData->role;
+				$result = $service->updateEventAttendanceStatus($data, $attendance, $team_event, $date, $team, $role, $is_captain, $is_me, $days_to_event, $past, $attendance_options);
 			}
 
 			// Where do we go from here? It depends...
@@ -363,112 +366,4 @@ class TeamEventsController extends AppController {
 			'person' => $attendance->person,
 		]));
 	}
-
-	protected function _updateAttendanceStatus($data, $attendance, $team_event, $date, $team, $is_captain, $is_me, $days_to_event, $past, $attendance_options) {
-		if (!array_key_exists($data['status'], $attendance_options)) {
-			$this->Flash->info(__('That is not currently a valid attendance status for this person for this event.'));
-			return false;
-		}
-
-		$attendance = $this->TeamEvents->Attendances->patchEntity($attendance, $data);
-		if (!$attendance->isDirty('status') && !$attendance->isDirty('comment') && !$attendance->isDirty('note')) {
-			return true;
-		}
-
-		if (!$this->TeamEvents->Attendances->save($attendance)) {
-			$this->Flash->warning(__('Failed to update the attendance status!'));
-			return false;
-		}
-
-		if (!$this->getRequest()->is('ajax')) {
-			$this->Flash->success(__('Attendance has been updated to {0}.', $attendance_options[$attendance->status]));
-		}
-
-		// Maybe send some emails, only if the event is in the future
-		if ($past) {
-			return true;
-		}
-
-		$role = $attendance->person->teams[0]->_joinData->role;
-
-		// Send email from the player to the captain(s) if it's within the configured date range
-		if ($is_me && $team->attendance_notification >= $days_to_event) {
-			if (!empty($team->people)) {
-				$this->_sendMail([
-					'to' => $team->people,
-					'replyTo' => $attendance->person,
-					'subject' => function() use ($team) { return __('{0} attendance change', $team->name); },
-					'template' => 'event_attendance_captain_notification',
-					'sendAs' => 'both',
-					'viewVars' => array_merge([
-						'captains' => implode(', ', collection($team->people)->extract('first_name')->toArray()),
-						'person' => $attendance->person,
-						'code' => $this->_makeHash([$attendance->id, $attendance->team_event_id, $attendance->person_id, $attendance->created, 'captain']),
-					], compact('attendance', 'team_event', 'date', 'team')),
-				]);
-			}
-		}
-		// Always send an email from the captain to substitute players. It will likely
-		// be an invitation to play or a response to a request or cancelling attendance
-		// if another player is available. Regardless, we need to communicate this.
-		else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
-			$captain = $this->UserCache->read('Person.full_name');
-			$this->_sendMail([
-				'to' => $attendance->person,
-				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => function() use ($team, $date) { return __('{0} attendance change for {1} on {2}', $team->name, __('event'), $date); },
-				'template' => 'event_attendance_substitute_notification',
-				'sendAs' => 'both',
-				'viewVars' => array_merge([
-					'captain' => $captain ? $captain : __('A coach or captain'),
-					'person' => $attendance->person,
-					'code' => $this->_makeHash([$attendance->id, $attendance->team_event_id, $attendance->person_id, $attendance->created]),
-					'player_options' => GamesTable::attendanceOptions($role, $attendance->status, $past, false),
-				], compact('attendance', 'team_event', 'date', 'team')),
-			]);
-		}
-
-		return true;
-	}
-
-	protected function _updateAttendanceComment($data, $attendance, $team_event, $date, $team, $is_me, $days_to_event, $past) {
-		$attendance = $this->TeamEvents->Attendances->patchEntity($attendance, $data);
-		if (!$attendance->isDirty('comment')) {
-			return true;
-		}
-
-		if (!$this->TeamEvents->Attendances->save($attendance)) {
-			$this->Flash->warning(__('Failed to update the attendance comment!'));
-			return false;
-		}
-
-		if (!$this->getRequest()->is('ajax')) {
-			$this->Flash->success(__('Attendance comment has been updated.'));
-		}
-
-		// Maybe send some emails, only if the event is in the future
-		if ($past) {
-			return true;
-		}
-
-		// Send email from the player to the captain(s) if it's within the configured date range
-		if ($is_me && $team->attendance_notification >= $days_to_event) {
-			if (!empty($team->people)) {
-				$this->_sendMail([
-					'to' => $team->people,
-					'replyTo' => $attendance->person,
-					'subject' => function() use ($team) { return __('{0} attendance comment', $team->name); },
-					'template' => 'event_attendance_comment_captain_notification',
-					'sendAs' => 'both',
-					'viewVars' => array_merge([
-						'captains' => implode(', ', collection($team->people)->extract('first_name')->toArray()),
-						'person' => $attendance->person,
-					], compact('attendance', 'team_event', 'date', 'team')),
-				]);
-			}
-		}
-
-		return true;
-	}
-
 }

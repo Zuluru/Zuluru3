@@ -348,7 +348,7 @@ class DivisionsController extends AppController {
 			}
 		}
 
-		$this->_handlePersonSearch(['division', 'person'], ['group_id IN' => [GROUP_VOLUNTEER,GROUP_OFFICIAL,GROUP_MANAGER,GROUP_ADMIN]]);
+		$this->_handlePersonSearch(['division', 'person'], ['group_id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
 	}
 
 	/**

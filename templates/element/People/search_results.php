@@ -1,7 +1,7 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Person[] $people
  * @var string|array $url
  * @var string|array $extra_url
  */
@@ -149,15 +149,14 @@ elseif (isset($people)):
 			</tbody>
 		</table>
 	</div>
-</div>
-<nav class="paginator"><ul class="pagination">
-	<?= $this->Paginator->numbers(['prev' => true, 'next' => true]) ?>
-</ul></nav>
+	<nav class="paginator"><ul class="pagination">
+		<?= $this->Paginator->numbers(['prev' => true, 'next' => true]) ?>
+	</ul></nav>
 
 <?php
 	if (in_array($this->getRequest()->getParam('action'), ['rule_search', 'league_search', 'inactive_search'])):
 ?>
-<div class="actions columns">
+	<div class="actions columns">
 <?php
 		echo $this->Bootstrap->navPills([
 			$this->Html->link(__('Download'),
@@ -166,7 +165,9 @@ elseif (isset($people)):
 			),
 		]);
 ?>
-</div>
+	</div>
 <?php
 	endif;
 endif;
+?>
+</div>

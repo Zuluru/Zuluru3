@@ -16005,7 +16005,7 @@ msgstr ""
 
 #: Template/Games/attendance_change.ctp:68
 #: Template/TeamEvents/attendance_change.ctp:65
-msgid "You may optionally add a personal note which will be included in the invitation email to the player"
+msgid "You may optionally add a personal note which will be included in the invitation email to the player."
 msgstr ""
 
 #: Template/Games/edit.ctp:20

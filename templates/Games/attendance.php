@@ -80,6 +80,9 @@ $links = [];
 if ($this->Authorize->can('note', new ContextResource($game, ['home_team' => $game->home_team, 'away_team' => $game->away_team]))) {
 	$links[] = $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
+if ($this->Authorize->can('invite_sub', $team)) {
+	$links[] = $this->Html->link(__('Invite Sub'), ['action' => 'invite_sub', '?' => ['game' => $game->id, 'team' => $team->id]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
+}
 if ($this->Authorize->can('stat_sheet', new ContextResource($team, ['league' => $game->division->league, 'stat_types' => $game->division->league->stat_types]))) {
 	$links[] = $this->Html->iconLink('pdf_32.png',
 		['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['team' => $team->id, 'game' => $game->id]],

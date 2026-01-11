@@ -212,7 +212,7 @@ class AffiliatesController extends AppController {
 			}
 		}
 
-		$this->_handlePersonSearch(['affiliate', 'person'], ['group_id IN' => [GROUP_MANAGER,GROUP_ADMIN]]);
+		$this->_handlePersonSearch(['affiliate', 'person'], ['group_id IN' => [GROUP_MANAGER, GROUP_ADMIN]]);
 	}
 
 	/**

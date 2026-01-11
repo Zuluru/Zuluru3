@@ -387,7 +387,7 @@ class FranchisesController extends AppController {
 			}
 		}
 
-		$this->_handlePersonSearch(['franchise', 'person'], ['group_id IN' => [GROUP_PLAYER,GROUP_COACH,GROUP_PARENT]]);
+		$this->_handlePersonSearch(['franchise', 'person'], ['group_id IN' => [GROUP_PLAYER, GROUP_COACH, GROUP_PARENT]]);
 	}
 
 	/**

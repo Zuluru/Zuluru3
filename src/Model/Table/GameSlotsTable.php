@@ -210,39 +210,8 @@ class GameSlotsTable extends AppTable {
 				return true;
 			}
 
-			$sunset = \App\Lib\local_sunset_for_date($entity->game_date);
-			if (empty($entity->game_end)) {
-				$game_end = $sunset;
-			} else {
-				$game_end = $entity->game_end;
-			}
-
-			$conditions = [
-				'field_id' => $entity->field_id,
-				'game_date' => $entity->game_date,
-				'OR' => [
-					[
-						'game_start >=' => $entity->game_start,
-						'game_start <' => $game_end,
-					],
-					[
-						'game_start <' => $entity->game_start,
-						'game_end >' => $entity->game_start,
-					],
-				],
-			];
-			if ($sunset > $entity->game_start) {
-				$conditions['OR'][] = [
-					'game_start <' => $entity->game_start,
-					'game_end IS' => null,
-				];
-			}
-			if (!$entity->isNew()) {
-				$conditions['id !='] = $entity->id;
-			}
-
-			$overlap = $this->find()
-				->where($conditions)
+			$overlap = $this->find('overlap', ['game_slot' => $entity])
+				->andWhere(['field_id' => $entity->field_id])
 				->count();
 			if ($overlap) {
 				if (!empty($options['single'])) {
@@ -283,6 +252,41 @@ class GameSlotsTable extends AppTable {
 		if ($options->offsetExists('divisions') && $options['divisions'] && !$data->offsetExists('divisions')) {
 			$data['divisions'] = [];
 		}
+	}
+
+	public function findOverlap(Query $query, array $options) {
+		$game_slot = $options['game_slot'];
+		$sunset = \App\Lib\local_sunset_for_date($game_slot->game_date);
+		if (empty($game_slot->game_end)) {
+			$game_end = $sunset;
+		} else {
+			$game_end = $game_slot->game_end;
+		}
+
+		$conditions = [
+			'game_date' => $game_slot->game_date,
+			'OR' => [
+				[
+					'game_start >=' => $game_slot->game_start,
+					'game_start <' => $game_end,
+				],
+				[
+					'game_start <' => $game_slot->game_start,
+					'game_end >' => $game_slot->game_start,
+				],
+			],
+		];
+		if ($sunset > $game_slot->game_start) {
+			$conditions['OR'][] = [
+				'game_start <' => $game_slot->game_start,
+				'game_end IS' => null,
+			];
+		}
+		if (!$game_slot->isNew()) {
+			$conditions['id !='] = $game_slot->id;
+		}
+
+		return $query->where($conditions);
 	}
 
 	// TODOLATER: Replace all the getXxx functions with query-based custom finders like this?

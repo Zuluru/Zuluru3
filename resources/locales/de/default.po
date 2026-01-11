@@ -14236,8 +14236,8 @@ msgstr "Sie können optional einen Kommentar hinzufügen"
 
 #: Template/Games/attendance_change.ctp:66
 #: Template/TeamEvents/attendance_change.ctp:52
-msgid "You may optionally add a personal note which will be included in the invitation email to the player"
-msgstr "Sie können optional eine persönliche Note hinzuzufügen, die dem Spieler in der Einladung E-Mail aufgenommen werden"
+msgid "You may optionally add a personal note which will be included in the invitation email to the player."
+msgstr "Sie können optional eine persönliche Note hinzuzufügen, die dem Spieler in der Einladung E-Mail aufgenommen werden."
 
 #: Template/Games/edit.ctp:15;16;21;22
 #: Template/Games/submit_score.ctp:107;108

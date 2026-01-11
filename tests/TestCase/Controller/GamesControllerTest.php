@@ -1660,57 +1660,57 @@ class GamesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test add_sub method as an admin
+	 * Test invite_sub method as an admin
 	 */
-	public function testAddSubAsAdmin(): void {
+	public function testInviteSubAsAdmin(): void {
 		// Admins are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test add_sub method as a manager
+	 * Test invite_sub method as a manager
 	 */
-	public function testAddSubAsManager(): void {
+	public function testInviteSubAsManager(): void {
 		// Managers are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test add_sub method as a coordinator
+	 * Test invite_sub method as a coordinator
 	 */
-	public function testAddSubAsCoordinator(): void {
+	public function testInviteSubAsCoordinator(): void {
 		// Coordinators are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test add_sub method as a captain
+	 * Test invite_sub method as a captain
 	 */
-	public function testAddSubAsCaptain(): void {
+	public function testInviteSubAsCaptain(): void {
 		// Captains are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test add_sub method as a player
+	 * Test invite_sub method as a player
 	 */
-	public function testAddSubAsPlayer(): void {
+	public function testInviteSubAsPlayer(): void {
 		// Players are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test add_sub method as someone else
+	 * Test invite_sub method as someone else
 	 */
-	public function testAddSubAsVisitor(): void {
+	public function testInviteSubAsVisitor(): void {
 		// Visitors are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test add_sub method without being logged in
+	 * Test invite_sub method without being logged in
 	 */
-	public function testAddSubAsAnonymous(): void {
+	public function testInviteSubAsAnonymous(): void {
 		// Others are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}

@@ -2,8 +2,12 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Attendance;
+use App\Model\Entity\Game;
 use App\Model\Table\GamesTable;
+use App\Model\Table\SubRequestsTable;
 use App\Policy\MissingIdentityResult;
+use App\Service\Games\AttendanceService;
 use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -13,10 +17,10 @@ use Cake\Http\Exception\GoneException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
-use App\PasswordHasher\HasherTrait;
 use App\Model\Entity\Allstar;
 use App\Model\Entity\Team;
 use App\Model\Table\PeopleTable;
+use Cake\Utility\Text;
 
 /**
  * Games Controller
@@ -24,8 +28,6 @@ use App\Model\Table\PeopleTable;
  * @property \App\Model\Table\GamesTable $Games
  */
 class GamesController extends AppController {
-
-	use HasherTrait;
 
 	/**
 	 * _noAuthenticationActions method
@@ -803,7 +805,251 @@ class GamesController extends AppController {
 		$this->viewBuilder()->setOption('serialize', ['game', 'team', 'opponent', 'attendance']);
 	}
 
-	public function TODOLATER_add_sub() {
+	public function invite_sub() {
+		$game_id = $this->getRequest()->getQuery('game');
+		$date = $this->getRequest()->getQuery('date');
+		if (!$game_id && !$date) {
+			$this->Flash->info(__('Invalid game.'));
+			return $this->redirect('/');
+		}
+
+		$team_id = $this->getRequest()->getQuery('team');
+		if (!$team_id) {
+			$this->Flash->info(__('Invalid team.'));
+			return $this->redirect('/');
+		}
+
+		if ($game_id) {
+			try {
+				/** @var Game $game */
+				$game = $this->Games->get($game_id, [
+					'contain' => [
+						'HomeTeam' => ['Divisions' => ['Leagues']],
+						'AwayTeam' => ['Divisions' => ['Leagues']],
+						'GameSlots' => ['Fields' => ['Facilities' => ['Regions']]],
+						// We need to specify the team id here, in case the person is on both teams in this game
+						'Attendances' => [
+							'queryBuilder' => function (Query $q) use ($team_id) {
+								return $q->where(compact('team_id'));
+							},
+						],
+					]
+				]);
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+				$this->Flash->info(__('Invalid game.'));
+				return $this->redirect('/');
+			}
+
+			$this->Configuration->loadAffiliate($game->game_slot->field->facility->region->affiliate_id);
+			$date = $game->game_slot->game_date;
+
+			if ($game->home_team_id == $team_id) {
+				$team = $game->home_team;
+				$opponent = $game->away_team;
+			} else if ($game->away_team_id == $team_id) {
+				$team = $game->away_team;
+				$opponent = $game->home_team;
+			} else {
+				$this->Flash->info(__('That team is not playing in this game.'));
+				return $this->redirect('/');
+			}
+
+			$exclusions = collection($game->attendances)->extract('person_id')->toArray();
+
+			// Add everyone that's already attending any game in a time that overlaps with this one to the exclusions
+			$overlappingSlots = $this->Games->GameSlots->find('overlap', ['game_slot' => $game->game_slot])
+				->extract('id')->toArray();
+			if (!empty($overlappingSlots)) {
+				$games = $this->Games->find()->where(['game_slot_id IN' => $overlappingSlots])
+					->extract('id')->toArray();
+				if (!empty($games)) {
+					$busy = $this->Games->Attendances->find()->where(['game_id IN' => $games, 'status' => ATTENDANCE_ATTENDING])
+						->extract('person_id')->toList();
+					if (!empty($busy)) {
+						$exclusions = array_merge($exclusions, $busy);
+					}
+				}
+			}
+		} else {
+			$date = new FrozenDate($date);
+			$game = $this->Games->newEmptyEntity();
+			$opponent = $this->Games->HomeTeam->newEmptyEntity();
+
+			/** @var Team $team */
+			$team = $this->Games->HomeTeam->get($team_id, [
+				'contain' => [
+					'Divisions' => ['Leagues', 'Days'],
+				]
+			]);
+
+			$game_dates = GamesTable::matchDates($date, collection($team->division->days)->extract('id')->toArray());
+
+			$exclusions = $this->Games->Attendances->find()
+				->where([
+					'team_id' => $team_id,
+					'game_date IN' => $game_dates,
+				])
+				->extract('person_id')
+				->toList();
+		}
+
+		$this->Authorization->authorize($team);
+
+		if ($date->addDays(3)->isPast()) {
+			$this->Flash->info(__('Cannot add subs to past games.'));
+			return $this->redirect('/');
+		}
+
+		// Purge old requests before running this query
+		$SubRequests = $this->getTableLocator()->get('SubRequests');
+		$SubRequests->deleteAll(['game_date <' => $date->subYears(1)]);
+
+		$pastRequests = $SubRequests->find()
+			->contain('People')
+			->distinct('SubRequests.person_id')
+			->where([
+				'OR' => [
+					'captain_id' => $this->UserCache->currentId(),
+					'team_id' => $team_id,
+				],
+			]);
+		if (!empty($exclusions)) {
+			$pastRequests = $pastRequests->andWhere(['person_id NOT IN' => $exclusions]);
+		}
+		$pastRequests = $pastRequests->toArray();
+		if (!empty($pastRequests)) {
+			$exclusions = array_merge($exclusions, collection($pastRequests)->extract('person_id')->toList());
+		}
+
+		$conditions = ['group_id IN' => [GROUP_PLAYER]];
+		if (!empty($exclusions)) {
+			$conditions['People.id NOT IN'] = $exclusions;
+		}
+		$this->_handlePersonSearch(['team', 'game', 'date'], $conditions);
+
+		$this->set(compact('game', 'date', 'team', 'opponent', 'pastRequests'));
+	}
+
+	public function invite_subs() {
+		$team_id = $this->getRequest()->getData('team_id');
+		try {
+			/** @var Team $team */
+			$team = $this->Games->HomeTeam->get($team_id);
+			$this->Authorization->authorize($team, 'invite_sub');
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid team.'));
+			return $this->redirect('/');
+		}
+
+		$game_id = $this->getRequest()->getData('game_id');
+		$date = $this->getRequest()->getData('date');
+		if (!$game_id && !$date) {
+			$this->Flash->info(__('Invalid game.'));
+			return $this->redirect('/');
+		}
+
+		$subs = collection($this->getRequest()->getData('player'))
+			->filter(fn ($selected) => $selected)
+			->toArray();
+		if (empty($subs)) {
+			$this->Flash->info(__('You must select at least one sub to invite.'));
+			return $this->redirect(['action' => 'invite_sub', '?' => ['game' => $game_id ?: null, 'date' => $game_id ? null : $date, 'team' => $team->id]]);
+		}
+
+		if ($game_id) {
+			try {
+				/** @var Game $game */
+				$game = $this->Games->get($game_id, [
+					'contain' => [
+						'HomeTeam' => ['Divisions' => ['Leagues']],
+						'AwayTeam' => ['Divisions' => ['Leagues']],
+						'GameSlots' => ['Fields' => ['Facilities' => ['Regions']]],
+					]
+				]);
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+				$this->Flash->info(__('Invalid game.'));
+				return $this->redirect('/');
+			}
+
+			$this->Configuration->loadAffiliate($game->game_slot->field->facility->region->affiliate_id);
+			$date = $game->game_slot->game_date;
+			$past = $game->game_slot->start_time->isPast();
+
+			if ($game->home_team_id == $team_id) {
+				$team = $game->home_team;
+				$opponent = $game->away_team;
+			} else if ($game->away_team_id == $team_id) {
+				$team = $game->away_team;
+				$opponent = $game->home_team;
+			} else {
+				$this->Flash->info(__('That team is not playing in this game.'));
+				return $this->redirect('/');
+			}
+		} else {
+			$date = new FrozenDate($date);
+			$past = $date->isPast();
+			$game = $this->Games->newEmptyEntity();
+			$opponent = $this->Games->HomeTeam->newEmptyEntity();
+
+			/** @var Team $team */
+			$team = $this->Games->HomeTeam->get($team_id, [
+				'contain' => [
+					'Divisions' => ['Leagues', 'Days'],
+					'People',
+				]
+			]);
+		}
+
+		if ($date->addDays(3)->isPast()) {
+			$this->Flash->info(__('Cannot add subs to past games.'));
+			return $this->redirect('/');
+		}
+
+		$service = new AttendanceService($this->Flash, $this->getRequest()->is('ajax'));
+		$note = $this->getRequest()->getData('note');
+		$days_to_game = FrozenDate::now()->diffInDays($date, false);
+		$status = $past ? ATTENDANCE_ATTENDING : ATTENDANCE_INVITED;
+		$attendance_options = GamesTable::attendanceOptions('substitute', $status, $past, true);
+
+		/** @var SubRequestsTable $SubRequests */
+		$SubRequests = $this->getTableLocator()->get('SubRequests');
+		$success = [];
+		foreach (array_keys($subs) as $sub) {
+			/** @var Attendance $attendance */
+			$attendance = $this->Games->Attendances->newEntity([
+				'team_id' => $team_id,
+				'game_date' => $date,
+				'game_id' => $game_id,
+				'person_id' => $sub,
+			]);
+			$attendance->person = $SubRequests->People->get($sub);
+
+			if ($service->updateGameAttendanceStatus(compact('status', 'note'), $attendance, $game, $date, $team, $opponent,
+				'substitute', true, false, $days_to_game, $past, $attendance_options)
+			) {
+				$success[] = $attendance->person->full_name;
+				$request = $SubRequests->newEntity([
+					'captain_id' => $this->UserCache->currentId(),
+					'team_id' => $team_id,
+					'game_date' => $date,
+					'person_id' => $sub,
+				]);
+				$SubRequests->save($request);
+			}
+		}
+
+		if ($status === ATTENDANCE_INVITED && !empty($success)) {
+			$this->Flash->success(__n('Invitation has been sent to {0}.', 'Invitations have been sent to {0}.',
+				count($success),
+				Text::toList($success)
+			));
+		}
+
+		if ($game_id) {
+			return $this->redirect(['action' => 'attendance', '?' => ['team' => $team->id, 'game' => $game_id]]);
+		} else {
+			return $this->redirect(['controller' => 'Teams', 'action' => 'attendance', '?' => ['team' => $team->id]]);
+		}
 	}
 
 	public function attendance_change() {
@@ -952,13 +1198,15 @@ class GamesController extends AppController {
 
 		if ($code || $this->getRequest()->is(['patch', 'post', 'put'])) {
 			$days_to_game = FrozenDate::now()->diffInDays($game_date, false);
+			$service = new AttendanceService($this->Flash, $this->getRequest()->is('ajax'));
 
 			if (array_key_exists('status', $data) && $data['status'] == 'comment') {
 				// Comments that come via Ajax will have the status set to comment, which is not useful.
 				unset($data['status']);
-				$result = $this->_updateAttendanceComment($data, $attendance, $game, $game_date, $team, $opponent, $is_me, $days_to_game, $past);
+				$result = $service->updateGameAttendanceComment($data, $attendance, $game, $game_date, $team, $opponent, $is_me, $days_to_game, $past);
 			} else {
-				$result = $this->_updateAttendanceStatus($data, $attendance, $game, $game_date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options);
+				$role = $attendance->person->teams[0]->_joinData->role;
+				$result = $service->updateGameAttendanceStatus($data, $attendance, $game, $game_date, $team, $opponent, $role, $is_captain, $is_me, $days_to_game, $past, $attendance_options);
 			}
 
 			// Where do we go from here? It depends...
@@ -980,113 +1228,6 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('attendance', 'game', 'game_date', 'team', 'opponent', 'attendance_options', 'is_captain', 'is_me'));
-	}
-
-	protected function _updateAttendanceStatus($data, $attendance, $game, $date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options) {
-		if (!array_key_exists($data['status'], $attendance_options)) {
-			$this->Flash->info(__('That is not currently a valid attendance status for this person for this game.'));
-			return false;
-		}
-
-		$attendance = $this->Games->Attendances->patchEntity($attendance, $data);
-		if (!$attendance->isDirty('status') && !$attendance->isDirty('comment') && !$attendance->isDirty('note')) {
-			return true;
-		}
-
-		if (!$this->Games->Attendances->save($attendance)) {
-			$this->Flash->warning(__('Failed to update the attendance status!'));
-			return false;
-		}
-
-		if (!$this->getRequest()->is('ajax')) {
-			$this->Flash->success(__('Attendance has been updated to {0}.', $attendance_options[$attendance->status]));
-		}
-
-		// Maybe send some emails, only if the game is in the future
-		if ($past) {
-			return true;
-		}
-
-		$role = $attendance->person->teams[0]->_joinData->role;
-
-		// Send email from the player to the captain(s) if it's within the configured date range
-		if ($is_me && $team->attendance_notification >= $days_to_game) {
-			if (!empty($team->people)) {
-				$this->_sendMail([
-					'to' => $team->people,
-					'replyTo' => $attendance->person,
-					'subject' => function() use ($team) { return __('{0} attendance change', $team->name); },
-					'template' => 'attendance_captain_notification',
-					'sendAs' => 'both',
-					'viewVars' => array_merge([
-						'captains' => implode(', ', collection($team->people)->extract('first_name')->toArray()),
-						'person' => $attendance->person,
-						'code' => $this->_makeHash([$attendance->id, $attendance->team_id, $attendance->game_id, $attendance->person_id, $attendance->created, 'captain']),
-					], compact('attendance', 'game', 'date', 'team', 'opponent')),
-				]);
-			}
-		}
-		// Always send an email from the captain to substitute players. It will likely
-		// be an invitation to play or a response to a request or cancelling attendance
-		// if another player is available. Regardless, we need to communicate this.
-		else if ($is_captain && !in_array($role, Configure::read('playing_roster_roles'))) {
-			$captain = $this->UserCache->read('Person.full_name');
-			$this->_sendMail([
-				'to' => $attendance->person,
-				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => function() use ($team, $date) { return __('{0} attendance change for {1} on {2}', $team->name, __('game'), $date); },
-				'template' => 'attendance_substitute_notification',
-				'sendAs' => 'both',
-				'viewVars' => array_merge([
-					'captain' => $captain ? $captain : __('A coach or captain'),
-					'person' => $attendance->person,
-					'code' => $this->_makeHash([$attendance->id, $attendance->team_id, $attendance->game_id, $attendance->person_id, $attendance->created]),
-					'player_options' => $this->Games->attendanceOptions($role, $attendance->status, $past, false),
-				], compact('attendance', 'game', 'date', 'team', 'opponent')),
-			]);
-		}
-
-		return true;
-	}
-
-	protected function _updateAttendanceComment($data, $attendance, $game, $date, $team, $opponent, $is_me, $days_to_game, $past) {
-		$attendance = $this->Games->Attendances->patchEntity($attendance, $data);
-		if (!$attendance->isDirty('comment')) {
-			return true;
-		}
-
-		if (!$this->Games->Attendances->save($attendance)) {
-			$this->Flash->warning(__('Failed to update the attendance comment!'));
-			return false;
-		}
-
-		if (!$this->getRequest()->is('ajax')) {
-			$this->Flash->success(__('Attendance comment has been updated.'));
-		}
-
-		// Maybe send some emails, only if the game is in the future
-		if ($past) {
-			return true;
-		}
-
-		// Send email from the player to the captain(s) if it's within the configured date range
-		if ($is_me && $team->attendance_notification >= $days_to_game) {
-			if (!empty($team->people)) {
-				$this->_sendMail([
-					'to' => $team->people,
-					'replyTo' => $attendance->person,
-					'subject' => function() use ($team) { return __('{0} attendance comment', $team->name); },
-					'template' => 'attendance_comment_captain_notification',
-					'sendAs' => 'both',
-					'viewVars' => array_merge([
-						'captains' => implode(', ', collection($team->people)->extract('first_name')->toArray()),
-						'person' => $attendance->person,
-					], compact('attendance', 'game', 'date', 'team', 'opponent')),
-				]);
-			}
-		}
-
-		return true;
 	}
 
 	public function stat_sheet() {

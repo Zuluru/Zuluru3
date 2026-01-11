@@ -150,6 +150,10 @@ class TeamPolicy extends AppPolicy {
 		return $identity->isManagerOf($team) || $identity->isCoordinatorOf($team);
 	}
 
+	public function canInvite_sub(IdentityInterface $identity, Team $team) {
+		return $identity->isCaptainOf($team);
+	}
+
 	public function canAttendance(IdentityInterface $identity, Team $team) {
 		if (!$team->track_attendance) {
 			return new RedirectResult(__('That team does not have attendance tracking enabled.'));
@@ -164,9 +168,8 @@ class TeamPolicy extends AppPolicy {
 			return new RedirectResult(__('That team does not have attendance tracking enabled.'));
 		}
 
-		// Checking whether there's an attendance record should suffice as a proxy for checking
-		// whether the person is even on the team. There shouldn't be any attendance records for
-		// anyone that's not!
+		// Checking whether there's an attendance record handles cases where the person is on the team, and where they've
+		// been invited to sub for this game by the captain.
 		$attendance = $resource->attendance;
 		if (!$attendance) {
 			return false;

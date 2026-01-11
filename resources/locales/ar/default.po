@@ -14324,8 +14324,8 @@ msgstr "لديك الخيار في إضافة تعليق"
 
 #: Template/Games/attendance_change.ctp:66
 #: Template/TeamEvents/attendance_change.ctp:52
-msgid "You may optionally add a personal note which will be included in the invitation email to the player"
-msgstr "لديك الخيار في إضافة ملاحظة خاصة ستكون في إيميل دعوة اللاعب"
+msgid "You may optionally add a personal note which will be included in the invitation email to the player."
+msgstr "لديك الخيار في إضافة ملاحظة خاصة ستكون في إيميل دعوة اللاعب."
 
 #: Template/Games/edit.ctp:15;16;21;22
 #: Template/Games/submit_score.ctp:107;108

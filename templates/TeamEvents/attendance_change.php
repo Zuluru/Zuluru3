@@ -63,7 +63,7 @@ echo $this->Form->control('comment', [
 ]);
 if ($is_captain && array_key_exists(ATTENDANCE_INVITED, $attendance_options)) {
 	echo $this->Form->control('note', [
-		'label' => __('You may optionally add a personal note which will be included in the invitation email to the player'),
+		'label' => __('You may optionally add a personal note which will be included in the invitation email to the player.'),
 		'size' => 80,
 	]);
 }

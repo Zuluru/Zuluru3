@@ -94,20 +94,6 @@ foreach ($attendance->people as $person):
 <?php
 	endif;
 endforeach;
-
-// TODO: Add this feature
-if (0 && $attendance->track_attendance):
-?>
-
-			<tr id="add_row_<?= $attendance->id ?>">
-				<td colspan="<?= 2 + count($stat_types) ?>"><?php
-				echo $this->Html->link(__('Add a sub'),
-					['controller' => 'Games', 'action' => 'add_sub', '?' => ['game' => $game->id, 'team' => $attendance->id]],
-					['onclick' => "add_sub({$game->id}, {$attendance->id}, 'stats', 'add_row_{$attendance->id}'); return false;"]);
-				?></td>
-			</tr>
-<?php
-endif;
 ?>
 
 			<tr id="sub_row">
