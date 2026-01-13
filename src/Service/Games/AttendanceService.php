@@ -32,7 +32,7 @@ class AttendanceService
 		$this->ajax = $ajax;
 	}
 
-	public function updateGameAttendanceStatus(array  $data, Attendance $attendance, Game $game, FrozenDate $date, Team $team, Team $opponent,
+	public function updateGameAttendanceStatus(array  $data, Attendance $attendance, Game $game, FrozenDate $date, Team $team, ?Team $opponent,
 		string $role, bool $is_captain, bool $is_me, int $days_to_game, bool $past, array $attendance_options): bool
 	{
 		if (!array_key_exists($data['status'], $attendance_options)) {
@@ -99,7 +99,7 @@ class AttendanceService
 		return true;
 	}
 
-	public function updateGameAttendanceComment(array $data, Attendance $attendance, Game $game, FrozenDate $date, Team $team, Team $opponent,
+	public function updateGameAttendanceComment(array $data, Attendance $attendance, Game $game, FrozenDate $date, Team $team, ?Team $opponent,
 		bool  $is_me, int $days_to_game, bool $past): bool
 	{
 		$attendance = $this->Attendances->patchEntity($attendance, $data);
