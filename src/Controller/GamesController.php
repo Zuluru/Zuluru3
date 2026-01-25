@@ -1206,6 +1206,9 @@ class GamesController extends AppController {
 				$result = $service->updateGameAttendanceComment($data, $attendance, $game, $game_date, $team, $opponent, $is_me, $days_to_game, $past);
 			} else {
 				$role = $attendance->person->teams[0]->_joinData->role;
+				if (!$role) {
+					$role = 'substitute';
+				}
 				$result = $service->updateGameAttendanceStatus($data, $attendance, $game, $game_date, $team, $opponent, $role, $is_captain, $is_me, $days_to_game, $past, $attendance_options);
 			}
 
