@@ -1,46 +1,47 @@
 <?php
 use Migrations\AbstractMigration;
 use Migrations\Migrations;
+use Phinx\Db\Table\Column;
 
 class Install extends AbstractMigration {
 	public function up() {
 		$this->table('activity_logs')
-			->addColumn('type', 'string', [
+			->addColumn('type', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('team_event_id', 'integer', [
+			->addColumn('team_event_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('custom', 'integer', [
+			->addColumn('custom', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('newsletter_id', 'integer', [
+			->addColumn('newsletter_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
@@ -84,12 +85,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('affiliates')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
@@ -97,17 +98,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('affiliates_people')
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('position', 'string', [
+			->addColumn('position', Column::STRING, [
 				'default' => 'player',
 				'limit' => 64,
 				'null' => true,
@@ -131,22 +132,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('answers')
-			->addColumn('question_id', 'integer', [
+			->addColumn('question_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('answer', 'text', [
+			->addColumn('answer', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('sort', 'integer', [
+			->addColumn('sort', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
@@ -159,47 +160,47 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('attendances')
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('game_date', 'date', [
+			->addColumn('game_date', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('team_event_id', 'integer', [
+			->addColumn('team_event_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('status', 'integer', [
+			->addColumn('status', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('comment', 'string', [
+			->addColumn('comment', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -227,47 +228,47 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('badges')
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('description', 'text', [
+			->addColumn('description', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('category', 'string', [
+			->addColumn('category', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('handler', 'string', [
+			->addColumn('handler', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('visibility', 'integer', [
+			->addColumn('visibility', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('icon', 'string', [
+			->addColumn('icon', Column::STRING, [
 				'default' => null,
 				'limit' => 64,
 				'null' => false,
 			])
-			->addColumn('refresh_from', 'integer', [
+			->addColumn('refresh_from', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -285,62 +286,62 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('badges_people')
-			->addColumn('badge_id', 'integer', [
+			->addColumn('badge_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('nominated_by_id', 'integer', [
+			->addColumn('nominated_by_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('registration_id', 'integer', [
+			->addColumn('registration_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('reason', 'text', [
+			->addColumn('reason', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('approved', 'boolean', [
+			->addColumn('approved', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('approved_by_id', 'integer', [
+			->addColumn('approved_by_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('visible', 'boolean', [
+			->addColumn('visible', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -358,12 +359,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('categories')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 64,
 				'null' => false,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
@@ -376,17 +377,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('contacts')
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 64,
 				'null' => false,
 			])
-			->addColumn('email', 'string', [
+			->addColumn('email', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => false,
@@ -399,7 +400,7 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('countries')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
@@ -407,39 +408,39 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('credits')
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('amount', 'float', [
+			->addColumn('amount', Column::FLOAT, [
 				'default' => '0.00',
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('amount_used', 'float', [
+			->addColumn('amount_used', Column::FLOAT, [
 				'default' => '0.00',
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('notes', 'text', [
+			->addColumn('notes', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('created_person_id', 'integer', [
+			->addColumn('created_person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -457,12 +458,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('days')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => '',
 				'limit' => 10,
 				'null' => false,
 			])
-			->addColumn('short_name', 'string', [
+			->addColumn('short_name', Column::STRING, [
 				'default' => '',
 				'limit' => 3,
 				'null' => false,
@@ -470,137 +471,137 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('divisions')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('open', 'date', [
+			->addColumn('open', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('close', 'date', [
+			->addColumn('close', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('ratio_rule', 'string', [
+			->addColumn('ratio_rule', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('current_round', 'string', [
+			->addColumn('current_round', Column::STRING, [
 				'default' => '1',
 				'limit' => 10,
 				'null' => false,
 			])
-			->addColumn('roster_deadline', 'date', [
+			->addColumn('roster_deadline', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('roster_rule', 'text', [
+			->addColumn('roster_rule', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('is_open', 'boolean', [
+			->addColumn('is_open', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('schedule_type', 'string', [
+			->addColumn('schedule_type', Column::STRING, [
 				'default' => 'none',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('games_before_repeat', 'integer', [
+			->addColumn('games_before_repeat', Column::INTEGER, [
 				'default' => '4',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('allstars', 'string', [
+			->addColumn('allstars', Column::STRING, [
 				'default' => 'never',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('exclude_teams', 'boolean', [
+			->addColumn('exclude_teams', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('coord_list', 'string', [
+			->addColumn('coord_list', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('capt_list', 'string', [
+			->addColumn('capt_list', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('email_after', 'integer', [
+			->addColumn('email_after', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('finalize_after', 'integer', [
+			->addColumn('finalize_after', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('roster_method', 'string', [
+			->addColumn('roster_method', Column::STRING, [
 				'default' => 'invite',
 				'limit' => 6,
 				'null' => false,
 			])
-			->addColumn('league_id', 'integer', [
+			->addColumn('league_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('rating_calculator', 'string', [
+			->addColumn('rating_calculator', Column::STRING, [
 				'default' => 'none',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('flag_membership', 'boolean', [
+			->addColumn('flag_membership', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('flag_roster_conflict', 'boolean', [
+			->addColumn('flag_roster_conflict', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('flag_schedule_conflict', 'boolean', [
+			->addColumn('flag_schedule_conflict', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('allstars_from', 'string', [
+			->addColumn('allstars_from', Column::STRING, [
 				'default' => 'opponent',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('header', 'text', [
+			->addColumn('header', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('footer', 'text', [
+			->addColumn('footer', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('double_booking', 'boolean', [
+			->addColumn('double_booking', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('most_spirited', 'string', [
+			->addColumn('most_spirited', Column::STRING, [
 				'default' => 'never',
 				'limit' => 32,
 				'null' => false,
@@ -613,12 +614,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('divisions_days')
-			->addColumn('division_id', 'integer', [
+			->addColumn('division_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('day_id', 'integer', [
+			->addColumn('day_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
@@ -631,12 +632,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('divisions_gameslots')
-			->addColumn('division_id', 'integer', [
+			->addColumn('division_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('game_slot_id', 'integer', [
+			->addColumn('game_slot_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -649,17 +650,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('divisions_people')
-			->addColumn('division_id', 'integer', [
+			->addColumn('division_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('position', 'string', [
+			->addColumn('position', Column::STRING, [
 				'default' => 'coordinator',
 				'limit' => 64,
 				'null' => true,
@@ -683,12 +684,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('event_types')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 255,
 				'null' => false,
 			])
-			->addColumn('type', 'string', [
+			->addColumn('type', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
@@ -696,67 +697,67 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('events')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
 			])
-			->addColumn('description', 'text', [
+			->addColumn('description', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('event_type_id', 'integer', [
+			->addColumn('event_type_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('open', 'datetime', [
+			->addColumn('open', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('close', 'datetime', [
+			->addColumn('close', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('open_cap', 'integer', [
+			->addColumn('open_cap', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 10,
 				'null' => false,
 			])
-			->addColumn('women_cap', 'integer', [
+			->addColumn('women_cap', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 10,
 				'null' => false,
 			])
-			->addColumn('multiple', 'boolean', [
+			->addColumn('multiple', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('questionnaire_id', 'integer', [
+			->addColumn('questionnaire_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('custom', 'text', [
+			->addColumn('custom', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('division_id', 'integer', [
+			->addColumn('division_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('season_id', 'integer', [
+			->addColumn('season_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => true,
@@ -785,17 +786,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('events_connections')
-			->addColumn('event_id', 'integer', [
+			->addColumn('event_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('connection', 'integer', [
+			->addColumn('connection', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('connected_event_id', 'integer', [
+			->addColumn('connected_event_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -813,92 +814,92 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('facilities')
-			->addColumn('is_open', 'boolean', [
+			->addColumn('is_open', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 255,
 				'null' => true,
 			])
-			->addColumn('code', 'string', [
+			->addColumn('code', Column::STRING, [
 				'default' => null,
 				'limit' => 3,
 				'null' => true,
 			])
-			->addColumn('location_street', 'string', [
+			->addColumn('location_street', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('location_city', 'string', [
+			->addColumn('location_city', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('location_province', 'string', [
+			->addColumn('location_province', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('parking', 'text', [
+			->addColumn('parking', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('entrances', 'text', [
+			->addColumn('entrances', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('region_id', 'integer', [
+			->addColumn('region_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('driving_directions', 'text', [
+			->addColumn('driving_directions', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('parking_details', 'text', [
+			->addColumn('parking_details', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('transit_directions', 'text', [
+			->addColumn('transit_directions', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('biking_directions', 'text', [
+			->addColumn('biking_directions', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('washrooms', 'text', [
+			->addColumn('washrooms', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('public_instructions', 'text', [
+			->addColumn('public_instructions', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('site_instructions', 'text', [
+			->addColumn('site_instructions', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('sponsor', 'text', [
+			->addColumn('sponsor', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('sport', 'string', [
+			->addColumn('sport', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
@@ -916,17 +917,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('field_ranking_stats')
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('rank', 'integer', [
+			->addColumn('rank', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
@@ -940,77 +941,79 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('fields')
-			->addColumn('num', 'string', [
+			->addColumn('num', Column::STRING, [
 				'default' => null,
 				'limit' => 15,
 				'null' => true,
 			])
-			->addColumn('is_open', 'boolean', [
+			->addColumn('is_open', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('indoor', 'boolean', [
+			->addColumn('indoor', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('surface', 'string', [
+			->addColumn('surface', Column::STRING, [
 				'default' => 'grass',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('rating', 'string', [
+			->addColumn('rating', Column::STRING, [
 				'default' => null,
 				'limit' => 16,
 				'null' => true,
 			])
-			->addColumn('facility_id', 'integer', [
+			->addColumn('facility_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('latitude', 'float', [
+			->addColumn('latitude', Column::FLOAT, [
 				'default' => null,
-				'limit' => null,
+				'precision' => 24,
+				'scale' => 4,
 				'null' => true,
 			])
-			->addColumn('longitude', 'float', [
+			->addColumn('longitude', Column::FLOAT, [
 				'default' => null,
-				'limit' => null,
+				'precision' => 24,
+				'scale' => 4,
 				'null' => true,
 			])
-			->addColumn('angle', 'integer', [
+			->addColumn('angle', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('length', 'integer', [
+			->addColumn('length', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('width', 'integer', [
+			->addColumn('width', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('zoom', 'integer', [
+			->addColumn('zoom', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('layout_url', 'string', [
+			->addColumn('layout_url', Column::STRING, [
 				'default' => null,
 				'limit' => 255,
 				'null' => true,
 			])
-			->addColumn('availability', 'string', [
+			->addColumn('availability', Column::STRING, [
 				'default' => null,
 				'limit' => 10,
 				'null' => true,
 			])
-			->addColumn('sport', 'string', [
+			->addColumn('sport', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
@@ -1023,17 +1026,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('franchises')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 255,
 				'null' => true,
 			])
-			->addColumn('website', 'string', [
+			->addColumn('website', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -1046,12 +1049,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('franchises_people')
-			->addColumn('franchise_id', 'integer', [
+			->addColumn('franchise_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -1075,12 +1078,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('franchises_teams')
-			->addColumn('franchise_id', 'integer', [
+			->addColumn('franchise_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -1098,27 +1101,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('game_slots')
-			->addColumn('field_id', 'integer', [
+			->addColumn('field_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('game_date', 'date', [
+			->addColumn('game_date', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('game_start', 'time', [
+			->addColumn('game_start', Column::TIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('game_end', 'time', [
+			->addColumn('game_end', Column::TIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('assigned', 'boolean', [
+			->addColumn('assigned', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
@@ -1136,142 +1139,142 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('games')
-			->addColumn('division_id', 'integer', [
+			->addColumn('division_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('round', 'string', [
+			->addColumn('round', Column::STRING, [
 				'default' => '1',
 				'limit' => 10,
 				'null' => false,
 			])
-			->addColumn('tournament_pool', 'integer', [
+			->addColumn('tournament_pool', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('placement', 'integer', [
+			->addColumn('placement', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('home_dependency_type', 'string', [
+			->addColumn('home_dependency_type', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('home_dependency_id', 'integer', [
+			->addColumn('home_dependency_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('home_team_id', 'integer', [
+			->addColumn('home_team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('away_dependency_type', 'string', [
+			->addColumn('away_dependency_type', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('away_dependency_id', 'integer', [
+			->addColumn('away_dependency_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('away_team_id', 'integer', [
+			->addColumn('away_team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('home_score', 'integer', [
+			->addColumn('home_score', Column::INTEGER, [
 				'default' => null,
 				'limit' => 4,
 				'null' => true,
 			])
-			->addColumn('away_score', 'integer', [
+			->addColumn('away_score', Column::INTEGER, [
 				'default' => null,
 				'limit' => 4,
 				'null' => true,
 			])
-			->addColumn('rating_points', 'integer', [
+			->addColumn('rating_points', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('approved_by_id', 'integer', [
+			->addColumn('approved_by_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('status', 'string', [
+			->addColumn('status', Column::STRING, [
 				'default' => 'normal',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('published', 'boolean', [
+			->addColumn('published', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('type', 'integer', [
+			->addColumn('type', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('pool_id', 'integer', [
+			->addColumn('pool_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('home_pool_team_id', 'integer', [
+			->addColumn('home_pool_team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('away_pool_team_id', 'integer', [
+			->addColumn('away_pool_team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('game_slot_id', 'integer', [
+			->addColumn('game_slot_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('rescheduled_slot', 'integer', [
+			->addColumn('rescheduled_slot', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('home_field_rank', 'integer', [
+			->addColumn('home_field_rank', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('away_field_rank', 'integer', [
+			->addColumn('away_field_rank', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('home_carbon_flip', 'integer', [
+			->addColumn('home_carbon_flip', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -1294,17 +1297,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('games_allstars')
-			->addColumn('score_entry_id', 'integer', [
+			->addColumn('score_entry_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -1327,22 +1330,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('user_groups')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('level', 'integer', [
+			->addColumn('level', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('description', 'text', [
+			->addColumn('description', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
@@ -1350,12 +1353,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('groups_people')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('group_id', 'integer', [
+			->addColumn('group_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -1373,17 +1376,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('holidays')
-			->addColumn('date', 'date', [
+			->addColumn(Column::DATE, Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -1396,27 +1399,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('incidents')
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('type', 'string', [
+			->addColumn('type', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('details', 'text', [
+			->addColumn('details', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('reporting_user_id', 'integer', [
+			->addColumn('reporting_user_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
@@ -1434,77 +1437,77 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('leagues')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('sport', 'string', [
+			->addColumn('sport', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('season', 'string', [
+			->addColumn('season', Column::STRING, [
 				'default' => 'None',
 				'limit' => 16,
 				'null' => false,
 			])
-			->addColumn('open', 'date', [
+			->addColumn('open', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('close', 'date', [
+			->addColumn('close', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('is_open', 'boolean', [
+			->addColumn('is_open', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('schedule_attempts', 'integer', [
+			->addColumn('schedule_attempts', Column::INTEGER, [
 				'default' => '100',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('display_sotg', 'string', [
+			->addColumn('display_sotg', Column::STRING, [
 				'default' => 'all',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('sotg_questions', 'string', [
+			->addColumn('sotg_questions', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('numeric_sotg', 'boolean', [
+			->addColumn('numeric_sotg', Column::BOOLEAN, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('expected_max_score', 'integer', [
+			->addColumn('expected_max_score', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('stat_tracking', 'string', [
+			->addColumn('stat_tracking', Column::STRING, [
 				'default' => 'never',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('tie_breaker', 'string', [
+			->addColumn('tie_breaker', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => false,
 			])
-			->addColumn('carbon_flip', 'boolean', [
+			->addColumn('carbon_flip', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
@@ -1517,12 +1520,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('leagues_stat_types')
-			->addColumn('league_id', 'integer', [
+			->addColumn('league_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('stat_type_id', 'integer', [
+			->addColumn('stat_type_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
@@ -1535,22 +1538,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('locks')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('user_id', 'integer', [
+			->addColumn('user_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -1563,57 +1566,57 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('logs')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('login_id', 'integer', [
+			->addColumn('login_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('controller', 'string', [
+			->addColumn('controller', Column::STRING, [
 				'default' => null,
 				'limit' => 64,
 				'null' => false,
 			])
-			->addColumn('action', 'string', [
+			->addColumn('action', Column::STRING, [
 				'default' => null,
 				'limit' => 64,
 				'null' => false,
 			])
-			->addColumn('query', 'text', [
+			->addColumn('query', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('params', 'text', [
+			->addColumn('params', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('form', 'text', [
+			->addColumn('form', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('memory', 'integer', [
+			->addColumn('memory', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('ms', 'integer', [
+			->addColumn('ms', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
@@ -1621,22 +1624,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('mailing_lists')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 256,
 				'null' => false,
 			])
-			->addColumn('opt_out', 'boolean', [
+			->addColumn('opt_out', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('rule', 'text', [
+			->addColumn('rule', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -1649,32 +1652,32 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('membership_types')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 40,
 				'null' => false,
 			])
-			->addColumn('description', 'string', [
+			->addColumn('description', Column::STRING, [
 				'default' => null,
 				'limit' => 40,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('priority', 'integer', [
+			->addColumn('priority', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('report_as', 'string', [
+			->addColumn('report_as', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('badge', 'string', [
+			->addColumn('badge', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
@@ -1682,62 +1685,62 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('newsletters')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 256,
 				'null' => false,
 			])
-			->addColumn('from_email', 'string', [
+			->addColumn('from_email', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => false,
 			])
-			->addColumn('to_email', 'string', [
+			->addColumn('to_email', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => false,
 			])
-			->addColumn('subject', 'string', [
+			->addColumn('subject', Column::STRING, [
 				'default' => null,
 				'limit' => 256,
 				'null' => false,
 			])
-			->addColumn('text', 'text', [
+			->addColumn(Column::TEXT, Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('target', 'date', [
+			->addColumn('target', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('delay', 'integer', [
+			->addColumn('delay', Column::INTEGER, [
 				'default' => '10',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('batch_size', 'integer', [
+			->addColumn('batch_size', Column::INTEGER, [
 				'default' => '100',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('personalize', 'boolean', [
+			->addColumn('personalize', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('mailing_list_id', 'integer', [
+			->addColumn('mailing_list_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('reply_to', 'string', [
+			->addColumn('reply_to', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => false,
@@ -1750,52 +1753,52 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('notes')
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('field_id', 'integer', [
+			->addColumn('field_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('visibility', 'integer', [
+			->addColumn('visibility', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('created_team_id', 'integer', [
+			->addColumn('created_team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('created_person_id', 'integer', [
+			->addColumn('created_person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('note', 'text', [
+			->addColumn('note', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -1823,37 +1826,37 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('notices')
-			->addColumn('sort', 'integer', [
+			->addColumn('sort', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('display_to', 'string', [
+			->addColumn('display_to', Column::STRING, [
 				'default' => 'player',
 				'limit' => 16,
 				'null' => false,
 			])
-			->addColumn('repeat_on', 'string', [
+			->addColumn('repeat_on', Column::STRING, [
 				'default' => null,
 				'limit' => 16,
 				'null' => true,
 			])
-			->addColumn('notice', 'text', [
+			->addColumn('notice', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('effective_date', 'datetime', [
+			->addColumn('effective_date', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -1871,22 +1874,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('notices_people')
-			->addColumn('notice_id', 'integer', [
+			->addColumn('notice_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('remind', 'boolean', [
+			->addColumn('remind', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -1910,54 +1913,54 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('payments')
-			->addColumn('registration_id', 'integer', [
+			->addColumn('registration_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('registration_audit_id', 'integer', [
+			->addColumn('registration_audit_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('payment_type', 'string', [
+			->addColumn('payment_type', Column::STRING, [
 				'default' => 'Full',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('payment_amount', 'float', [
+			->addColumn('payment_amount', Column::FLOAT, [
 				'default' => '0.00',
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('refunded_amount', 'float', [
+			->addColumn('refunded_amount', Column::FLOAT, [
 				'default' => '0.00',
 				'null' => false,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('notes', 'text', [
+			->addColumn('notes', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('created_person_id', 'integer', [
+			->addColumn('created_person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('updated_person_id', 'integer', [
+			->addColumn('updated_person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('payment_method', 'string', [
+			->addColumn('payment_method', Column::STRING, [
 				'default' => 'Other',
 				'limit' => 32,
 				'null' => false,
@@ -1970,202 +1973,202 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('people')
-			->addColumn('first_name', 'string', [
+			->addColumn('first_name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('last_name', 'string', [
+			->addColumn('last_name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('publish_email', 'boolean', [
+			->addColumn('publish_email', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('home_phone', 'string', [
+			->addColumn('home_phone', Column::STRING, [
 				'default' => null,
 				'limit' => 30,
 				'null' => true,
 			])
-			->addColumn('publish_home_phone', 'boolean', [
+			->addColumn('publish_home_phone', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('work_phone', 'string', [
+			->addColumn('work_phone', Column::STRING, [
 				'default' => null,
 				'limit' => 30,
 				'null' => true,
 			])
-			->addColumn('work_ext', 'string', [
+			->addColumn('work_ext', Column::STRING, [
 				'default' => null,
 				'limit' => 6,
 				'null' => true,
 			])
-			->addColumn('publish_work_phone', 'boolean', [
+			->addColumn('publish_work_phone', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('mobile_phone', 'string', [
+			->addColumn('mobile_phone', Column::STRING, [
 				'default' => null,
 				'limit' => 30,
 				'null' => true,
 			])
-			->addColumn('publish_mobile_phone', 'boolean', [
+			->addColumn('publish_mobile_phone', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('addr_street', 'string', [
+			->addColumn('addr_street', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('addr_city', 'string', [
+			->addColumn('addr_city', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('addr_prov', 'string', [
+			->addColumn('addr_prov', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('addr_country', 'string', [
+			->addColumn('addr_country', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('addr_postalcode', 'string', [
+			->addColumn('addr_postalcode', Column::STRING, [
 				'default' => null,
 				'limit' => 10,
 				'null' => true,
 			])
-			->addColumn('gender', 'string', [
+			->addColumn('gender', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('birthdate', 'date', [
+			->addColumn('birthdate', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('height', 'integer', [
+			->addColumn('height', Column::INTEGER, [
 				'default' => null,
 				'limit' => 6,
 				'null' => true,
 			])
-			->addColumn('shirt_size', 'string', [
+			->addColumn('shirt_size', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('status', 'string', [
+			->addColumn('status', Column::STRING, [
 				'default' => 'new',
 				'limit' => 16,
 				'null' => false,
 			])
-			->addColumn('has_dog', 'boolean', [
+			->addColumn('has_dog', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('contact_for_feedback', 'boolean', [
+			->addColumn('contact_for_feedback', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('complete', 'boolean', [
+			->addColumn('complete', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('twitter_token', 'string', [
+			->addColumn('twitter_token', Column::STRING, [
 				'default' => null,
 				'limit' => 250,
 				'null' => true,
 			])
-			->addColumn('twitter_secret', 'string', [
+			->addColumn('twitter_secret', Column::STRING, [
 				'default' => null,
 				'limit' => 250,
 				'null' => true,
 			])
-			->addColumn('user_id', 'integer', [
+			->addColumn('user_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('show_gravatar', 'boolean', [
+			->addColumn('show_gravatar', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('alternate_first_name', 'string', [
+			->addColumn('alternate_first_name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('alternate_last_name', 'string', [
+			->addColumn('alternate_last_name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('alternate_email', 'string', [
+			->addColumn('alternate_email', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('publish_alternate_email', 'boolean', [
+			->addColumn('publish_alternate_email', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('alternate_work_phone', 'string', [
+			->addColumn('alternate_work_phone', Column::STRING, [
 				'default' => null,
 				'limit' => 30,
 				'null' => true,
 			])
-			->addColumn('alternate_work_ext', 'string', [
+			->addColumn('alternate_work_ext', Column::STRING, [
 				'default' => null,
 				'limit' => 6,
 				'null' => true,
 			])
-			->addColumn('publish_alternate_work_phone', 'boolean', [
+			->addColumn('publish_alternate_work_phone', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('alternate_mobile_phone', 'string', [
+			->addColumn('alternate_mobile_phone', Column::STRING, [
 				'default' => null,
 				'limit' => 30,
 				'null' => true,
 			])
-			->addColumn('publish_alternate_mobile_phone', 'boolean', [
+			->addColumn('publish_alternate_mobile_phone', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('modified', 'date', [
+			->addColumn('modified', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('created', 'date', [
+			->addColumn('created', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('gender_description', 'string', [
+			->addColumn('gender_description', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
 			])
-			->addColumn('roster_designation', 'string', [
+			->addColumn('roster_designation', Column::STRING, [
 				'default' => null,
 				'limit' => 6,
 				'null' => false,
@@ -2183,22 +2186,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('people_people')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('relative_id', 'integer', [
+			->addColumn('relative_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('approved', 'boolean', [
+			->addColumn('approved', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -2216,22 +2219,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('pools')
-			->addColumn('division_id', 'integer', [
+			->addColumn('division_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('stage', 'integer', [
+			->addColumn('stage', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 2,
 				'null' => false,
 			])
-			->addColumn('type', 'string', [
+			->addColumn('type', Column::STRING, [
 				'default' => null,
 				'limit' => 16,
 				'null' => false,
@@ -2244,37 +2247,37 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('pools_teams')
-			->addColumn('pool_id', 'integer', [
+			->addColumn('pool_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('alias', 'string', [
+			->addColumn('alias', Column::STRING, [
 				'default' => null,
 				'limit' => 4,
 				'null' => false,
 			])
-			->addColumn('dependency_type', 'string', [
+			->addColumn('dependency_type', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('dependency_ordinal', 'integer', [
+			->addColumn('dependency_ordinal', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('dependency_pool_id', 'integer', [
+			->addColumn('dependency_pool_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('dependency_id', 'integer', [
+			->addColumn('dependency_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
@@ -2287,12 +2290,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('preregistrations')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('event_id', 'integer', [
+			->addColumn('event_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -2310,76 +2313,76 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('prices')
-			->addColumn('event_id', 'integer', [
+			->addColumn('event_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('description', 'text', [
+			->addColumn('description', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('cost', 'float', [
+			->addColumn('cost', Column::FLOAT, [
 				'default' => null,
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('tax1', 'float', [
+			->addColumn('tax1', Column::FLOAT, [
 				'default' => null,
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('tax2', 'float', [
+			->addColumn('tax2', Column::FLOAT, [
 				'default' => null,
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('open', 'datetime', [
+			->addColumn('open', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('close', 'datetime', [
+			->addColumn('close', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('register_rule', 'text', [
+			->addColumn('register_rule', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('minimum_deposit', 'float', [
+			->addColumn('minimum_deposit', Column::FLOAT, [
 				'default' => '0.00',
 				'null' => false,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('allow_late_payment', 'boolean', [
+			->addColumn('allow_late_payment', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('online_payment_option', 'integer', [
+			->addColumn('online_payment_option', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('allow_reservations', 'boolean', [
+			->addColumn('allow_reservations', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('reservation_duration', 'integer', [
+			->addColumn('reservation_duration', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => true,
@@ -2392,7 +2395,7 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('provinces')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
@@ -2400,17 +2403,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('questionnaires')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 255,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -2423,22 +2426,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('questionnaires_questions')
-			->addColumn('questionnaire_id', 'integer', [
+			->addColumn('questionnaire_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('question_id', 'integer', [
+			->addColumn('question_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('sort', 'integer', [
+			->addColumn('sort', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('required', 'boolean', [
+			->addColumn('required', Column::BOOLEAN, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
@@ -2463,32 +2466,32 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('questions')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('question', 'text', [
+			->addColumn('question', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('type', 'string', [
+			->addColumn('type', Column::STRING, [
 				'default' => null,
 				'limit' => 20,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('anonymous', 'boolean', [
+			->addColumn('anonymous', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -2501,12 +2504,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('regions')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -2519,17 +2522,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('registration_answers', ['id' => false, 'primary_key' => ['registration_id', 'qkey']])
-			->addColumn('registration_id', 'integer', [
+			->addColumn('registration_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('qkey', 'string', [
+			->addColumn('qkey', Column::STRING, [
 				'default' => '',
 				'limit' => 255,
 				'null' => false,
 			])
-			->addColumn('akey', 'string', [
+			->addColumn('akey', Column::STRING, [
 				'default' => null,
 				'limit' => 255,
 				'null' => true,
@@ -2537,85 +2540,85 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('registration_audits')
-			->addColumn('response_code', 'integer', [
+			->addColumn('response_code', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 5,
 				'null' => false,
 				'signed' => false,
 			])
-			->addColumn('iso_code', 'integer', [
+			->addColumn('iso_code', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 5,
 				'null' => false,
 				'signed' => false,
 			])
-			->addColumn('date', 'text', [
+			->addColumn(Column::DATE, Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('time', 'text', [
+			->addColumn(Column::TIME, Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('transaction_id', 'string', [
+			->addColumn('transaction_id', Column::STRING, [
 				'default' => null,
 				'limit' => 18,
 				'null' => true,
 			])
-			->addColumn('approval_code', 'text', [
+			->addColumn('approval_code', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('transaction_name', 'string', [
+			->addColumn('transaction_name', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('charge_total', 'decimal', [
+			->addColumn('charge_total', Column::DECIMAL, [
 				'default' => '0.00',
 				'null' => false,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('cardholder', 'string', [
+			->addColumn('cardholder', Column::STRING, [
 				'default' => null,
 				'limit' => 40,
 				'null' => true,
 			])
-			->addColumn('expiry', 'text', [
+			->addColumn('expiry', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('f4l4', 'text', [
+			->addColumn('f4l4', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('card', 'text', [
+			->addColumn('card', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('message', 'string', [
+			->addColumn('message', Column::STRING, [
 				'default' => null,
 				'limit' => 256,
 				'null' => true,
 			])
-			->addColumn('issuer', 'string', [
+			->addColumn('issuer', Column::STRING, [
 				'default' => null,
 				'limit' => 30,
 				'null' => true,
 			])
-			->addColumn('issuer_invoice', 'string', [
+			->addColumn('issuer_invoice', Column::STRING, [
 				'default' => null,
 				'limit' => 20,
 				'null' => true,
 			])
-			->addColumn('issuer_confirmation', 'string', [
+			->addColumn('issuer_confirmation', Column::STRING, [
 				'default' => null,
 				'limit' => 15,
 				'null' => true,
@@ -2623,59 +2626,59 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('registrations')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('event_id', 'integer', [
+			->addColumn('event_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('payment', 'string', [
+			->addColumn('payment', Column::STRING, [
 				'default' => 'Unpaid',
 				'limit' => 16,
 				'null' => false,
 			])
-			->addColumn('notes', 'text', [
+			->addColumn('notes', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('total_amount', 'float', [
+			->addColumn('total_amount', Column::FLOAT, [
 				'default' => '0.00',
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('price_id', 'integer', [
+			->addColumn('price_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('deposit_amount', 'float', [
+			->addColumn('deposit_amount', Column::FLOAT, [
 				'default' => '0.00',
 				'null' => true,
 				'precision' => 7,
 				'scale' => 2,
 			])
-			->addColumn('reservation_expires', 'datetime', [
+			->addColumn('reservation_expires', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('delete_on_expiry', 'boolean', [
+			->addColumn('delete_on_expiry', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
@@ -2699,22 +2702,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('reports')
-			->addColumn('report', 'string', [
+			->addColumn('report', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('params', 'text', [
+			->addColumn('params', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('failures', 'integer', [
+			->addColumn('failures', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -2722,27 +2725,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('responses')
-			->addColumn('event_id', 'integer', [
+			->addColumn('event_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('registration_id', 'integer', [
+			->addColumn('registration_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('question_id', 'integer', [
+			->addColumn('question_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('answer_id', 'integer', [
+			->addColumn('answer_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('answer_text', 'text', [
+			->addColumn('answer_text', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -2760,42 +2763,42 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('roster_roles')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 40,
 				'null' => false,
 			])
-			->addColumn('description', 'string', [
+			->addColumn('description', Column::STRING, [
 				'default' => null,
 				'limit' => 40,
 				'null' => false,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('is_player', 'boolean', [
+			->addColumn('is_player', Column::BOOLEAN, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('is_extended_player', 'boolean', [
+			->addColumn('is_extended_player', Column::BOOLEAN, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('is_regular', 'boolean', [
+			->addColumn('is_regular', Column::BOOLEAN, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('is_privileged', 'boolean', [
+			->addColumn('is_privileged', Column::BOOLEAN, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('is_required', 'boolean', [
+			->addColumn('is_required', Column::BOOLEAN, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -2803,17 +2806,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('score_detail_stats')
-			->addColumn('score_detail_id', 'integer', [
+			->addColumn('score_detail_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('stat_type_id', 'integer', [
+			->addColumn('stat_type_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -2826,37 +2829,37 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('score_details')
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('created_team_id', 'integer', [
+			->addColumn('created_team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('score_from', 'integer', [
+			->addColumn('score_from', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('play', 'string', [
+			->addColumn('play', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('points', 'integer', [
+			->addColumn('points', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -2874,52 +2877,52 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('score_entries')
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('score_for', 'integer', [
+			->addColumn('score_for', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 4,
 				'null' => true,
 			])
-			->addColumn('score_against', 'integer', [
+			->addColumn('score_against', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 4,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('status', 'string', [
+			->addColumn('status', Column::STRING, [
 				'default' => 'normal',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('home_carbon_flip', 'integer', [
+			->addColumn('home_carbon_flip', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('gender_ratio', 'string', [
+			->addColumn('gender_ratio', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
@@ -2938,17 +2941,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('sessions', ['id' => false, 'primary_key' => ['id']])
-			->addColumn('id', 'string', [
+			->addColumn('id', Column::STRING, [
 				'default' => null,
 				'limit' => 255,
 				'null' => false,
 			])
-			->addColumn('data', 'text', [
+			->addColumn('data', Column::TEXT, [
 				'default' => null,
 				'limit' => 4294967295,
 				'null' => true,
 			])
-			->addColumn('expires', 'integer', [
+			->addColumn('expires', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
@@ -2956,27 +2959,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('settings')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('category', 'string', [
+			->addColumn('category', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => '',
 				'limit' => 50,
 				'null' => false,
 			])
-			->addColumn('value', 'text', [
+			->addColumn('value', Column::TEXT, [
 				'default' => null,
 				'limit' => 4294967295,
 				'null' => false,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
@@ -2994,27 +2997,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('skills')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('sport', 'string', [
+			->addColumn('sport', Column::STRING, [
 				'default' => 'ultimate',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('enabled', 'boolean', [
+			->addColumn('enabled', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('skill_level', 'integer', [
+			->addColumn('skill_level', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('year_started', 'integer', [
+			->addColumn('year_started', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
@@ -3027,102 +3030,102 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('spirit_entries')
-			->addColumn('created_team_id', 'integer', [
+			->addColumn('created_team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('entered_sotg', 'integer', [
+			->addColumn('entered_sotg', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('score_entry_penalty', 'integer', [
+			->addColumn('score_entry_penalty', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q1', 'integer', [
+			->addColumn('q1', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q2', 'integer', [
+			->addColumn('q2', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q3', 'integer', [
+			->addColumn('q3', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q4', 'integer', [
+			->addColumn('q4', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q5', 'integer', [
+			->addColumn('q5', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q6', 'integer', [
+			->addColumn('q6', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q7', 'integer', [
+			->addColumn('q7', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q8', 'integer', [
+			->addColumn('q8', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q9', 'integer', [
+			->addColumn('q9', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('q10', 'integer', [
+			->addColumn('q10', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('comments', 'text', [
-				'default' => null,
-				'limit' => null,
-				'null' => true,
-			])
-			->addColumn('highlights', 'text', [
+			->addColumn('comments', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('most_spirited_id', 'integer', [
+			->addColumn('highlights', Column::TEXT, [
+				'default' => null,
+				'limit' => null,
+				'null' => true,
+			])
+			->addColumn('most_spirited_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('subs', 'text', [
+			->addColumn('subs', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -3147,67 +3150,67 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('stat_types')
-			->addColumn('sport', 'string', [
+			->addColumn('sport', Column::STRING, [
 				'default' => 'ultimate',
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('positions', 'text', [
+			->addColumn('positions', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('abbr', 'string', [
+			->addColumn('abbr', Column::STRING, [
 				'default' => null,
 				'limit' => 8,
 				'null' => false,
 			])
-			->addColumn('internal_name', 'string', [
+			->addColumn('internal_name', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('sort', 'integer', [
+			->addColumn('sort', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('class', 'string', [
+			->addColumn('class', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('type', 'string', [
+			->addColumn('type', Column::STRING, [
 				'default' => null,
 				'limit' => 16,
 				'null' => false,
 			])
-			->addColumn('base', 'string', [
+			->addColumn('base', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
 			])
-			->addColumn('handler', 'string', [
+			->addColumn('handler', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
 			])
-			->addColumn('sum_function', 'string', [
+			->addColumn('sum_function', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
 			])
-			->addColumn('formatter_function', 'string', [
+			->addColumn('formatter_function', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
 			])
-			->addColumn('validation', 'string', [
+			->addColumn('validation', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => true,
@@ -3215,27 +3218,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('stats')
-			->addColumn('game_id', 'integer', [
+			->addColumn('game_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('stat_type_id', 'integer', [
+			->addColumn('stat_type_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('value', 'float', [
+			->addColumn('value', Column::FLOAT, [
 				'default' => null,
 				'limit' => null,
 				'null' => false,
@@ -3253,22 +3256,22 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('subscriptions')
-			->addColumn('mailing_list_id', 'integer', [
+			->addColumn('mailing_list_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('subscribed', 'boolean', [
+			->addColumn('subscribed', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -3292,42 +3295,42 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('task_slots')
-			->addColumn('task_id', 'integer', [
+			->addColumn('task_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('task_date', 'date', [
+			->addColumn('task_date', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('task_start', 'time', [
+			->addColumn('task_start', Column::TIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('task_end', 'time', [
+			->addColumn('task_end', Column::TIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('approved', 'boolean', [
+			->addColumn('approved', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('approved_by_id', 'integer', [
+			->addColumn('approved_by_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -3345,37 +3348,37 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('tasks')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => false,
 			])
-			->addColumn('category_id', 'integer', [
+			->addColumn('category_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('description', 'text', [
+			->addColumn('description', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('notes', 'text', [
+			->addColumn('notes', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('auto_approve', 'boolean', [
+			->addColumn('auto_approve', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('allow_signup', 'boolean', [
+			->addColumn('allow_signup', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
@@ -3388,62 +3391,62 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('team_events')
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => false,
 			])
-			->addColumn('description', 'text', [
+			->addColumn('description', Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('website', 'string', [
+			->addColumn('website', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('date', 'date', [
+			->addColumn(Column::DATE, Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('start', 'time', [
+			->addColumn('start', Column::TIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('end', 'time', [
+			->addColumn('end', Column::TIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('location_name', 'string', [
+			->addColumn('location_name', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('location_street', 'string', [
+			->addColumn('location_street', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('location_city', 'string', [
+			->addColumn('location_city', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('location_province', 'string', [
+			->addColumn('location_province', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -3456,17 +3459,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('team_site_ranking', ['id' => false])
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('site_id', 'integer', [
+			->addColumn('site_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('rank', 'integer', [
+			->addColumn('rank', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -3486,112 +3489,112 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('teams')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => '',
 				'limit' => 100,
 				'null' => false,
 			])
-			->addColumn('division_id', 'integer', [
+			->addColumn('division_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('website', 'string', [
+			->addColumn('website', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('shirt_colour', 'string', [
+			->addColumn('shirt_colour', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
 			])
-			->addColumn('home_field_id', 'integer', [
+			->addColumn('home_field_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('region_preference_id', 'integer', [
+			->addColumn('region_preference_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('open_roster', 'boolean', [
+			->addColumn('open_roster', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('rating', 'integer', [
+			->addColumn('rating', Column::INTEGER, [
 				'default' => '1500',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('track_attendance', 'boolean', [
+			->addColumn('track_attendance', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('attendance_reminder', 'integer', [
+			->addColumn('attendance_reminder', Column::INTEGER, [
 				'default' => '-1',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('attendance_summary', 'integer', [
+			->addColumn('attendance_summary', Column::INTEGER, [
 				'default' => '-1',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('attendance_notification', 'integer', [
+			->addColumn('attendance_notification', Column::INTEGER, [
 				'default' => '-1',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('initial_rating', 'integer', [
+			->addColumn('initial_rating', Column::INTEGER, [
 				'default' => '1500',
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('initial_seed', 'integer', [
+			->addColumn('initial_seed', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('seed', 'integer', [
+			->addColumn('seed', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('flickr_user', 'string', [
+			->addColumn('flickr_user', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 			])
-			->addColumn('flickr_set', 'string', [
+			->addColumn('flickr_set', Column::STRING, [
 				'default' => null,
 				'limit' => 24,
 				'null' => true,
 			])
-			->addColumn('flickr_ban', 'boolean', [
+			->addColumn('flickr_ban', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('logo', 'string', [
+			->addColumn('logo', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('short_name', 'string', [
+			->addColumn('short_name', Column::STRING, [
 				'default' => null,
 				'limit' => 6,
 				'null' => true,
 			])
-			->addColumn('twitter_user', 'string', [
+			->addColumn('twitter_user', Column::STRING, [
 				'default' => null,
 				'limit' => 64,
 				'null' => true,
@@ -3609,17 +3612,17 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('teams_facilities')
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('facility_id', 'integer', [
+			->addColumn('facility_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('rank', 'integer', [
+			->addColumn('rank', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
@@ -3632,37 +3635,37 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('teams_people')
-			->addColumn('team_id', 'integer', [
+			->addColumn('team_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('role', 'string', [
+			->addColumn('role', Column::STRING, [
 				'default' => null,
 				'limit' => 16,
 				'null' => true,
 			])
-			->addColumn('status', 'integer', [
+			->addColumn('status', Column::INTEGER, [
 				'default' => '0',
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('number', 'integer', [
+			->addColumn('number', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('position', 'string', [
+			->addColumn('position', Column::STRING, [
 				'default' => 'unspecified',
 				'limit' => 32,
 				'null' => false,
@@ -3686,12 +3689,12 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('upload_types')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 256,
 				'null' => false,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -3704,42 +3707,42 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('uploads')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('type_id', 'integer', [
+			->addColumn('type_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('valid_from', 'date', [
+			->addColumn('valid_from', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('valid_until', 'date', [
+			->addColumn('valid_until', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('filename', 'string', [
+			->addColumn('filename', Column::STRING, [
 				'default' => null,
 				'limit' => 128,
 				'null' => false,
 			])
-			->addColumn('approved', 'boolean', [
+			->addColumn('approved', Column::BOOLEAN, [
 				'default' => false,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('modified', 'datetime', [
+			->addColumn('modified', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
@@ -3752,27 +3755,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('users')
-			->addColumn('user_name', 'string', [
+			->addColumn('user_name', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('password', 'string', [
+			->addColumn('password', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('email', 'string', [
+			->addColumn('email', Column::STRING, [
 				'default' => null,
 				'limit' => 100,
 				'null' => true,
 			])
-			->addColumn('last_login', 'datetime', [
+			->addColumn('last_login', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('client_ip', 'string', [
+			->addColumn('client_ip', Column::STRING, [
 				'default' => null,
 				'limit' => 50,
 				'null' => true,
@@ -3791,57 +3794,57 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('waivers')
-			->addColumn('name', 'string', [
+			->addColumn('name', Column::STRING, [
 				'default' => null,
 				'limit' => 256,
 				'null' => false,
 			])
-			->addColumn('description', 'string', [
+			->addColumn('description', Column::STRING, [
 				'default' => null,
 				'limit' => 256,
 				'null' => false,
 			])
-			->addColumn('text', 'text', [
+			->addColumn(Column::TEXT, Column::TEXT, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('active', 'boolean', [
+			->addColumn('active', Column::BOOLEAN, [
 				'default' => true,
 				'limit' => null,
 				'null' => false,
 			])
-			->addColumn('expiry_type', 'string', [
+			->addColumn('expiry_type', Column::STRING, [
 				'default' => null,
 				'limit' => 32,
 				'null' => false,
 			])
-			->addColumn('start_month', 'integer', [
+			->addColumn('start_month', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('start_day', 'integer', [
+			->addColumn('start_day', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('end_month', 'integer', [
+			->addColumn('end_month', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('end_day', 'integer', [
+			->addColumn('end_day', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('duration', 'integer', [
+			->addColumn('duration', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => true,
 			])
-			->addColumn('affiliate_id', 'integer', [
+			->addColumn('affiliate_id', Column::INTEGER, [
 				'default' => '1',
 				'limit' => 11,
 				'null' => false,
@@ -3854,27 +3857,27 @@ class Install extends AbstractMigration {
 			->create();
 
 		$this->table('waivers_people')
-			->addColumn('person_id', 'integer', [
+			->addColumn('person_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('created', 'datetime', [
+			->addColumn('created', Column::DATETIME, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('waiver_id', 'integer', [
+			->addColumn('waiver_id', Column::INTEGER, [
 				'default' => null,
 				'limit' => 11,
 				'null' => false,
 			])
-			->addColumn('valid_from', 'date', [
+			->addColumn('valid_from', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
 			])
-			->addColumn('valid_until', 'date', [
+			->addColumn('valid_until', Column::DATE, [
 				'default' => null,
 				'limit' => null,
 				'null' => true,
