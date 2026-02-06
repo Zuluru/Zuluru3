@@ -1557,7 +1557,7 @@ class PeopleController extends AppController {
 				],
 			]);
 
-			$upload = $this->People->Uploads->patchEntity($upload, $this->getRequest()->getData());
+			$upload = $this->People->Uploads->patchEntity($upload, $this->getRequest()->getData(), ['validate' => 'document']);
 
 			if ($this->People->Uploads->save($upload)) {
 				$this->Flash->success(__('Document saved, you will receive an email when it has been approved.'));

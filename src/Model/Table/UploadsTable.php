@@ -85,13 +85,6 @@ class UploadsTable extends AppTable {
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
-		$max = ini_get('upload_max_filesize');
-		$unit = substr($max,-1);
-		if ($unit == 'M' || $unit == 'K') {
-			$max .= 'b';
-		}
-		$too_large_message = __('The selected document is too large. Documents must be less than {0}.', $max);
-
 		$validator->setProvider('upload', UploadValidation::class);
 
 		$validator
@@ -101,6 +94,29 @@ class UploadsTable extends AppTable {
 			->requirePresence('filename', 'create', __('There was an unexpected error uploading the file. Please try again.'))
 			->notEmptyFile('filename', __('You must select a document to upload.'))
 
+			->boolean('approved')
+			->allowEmptyString('approved')
+
+			->date('valid_from', ['ymd'], __('You must provide a valid date.'))
+			->allowEmptyDate('valid_from')
+
+			->date('valid_until', ['ymd'], __('You must provide a valid date.'))
+			->allowEmptyDate('valid_until')
+
+			;
+
+		return $validator;
+	}
+
+	public function validationDocument(Validator $validator): \Cake\Validation\Validator {
+		$max = ini_get('upload_max_filesize');
+		$unit = substr($max,-1);
+		if ($unit == 'M' || $unit == 'K') {
+			$max .= 'b';
+		}
+		$too_large_message = __('The selected document is too large. Documents must be less than {0}.', $max);
+
+		return $this->validationDefault($validator)
 			->add('filename', 'fileFileUpload', [
 				'rule' => 'isFileUpload',
 				'message' => __('You must select a document to upload.'),
@@ -135,20 +151,7 @@ class UploadsTable extends AppTable {
 				'rule' => ['isAboveMinSize', 0],
 				'message' => __('You uploaded an empty file. Please try again.'),
 				'provider' => 'upload'
-			])
-
-			->boolean('approved')
-			->allowEmptyString('approved')
-
-			->date('valid_from', ['ymd'], __('You must provide a valid date.'))
-			->allowEmptyDate('valid_from')
-
-			->date('valid_until', ['ymd'], __('You must provide a valid date.'))
-			->allowEmptyDate('valid_until')
-
-			;
-
-		return $validator;
+			]);
 	}
 
 	/**
