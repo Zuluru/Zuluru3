@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: zuluru_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        extensions: intl, json, pdo, pdo_mysql
+        coverage: none
+
+    - name: Validate composer.json
+      run: composer validate --no-check-version
+
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: |
+        composer install --prefer-dist --no-progress
+        composer require --dev "cakephp/cakephp-codesniffer:^5.0"
+
+    - name: Setup test environment
+      run: |
+        cat > config/app_local.php << 'EOF'
+        <?php
+        return [
+          'Datasources' => [
+            'default' => [
+              'url' => 'mysql://root:root@127.0.0.1:3306/zuluru_test?encoding=utf8mb4',
+              'unix_socket' => '',
+              // Allow '0000-00-00' dates in migrations (MySQL 8.0 strict mode compatibility)
+              'init' => ["SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'"],
+            ],
+            'test' => [
+              'url' => 'mysql://root:root@127.0.0.1:3306/zuluru_test?encoding=utf8mb4',
+              'unix_socket' => '',
+              // Allow '0000-00-00' dates in migrations (MySQL 8.0 strict mode compatibility)
+              'init' => ["SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION'"],
+            ],
+          ],
+          'feature' => [
+            'authenticate_through' => 'Zuluru',
+          ],
+          'App' => [
+            'urls' => [
+              'login' => ['controller' => 'Users', 'action' => 'login', 'plugin' => null],
+            ],
+          ],
+        ];
+        EOF
+        # Create required directories for photo upload tests
+        mkdir -p webroot/files/temp upload
+        chmod -R 777 webroot/files upload
+
+    - name: Verify MySQL connection
+      run: |
+        sudo apt-get install -y mysql-client
+        mysql -h127.0.0.1 -P3306 -uroot -proot -e "SELECT VERSION();"
+        # Allow zero dates for migrations (MySQL 8.0 compatibility)
+        mysql -h127.0.0.1 -P3306 -uroot -proot -e "SET GLOBAL sql_mode='NO_ENGINE_SUBSTITUTION';"
+
+    - name: Run test suite
+      run: vendor/bin/phpunit
+      env:
+        SQL_DRIVER: Mysql
+        DATABASE_TEST_URL: 'mysql://root:root@127.0.0.1:3306/zuluru_test?encoding=utf8mb4'
+        APP_DEFAULT_TIMEZONE: UTC
+        EMAIL_TRANSPORT: Mail
+        SECURITY_SALT: 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi'
+
+    # TODO: Re-enable once existing code style violations are fixed
+    # - name: Run code style check
+    #   run: vendor/bin/phpcs || true
+    #   continue-on-error: true
