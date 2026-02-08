@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<ruleset name="Zuluru">
+    <description>Zuluru coding standard based on CakePHP</description>
+
+    <!-- Use CakePHP coding standard as base -->
+    <rule ref="vendor/cakephp/cakephp-codesniffer/CakePHP">
+        <!-- Exclude Slevomat sniffs with incompatible properties -->
+        <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes"/>
+        <exclude name="SlevomatCodingStandard.TypeHints.PropertyTypeHint"/>
+    </rule>
+
+    <!-- What to scan -->
+    <file>src</file>
+    <file>tests</file>
+    <file>config</file>
+
+    <!-- File extensions to check -->
+    <arg name="extensions" value="php"/>
+
+    <!-- Show progress -->
+    <arg value="p"/>
+
+    <!-- Colors -->
+    <arg name="colors"/>
+</ruleset>

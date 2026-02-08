@@ -48,7 +48,8 @@
         "psy/psysh": "@stable",
         "phpunit/phpunit": "^9",
         "vierge-noire/cakephp-fixture-factories": "^2.5",
-        "vierge-noire/cakephp-test-migrator": "^2.5"
+        "vierge-noire/cakephp-test-migrator": "^2.5",
+        "cweagans/composer-patches": "^1.7"
     },
     "repositories": [
         {
@@ -95,13 +96,20 @@
     "config": {
         "allow-plugins": {
             "cakephp/plugin-installer": true,
-            "composer/installers": true
+            "composer/installers": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "cweagans/composer-patches": true
         }
     },
     "extra": {
         "plugin-paths": ["plugins", "plugins.local"],
         "installer-disable": [
             "cakephp"
-        ]
+        ],
+        "patches": {
+            "elboletaire/twbs-cake-plugin": {
+                "PHP 8.0 compatibility - add void return type": "patches/twbs-flashcomponent-php8.patch"
+            }
+        }
     }
 }
