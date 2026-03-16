@@ -8,6 +8,7 @@ use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 use Cake\Http\Exception\GoneException;
 use Cake\I18n\FrozenDate;
+use Cake\ORM\TableRegistry;
 
 class GamePolicy extends AppPolicy {
 
@@ -111,15 +112,21 @@ class GamePolicy extends AppPolicy {
 		// Manager, or anyone playing in this game
 		$game = $resource->resource();
 
+		// Is there a specific attendance record for this person, who may have been invited?
+		$attendance = TableRegistry::getTableLocator()->get('Attendances')->find()->where([
+			'game_id' => $resource->resource()->id,
+			'person_id' => $identity->getIdentifier(),
+		])->first();
+
 		if ($resource->has('home_team') && $resource->home_team->track_attendance &&
-			($identity->wasPlayerOn($resource->home_team) || $identity->wasRelativePlayerOn($resource->home_team))
+			($identity->wasPlayerOn($resource->home_team) || $identity->wasRelativePlayerOn($resource->home_team) || ($attendance && $attendance->team_id === $resource->home_team->id))
 		) {
 			$resource->team_id = $resource->home_team->id;
 			return true;
 		}
 
 		if ($resource->has('away_team') && $resource->away_team->track_attendance &&
-			($identity->wasPlayerOn($resource->away_team) || $identity->wasRelativePlayerOn($resource->away_team))
+			($identity->wasPlayerOn($resource->away_team) || $identity->wasRelativePlayerOn($resource->away_team) || ($attendance && $attendance->team_id === $resource->away_team->id))
 		) {
 			$resource->team_id = $resource->away_team->id;
 			return true;

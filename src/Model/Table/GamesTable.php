@@ -1047,6 +1047,34 @@ class GamesTable extends AppTable {
 			->where(['OR' => $conditions]);
 	}
 
+	public function findUnrostered_schedule(Query $query, array $options) {
+		$attendances = $this->Attendances->find()->where(['person_id IN' => $options['people']]);
+		if (!empty($options['all_teams'])) {
+			$attendances = $attendances->andWhere(['team_id NOT IN' => $options['all_teams']]);
+		}
+		$games = $attendances->extract('game_id')->toArray();
+		if (empty($games)) {
+			$games = [-1];
+		}
+		return $query
+			->contain([
+				'GameSlots' => ['Fields' => ['Facilities']],
+				'HomeTeam',
+				// TODO: Not everything that uses this function needs both DependencyPool and Pools
+				'HomePoolTeam' => [
+					'DependencyPool',
+					'Pools',
+				],
+				'AwayTeam',
+				'AwayPoolTeam' => [
+					'DependencyPool',
+					'Pools',
+				],
+				'Pools',
+			])
+			->where(['Games.id IN' => $games]);
+	}
+
 	public function findWithAttendance(Query $query, array $options) {
 		$contain = [
 			'Attendances' => [

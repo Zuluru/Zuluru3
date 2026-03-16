@@ -1,7 +1,10 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var array $items
+ * @var int $id
+ * @var \App\Model\Entity\Game[]|\App\Model\Entity\TeamEvent[] $items
+ * @var \App\Model\Entity\Team[] $teams
+ * @var int[] $team_ids
  */
 
 use App\Authorization\ContextResource;
@@ -61,19 +64,28 @@ if (!empty($items)):
 						}
 					} else if (in_array($item->home_team->id, $team_ids)) {
 						$team = $item->home_team;
-					} else {
+					} else if (in_array($item->away_team->id, $team_ids)) {
 						$team = $item->away_team;
+					} else {
+						// Must be a game we were invited to sub in. There will surely be an attendance record.
+						$attendance = $item->attendances[0];
+						if ($attendance->team_id === $item->home_team->id) {
+							$team = $item->home_team;
+						} else {
+							$team = $item->away_team;
+						}
 					}
 					if ($team->track_attendance) {
-						$roster = collection($teams)->firstMatch(['id' => $team->id])->_matchingData['TeamsPeople'];
-						if ($roster->status == ROSTER_APPROVED) {
+						$matched_team = collection($teams)->firstMatch(['id' => $team->id]);
+						$roster = $matched_team ? $matched_team->_matchingData['TeamsPeople'] : null;
+						if (($roster && $roster->status == ROSTER_APPROVED) || !$roster) {
 							if (!empty($item->attendances)) {
 								$record = collection($item->attendances)->firstMatch(['person_id' => $id]);
 								echo $this->element('Games/attendance_change', [
 									'team' => $team,
 									'game' => $item,
 									'person_id' => $id,
-									'role' => $roster->role,
+									'role' => $roster ? $roster->role : 'none',
 									'attendance' => $record,
 									'future_only' => true,
 								]);

@@ -2093,15 +2093,17 @@ class PeopleController extends AppController {
 
 		$teams = $this->UserCache->read('Teams', $id);
 		$team_ids = $this->UserCache->read('TeamIDs', $id);
-		$items = $this->_schedule([$id], $team_ids);
+		$all_team_ids = $this->UserCache->read('AllTeamIDs', $id);
+		$items = $this->_schedule([$id], $team_ids, $all_team_ids);
 
 		$this->set(compact('id', 'items', 'teams', 'team_ids'));
 	}
 
-	private function _schedule($people, $team_ids) {
+	private function _schedule($people, $team_ids, $all_team_ids) {
+		$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
+		$games_table = TableRegistry::getTableLocator()->get('Games');
+
 		if (!empty($team_ids)) {
-			$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
-			$games_table = TableRegistry::getTableLocator()->get('Games');
 			$past = $games_table->find('schedule', ['teams' => $team_ids])
 				->find('withAttendance', compact('people'))
 				->contain([
@@ -2234,6 +2236,37 @@ class PeopleController extends AppController {
 			$items = [];
 		}
 
+		// Add any non-rostered games that the person may have been invited to
+		$past = $games_table->find('unrostered_schedule', ['all_teams' => $all_team_ids, 'people' => $people])
+			->find('withAttendance', compact('people'))
+			->contain([
+				'Divisions' => ['Days', 'Leagues'],
+			])
+			->where([
+				'Games.published' => true,
+				'GameSlots.game_date <' => FrozenDate::now(),
+				//'GameSlots.game_date >=' => FrozenDate::now()->subWeeks(2),
+			])
+			->order(['GameSlots.game_date DESC', 'GameSlots.game_start DESC'])
+			->limit($limit)
+			->toArray();
+		$past = array_reverse($past);
+
+		$future = $games_table->find('unrostered_schedule', ['all_teams' => $all_team_ids, 'people' => $people])
+			->find('withAttendance', compact('people'))
+			->contain([
+				'Divisions' => ['Days', 'Leagues'],
+			])
+			->where([
+				'Games.published' => true,
+				'GameSlots.game_date >=' => FrozenDate::now(),
+				'GameSlots.game_date <' => FrozenDate::now()->addWeeks(2),
+			])
+			->order(['GameSlots.game_date', 'GameSlots.game_start'])
+			->limit($limit)
+			->toArray();
+		$items = array_merge($items, $past, $future);
+
 		if (Configure::read('feature.tasks')) {
 			foreach ($people as $id) {
 				$tasks = $this->UserCache->read('Tasks', $id);
@@ -2263,13 +2296,14 @@ class PeopleController extends AppController {
 		$id = $this->UserCache->currentId();
 		array_unshift($people, $id);
 
-		$teams = [];
+		$teams = $all_team_ids = [];
 		foreach ($people as $person_id) {
 			$teams = array_merge($teams, $this->UserCache->read('Teams', $person_id));
+			$all_team_ids = array_merge($all_team_ids, $this->UserCache->read('AllTeamIDs', $person_id));
 		}
 		$team_ids = collection($teams)->extract('id')->toList();
 
-		$items = $this->_schedule($people, $team_ids);
+		$items = $this->_schedule($people, $team_ids, $all_team_ids);
 		$this->set(compact('id', 'items', 'relatives', 'teams'));
 	}
 

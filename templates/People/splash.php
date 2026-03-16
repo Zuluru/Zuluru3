@@ -1,6 +1,8 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var array $affiliates
+ * @var array $relatives
  */
 
 use Cake\Core\Configure;

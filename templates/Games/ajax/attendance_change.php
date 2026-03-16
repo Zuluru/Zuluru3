@@ -12,7 +12,7 @@
 $args = [
 	'team' => $team,
 	'person_id' => $attendance->person_id,
-	'role' => $attendance->person->teams[0]->_joinData->role,
+	'role' => array_key_exists(0, $attendance->person->teams) ? $attendance->person->teams[0]->_joinData->role : 'substitute',
 	'attendance' => $attendance,
 	'dedicated' => $dedicated,
 ];

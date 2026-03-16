@@ -63,6 +63,9 @@ if (isset($id)) {
 			$limit = max(4, ceil(count($teams) * 1.5));
 			$items = array_fill(0, $limit, null);
 			echo $this->element('Games/splash', compact('items'));
+		} else {
+			// An empty schedule div for any non-rostered games we've been invited to
+			echo $this->Html->tag('div', '', ['class' => 'schedule table-responsive']);
 		}
 
 		echo $this->element('People/ical_links', compact('id'));

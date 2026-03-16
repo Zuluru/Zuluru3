@@ -798,7 +798,6 @@ class GamesController extends AppController {
 			$this->Flash->info(__('That team is not playing in this game.'));
 			return $this->redirect('/');
 		}
-		$this->Authorization->authorize($team);
 
 		$attendance = $this->Games->readAttendance($team_id, collection($game->division->days)->extract('id')->toArray(), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
@@ -1193,7 +1192,7 @@ class GamesController extends AppController {
 			$data = $this->getRequest()->getData();
 		}
 
-		$role = $attendance->person->teams[0]->_joinData->role;
+		$role = array_key_exists(0, $attendance->person->teams) ? $attendance->person->teams[0]->_joinData->role : 'none';
 		$attendance_options = $this->Games->attendanceOptions($role, $attendance->status, $past, $is_captain);
 
 		if ($code || $this->getRequest()->is(['patch', 'post', 'put'])) {
@@ -1205,7 +1204,7 @@ class GamesController extends AppController {
 				unset($data['status']);
 				$result = $service->updateGameAttendanceComment($data, $attendance, $game, $game_date, $team, $opponent, $is_me, $days_to_game, $past);
 			} else {
-				$role = $attendance->person->teams[0]->_joinData->role;
+				$role = array_key_exists(0, $attendance->person->teams) ? $attendance->person->teams[0]->_joinData->role : 'none';
 				if (!$role) {
 					$role = 'substitute';
 				}
