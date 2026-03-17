@@ -13,7 +13,7 @@
 use Cake\Core\Configure;
 ?>
 
-<?= __('The following incident report was submitted:') ?>
+<?= $incident->isNew() ? __('The following incident report was submitted:') : __('The following incident report was updated:') ?>
 
 
 <?= __('League') ?>: <?= $division->league->name ?>

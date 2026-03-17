@@ -919,14 +919,6 @@ class GamesTable extends AppTable {
 			$this->Divisions->clearCache($entity->division_id);
 		}
 
-		// TODO: We probably want to change the text of the email slightly if it's an update instead of a new incident.
-		// TODO: This would seem to fit better in afterSaveCommit, but at that point incidents is no longer dirty.
-		// Might also make sense to do this in the IncidentsTable afterSave, but then we don't have the game info handy.
-		if ($entity->isDirty('incidents') && !empty($entity->incidents)) {
-			$event = new CakeEvent('Model.Game.incidentReport', $this, [$entity]);
-			$this->getEventManager()->dispatch($event);
-		}
-
 		if (Configure::read('feature.badges') && $entity->isFinalized() && (!$options->offsetExists('update_badges') || $options['update_badges'])) {
 			$badge_obj = ModuleRegistry::getInstance()->load('Badge');
 			if (!$badge_obj->update('game', $entity)) {
