@@ -1,17 +1,26 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event|null $event
+ * @var string[] $affiliates
  */
 
 use Cake\ORM\TableRegistry;
 
 // Get the list of divisions
+$conditions = [
+	'Divisions.close > NOW()',
+	'Leagues.affiliate_id IN' => array_keys($affiliates),
+];
+if ($event && $event->division_id) {
+	$conditions = ['OR' => [
+		$conditions,
+		['Divisions.id' => $event->division_id],
+	]];
+}
 $divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 	->contain('Leagues')
-	->where([
-		'Divisions.close > NOW()',
-		'Leagues.affiliate_id IN' => array_keys($affiliates),
-	])
+	->where($conditions)
 	->toArray();
 
 echo $this->Form->control('division_id', [

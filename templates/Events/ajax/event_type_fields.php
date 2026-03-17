@@ -2,12 +2,13 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\EventType $event_obj
+ * @var \App\Model\Entity\Event|null $event
  */
 
 use App\Core\ModuleRegistry;
 
 // We intentionally do not echo the result of the create call. It is just to set up some defaults in the form helper.
-$this->Form->create(null, ['align' => 'horizontal']);
+$this->Form->create($event, ['align' => 'horizontal']);
 
 $fields = ($event_obj->configurationFields());
 foreach (ModuleRegistry::getModuleList('EventType') as $type) {
