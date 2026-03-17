@@ -13,7 +13,6 @@ use App\Model\Rule\GreaterDateRule;
 use App\Model\Rule\InDateConfigRule;
 use InvalidArgumentException;
 use Josegonzalez\Upload\Validation\UploadValidation;
-use Laminas\Diactoros\UploadedFile;
 
 /**
  * Uploads Model
