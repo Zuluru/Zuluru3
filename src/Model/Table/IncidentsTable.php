@@ -91,7 +91,7 @@ class IncidentsTable extends AppTable {
 	 * @return void
 	 */
 	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		if ($entity->isDirty('details') || $entity->isDirty('tyoe')) {
+		if ($entity->isDirty('details') || $entity->isDirty('type')) {
 			$event = new CakeEvent('Model.Game.incidentReport', $this, [$entity, $options['game']]);
 			$this->getEventManager()->dispatch($event);
 		}
