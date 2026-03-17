@@ -2,11 +2,9 @@
 namespace App\Model\Table;
 
 use App\Model\Entity\WaiversPerson;
-use ArrayObject;
 use Cake\Chronos\ChronosInterface;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event as CakeEvent;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;

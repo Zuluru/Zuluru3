@@ -3,7 +3,6 @@ namespace App\Model\Table;
 
 use ArrayObject;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event as CakeEvent;
 
 /**
  * Class for handling authentication using the Zikula user database.

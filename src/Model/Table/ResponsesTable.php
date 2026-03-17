@@ -3,10 +3,8 @@ namespace App\Model\Table;
 
 use ArrayObject;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event as CakeEvent;
 use Cake\ORM\Rule\ExistsIn;
 use Cake\ORM\RulesChecker;
-use Cake\Validation\Validator;
 
 /**
  * Responses Model

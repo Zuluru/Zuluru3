@@ -5,6 +5,7 @@ use App\Model\Entity\Game;
 use App\Model\Entity\Person;
 use App\Test\Factory\AttendanceFactory;
 use App\Test\Factory\GameFactory;
+use App\Test\Factory\IncidentFactory;
 use App\Test\Factory\LeaguesStatTypeFactory;
 use App\Test\Factory\NoteFactory;
 use App\Test\Factory\PeoplePersonFactory;
@@ -2285,6 +2286,9 @@ class GamesControllerTest extends ControllerTestCase {
 			'home_captain' => true,
 			'away_captain' => true,
 		]);
+		// Add an incident report from the other team, to make sure the one we email about is the new submission.
+		IncidentFactory::make(['game_id' => $game->id, 'team_id' => $game->away_team_id])->persist();
+
 		$captain = $game->home_team->people[0];
 
 		$url = ['controller' => 'Games', 'action' => 'submit', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
@@ -2328,29 +2332,32 @@ class GamesControllerTest extends ControllerTestCase {
 				'has_incident' => true,
 				'incidents' => [
 					[
+						'team_id' => $game->home_team_id,
 						'type' => 'Field Condition',
 						'details' => 'Incident report text goes here.',
 					],
 				],
 			], '/', 'This score has been saved. Once your opponent has entered their score, it will be officially posted. The score you have submitted indicates that this game was {0}. If this is incorrect, you can {1} to correct it.'
 		);
-		$this->assertSession('a win for your team', 'Flash.flash.0.params.replacements.0.text');
+
+		$this->assertFlashMessage('Your incident report details have been sent for handling.');
+		$this->assertSession('a win for your team', 'Flash.flash.1.params.replacements.0.text');
 
 		$this->assertMailCount(2);
 		$this->assertMailSentFromAt(0, 'admin@zuluru.org');
 		$this->assertMailSentWithArrayAt(0, [$captain->user->email => $captain->full_name], 'ReplyTo');
-		$this->assertMailSentToAt(0, $game->away_team->people[0]->user->email);
+		$this->assertMailSentToAt(0, 'incidents@zuluru.org');
 		$this->assertMailSentWithArrayAt(0, [], 'CC');
-		$this->assertMailSentWithAt(0, 'Opponent score submission', 'Subject');
-		$this->assertMailContainsAt(0, "Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
+		$this->assertMailSentWithAt(0, 'Incident report: Field Condition', 'Subject');
+		$this->assertMailContainsAt(0, 'The following incident report was submitted:');
+		$this->assertMailContainsAt(0, 'Incident report text goes here.');
 
 		$this->assertMailSentFromAt(1, 'admin@zuluru.org');
 		$this->assertMailSentWithArrayAt(1, [$captain->user->email => $captain->full_name], 'ReplyTo');
-		$this->assertMailSentToAt(1, 'incidents@zuluru.org');
+		$this->assertMailSentToAt(1, $game->away_team->people[0]->user->email);
 		$this->assertMailSentWithArrayAt(1, [], 'CC');
-		$this->assertMailSentWithAt(1, 'Incident report: Field Condition', 'Subject');
-		$this->assertMailContainsAt(1, 'The following incident report was submitted:');
-		$this->assertMailContainsAt(1, 'Incident report text goes here.');
+		$this->assertMailSentWithAt(1, 'Opponent score submission', 'Subject');
+		$this->assertMailContainsAt(1, "Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
 
 		/** @var Game $game */
 		$game = GameFactory::get($game->id, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
@@ -2374,8 +2381,6 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertEquals(2, $game->spirit_entries[0]->q3);
 		$this->assertEquals(2, $game->spirit_entries[0]->q4);
 		$this->assertEquals(2, $game->spirit_entries[0]->q5);
-
-		$this->assertFlashMessage('Your incident report details have been sent for handling.');
 	}
 
 	/**

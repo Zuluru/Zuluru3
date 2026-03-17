@@ -11,7 +11,6 @@ use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
-use App\Core\UserCache;
 use App\Model\Rule\InConfigRule;
 use InvalidArgumentException;
 

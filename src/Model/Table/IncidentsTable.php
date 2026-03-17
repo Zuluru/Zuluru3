@@ -1,7 +1,10 @@
 <?php
 namespace App\Model\Table;
 
+use ArrayObject;
+use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
@@ -77,6 +80,27 @@ class IncidentsTable extends AppTable {
 		]);
 
 		return $rules;
+	}
+
+	/**
+	 * Perform additional operations after it is saved.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @return void
+	 */
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+		if ($entity->isDirty('details') || $entity->isDirty('type')) {
+			$game = $options['game'];
+			if ($game->has('game_slot')) {
+				$gameSlot = $game->game_slot;
+			} else {
+				$gameSlot = $this->Games->GameSlots->get($game->game_slot_id, ['contain' => ['Fields' => 'Facilities']]);
+			}
+			$event = new CakeEvent('Model.Game.incidentReport', $this, [$entity, $game, $gameSlot]);
+			$this->getEventManager()->dispatch($event);
+		}
 	}
 
 	public function division($id) {
