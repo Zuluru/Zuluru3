@@ -2245,7 +2245,7 @@ class PeopleController extends AppController {
 			->where([
 				'Games.published' => true,
 				'GameSlots.game_date <' => FrozenDate::now(),
-				//'GameSlots.game_date >=' => FrozenDate::now()->subWeeks(2),
+				'GameSlots.game_date >=' => FrozenDate::now()->subWeeks(2),
 			])
 			->order(['GameSlots.game_date DESC', 'GameSlots.game_start DESC'])
 			->limit($limit)
