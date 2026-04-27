@@ -12,6 +12,7 @@ use BootstrapUI\View\Helper\FormHelper;
  * @var bool $show_officials
  * @var \Cake\I18n\FrozenDate $edit_date
  * @var \App\Model\Entity\GameSlot[] $game_slots
+ * @var array $officials
  * @var \Cake\I18n\FrozenDate[] $week
  */
 
@@ -314,7 +315,7 @@ foreach ($games as $game):
 ?>
 	<td><?php
 		if ($league->officials == OFFICIALS_ADMIN) {
-			echo $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'league' => $league]);
+			echo $this->element('Games/officials', ['game' => $game, 'assigned_officials' => $game->officials, 'league' => $league, 'officials' => $officials, 'edit_officials' => true]);
 		} else {
 			echo $this->Form->control("games.{$game->id}.team_officials.0.id", [
 				'label' => false,
@@ -376,4 +377,8 @@ endforeach;
 </tr>
 
 <?php
+$this->Html->css('jquery.asmselect.css', ['block' => true]);
+$this->Html->script('jquery.asmselect.js', ['block' => true]);
+$this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
+
 echo $this->Form->end();

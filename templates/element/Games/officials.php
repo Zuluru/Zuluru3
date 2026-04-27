@@ -1,13 +1,19 @@
 <?php
 declare(strict_types=1);
 
+use Cake\Core\Configure;
+
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\Person[] $officials
+ * @var \App\Model\Entity\Person[] $assigned_officials
  * @var \App\Model\Entity\Team[] $team_officials
  * @var \App\Model\Entity\Game $game
  * @var \App\Model\Entity\League $league
+ * @var array $officials
+ * @var bool $edit_officials
  */
+
+$asmselect = Configure::read('GamesOfficialsAsmSelectTracker') ?: 0;
 
 if ($league->officials == OFFICIALS_NONE) {
 	echo __('N/A');
@@ -19,8 +25,25 @@ if ($league->officials == OFFICIALS_TEAM && !empty($team_officials)) {
 	echo $this->element('Teams/block', ['team' => $team_officials[0], 'show_shirt' => false]) . ': ';
 }
 
+if (isset($edit_officials) && $edit_officials && $league->officials == OFFICIALS_ADMIN && \Cake\Core\Configure::read('debug')) {
+	echo $this->Form->control("games.{$game->id}.officials._ids", [
+		'label' => false,
+		'options' => $officials,
+		'multiple' => true,
+		'hiddenField' => false,
+		'title' => __('Select the official(s) for the selected game(s)'),
+	]);
+	Configure::write('GamesOfficialsAsmSelectTracker', ++$asmselect);
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField("asmSelect{$asmselect}");
+		$this->Form->unlockField("games.{$game->id}.officials._ids");
+	}
+
+	return;
+}
+
 $output = [];
-foreach ($officials as $official) {
+foreach ($assigned_officials as $official) {
 	$output[] = $this->Html->link($official->full_name, ['controller' => 'People', 'action' => 'officiating_schedule', '?' => ['official' => $official->id]]);
 }
 

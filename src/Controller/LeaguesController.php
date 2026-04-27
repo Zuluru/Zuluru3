@@ -532,6 +532,14 @@ class LeaguesController extends AppController {
 				'double_booking' => $double_booking,
 				'multi_day' => $multi_day,
 			])->toArray();
+
+			if (Configure::read('feature.officials') && $league->officials == OFFICIALS_ADMIN) {
+				$this->set('officials', $this->Leagues->Divisions->Games->Officials->find('officials')
+					->all()
+					->combine('id', 'full_name')
+					->toArray()
+				);
+			}
 		} else {
 			$is_tournament = collection($league->games)->some(function ($game) {
 				return $game->type != SEASON_GAME;

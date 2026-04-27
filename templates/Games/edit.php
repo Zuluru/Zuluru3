@@ -110,6 +110,7 @@ if (Configure::read('feature.officials')):
 			echo $this->Form->control('officials.0.id', [
 				'label' => false,
 				'options' => $officials,
+				'type' => 'select',
 				'multiple' => true,
 				'hiddenField' => false,
 				'title' => __('Select the officials for this game'),

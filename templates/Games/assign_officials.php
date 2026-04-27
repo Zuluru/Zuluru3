@@ -79,7 +79,7 @@ foreach ($games as $game):
 						echo $this->element('Teams/block', ['team' => $game->away_team, 'options' => ['max_length' => 25]]);
 					}
 				?></td>
-				<td><?= $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'league' => $game->division->league]) ?></td>
+				<td><?= $this->element('Games/officials', ['game' => $game, 'assigned_officials' => $game->officials, 'league' => $game->division->league]) ?></td>
 			</tr>
 
 <?php

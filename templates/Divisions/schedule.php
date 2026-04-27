@@ -5,6 +5,7 @@
  * @var bool $multi_day
  * @var \Cake\I18n\FrozenDate $edit_date
  * @var \App\Model\Entity\GameSlot[] $game_slots
+ * @var array $officials
  * @var bool $is_tournament
  */
 
@@ -102,7 +103,7 @@ if (!empty($division->games)):
 <?php
 	foreach ($weeks as $week) {
 		if ($edit_date >= $week[0] && $edit_date <= $week[1]) {
-			echo $this->element('Leagues/schedule/week_edit', array_merge(['league' => $division->league], compact('week', 'multi_day', 'game_slots', 'is_tournament', 'show_officials')));
+			echo $this->element('Leagues/schedule/week_edit', array_merge(['league' => $division->league], compact('week', 'multi_day', 'game_slots', 'officials', 'is_tournament', 'show_officials')));
 		} else {
 			echo $this->element('Leagues/schedule/week_view', array_merge(['league' => $division->league], compact('week', 'multi_day', 'show_officials')));
 		}

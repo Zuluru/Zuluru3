@@ -62,7 +62,7 @@ endif;
 
 if ($show_officials):
 ?>
-	<td><?= $this->element('Games/officials', ['game' => $game, 'officials' => $game->officials, 'team_officials' => $game->team_officials, 'league' => $league]) ?></td>
+	<td><?= $this->element('Games/officials', ['game' => $game, 'assigned_officials' => $game->officials, 'team_officials' => $game->team_officials, 'league' => $league]) ?></td>
 <?php
 endif;
 ?>

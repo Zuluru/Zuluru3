@@ -5,6 +5,7 @@
  * @var \Cake\I18n\FrozenDate $date
  */
 
+use App\Model\Entity\Game;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
@@ -38,15 +39,15 @@ else:
 	$is_tournament = collection($games)->some(function ($game) { return $game->type != SEASON_GAME; });
 
 	$sport = $last_slot = null;
+	$show_officials = collection($games)->some(fn (Game $game) => $this->Authorize->can('show_officials', $game->division->league));
 	foreach ($games as $game):
-		$show_officials = $this->Authorize->can('show_officials', $game->division->league);
 		$can_assign = $show_officials && $this->Authorize->getIdentity()->isManager();
 		if ($game->division->league->sport != $sport):
 			$sport = $game->division->league->sport;
 			if (count(Configure::read('options.sport')) > 1):
 ?>
 			<tr>
-				<th colspan="<?= 5 + $is_tournament + $show_officials - $can_assign ?>"><?= Inflector::humanize(__($sport)) ?></th>
+				<th colspan="<?= 4 + $is_tournament + $show_officials - $can_assign ?>"><?= Inflector::humanize(__($sport)) ?></th>
 <?php
 				if ($can_assign):
 ?>
@@ -54,6 +55,7 @@ else:
 <?php
 				endif;
 ?>
+				<th></th>
 			</tr>
 
 <?php
@@ -130,14 +132,20 @@ else:
 				?></td>
 <?php
 			if ($show_officials):
+				if ($this->Authorize->can('show_officials', $game->division->league)):
 ?>
 				<td><?= $this->element('Games/officials', [
 					'game' => $game,
-					'officials' => $game->officials,
+					'assigned_officials' => $game->officials,
 					'team_officials' => $game->team_officials,
 					'league' => $game->division->league,
 				]) ?></td>
 <?php
+				else:
+?>
+				<td></td>
+<?php
+				endif;
 			endif;
 ?>
 				<td class="actions"><?php

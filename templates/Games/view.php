@@ -99,7 +99,7 @@ if (Configure::read('feature.officials') && $this->Authorize->getIdentity() && $
 		<dt class="col-sm-3 text-end"><?= __('Officials') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->element('Games/officials', [
 			'game' => $game,
-			'officials' => $game->officials,
+			'assigned_officials' => $game->officials,
 			'team_officials' => $game->team_officials,
 			'league' => $game->division->league,
 		]) ?></dd>
