@@ -25,7 +25,7 @@ if ($league->officials == OFFICIALS_TEAM && !empty($team_officials)) {
 	echo $this->element('Teams/block', ['team' => $team_officials[0], 'show_shirt' => false]) . ': ';
 }
 
-if (isset($edit_officials) && $edit_officials && $league->officials == OFFICIALS_ADMIN && \Cake\Core\Configure::read('debug')) {
+if (isset($edit_officials) && $edit_officials && $league->officials == OFFICIALS_ADMIN) {
 	echo $this->Form->control("games.{$game->id}.officials._ids", [
 		'label' => false,
 		'options' => $officials,
@@ -33,10 +33,10 @@ if (isset($edit_officials) && $edit_officials && $league->officials == OFFICIALS
 		'hiddenField' => false,
 		'title' => __('Select the official(s) for the selected game(s)'),
 	]);
-	Configure::write('GamesOfficialsAsmSelectTracker', ++$asmselect);
 	if ($this->Form->hasFormProtector()) {
 		$this->Form->unlockField("asmSelect{$asmselect}");
 		$this->Form->unlockField("games.{$game->id}.officials._ids");
+		Configure::write('GamesOfficialsAsmSelectTracker', ++$asmselect);
 	}
 
 	return;

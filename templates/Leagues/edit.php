@@ -88,6 +88,7 @@ echo $this->Form->control('season', [
 	'help' => $tournaments ? __('Season during which this tournament\'s games take place.') : __('Season during which this league\'s games take place.'),
 ]);
 
+$asm = 0;
 if (!empty($categories)) {
 	echo $this->Form->control('categories._ids', [
 		'options' => $categories,
@@ -95,6 +96,10 @@ if (!empty($categories)) {
 		'hiddenField' => false,
 		'title' => __('Select all that apply'),
 	]);
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField('asmSelect0');
+		++ $asm;
+	}
 }
 
 echo $this->Form->control('schedule_attempts', [
@@ -181,7 +186,7 @@ echo $this->Form->control('tie_breakers', [
 	'title' => __('Order of tie-breakers to use in standings'),
 ]);
 if ($this->Form->hasFormProtector()) {
-	$this->Form->unlockField('asmSelect0');
+	$this->Form->unlockField("asmSelect{$asm}");
 }
 $this->Html->css('jquery.asmselect.css', ['block' => true]);
 $this->Html->script('jquery.asmselect.js', ['block' => true]);

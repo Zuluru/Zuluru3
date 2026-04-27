@@ -10,6 +10,7 @@
  */
 
 use App\Model\Entity\Division;
+use BootstrapUI\View\Helper\FormHelper;
 use Cake\Core\Configure;
 
 $tournaments = collection($league->divisions ?? [])->every(function (Division $division) {
@@ -73,6 +74,10 @@ if (!empty($league->games)):
 	if ($future_week != 99) {
 		echo $this->Html->para(null, $this->Html->link(__('Jump to upcoming games'), "#{$weeks[$future_week][0]}"));
 	}
+	if ($edit_date) {
+		// We don't have any labels here, so set the label width to 0 and the input to the full 12
+		echo $this->Form->create($league, ['align' => [FormHelper::GRID_COLUMN_ONE => 0, FormHelper::GRID_COLUMN_TWO => 12]]);
+	}
 ?>
 		<div class="table-responsive">
 			<table class="table table-striped table-hover table-condensed">
@@ -124,6 +129,9 @@ if (!empty($league->games)):
 			</table>
 		</div>
 <?php
+	if ($edit_date) {
+		echo $this->Form->end();
+	}
 endif;
 ?>
 

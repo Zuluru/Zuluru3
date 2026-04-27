@@ -539,6 +539,8 @@ class LeaguesController extends AppController {
 					->combine('id', 'full_name')
 					->toArray()
 				);
+			} else {
+				$this->set('officials', []);
 			}
 		} else {
 			$is_tournament = collection($league->games)->some(function ($game) {

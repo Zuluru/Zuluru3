@@ -686,6 +686,8 @@ class DivisionsController extends AppController {
 					->combine('id', 'full_name')
 					->toArray()
 				);
+			} else {
+				$this->set('officials', []);
 			}
 		} else {
 			$is_tournament = collection($division->games)->some(function ($game) use ($edit_date) {
