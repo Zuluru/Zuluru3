@@ -20,7 +20,6 @@ use Cake\Core\Configure;
 use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql;
 use Cake\Datasource\ConnectionManager;
-use Cake\Routing\Router;
 use Migrations\TestSuite\Migrator;
 
 /**
@@ -35,20 +34,20 @@ define('CACHE_PREFIX', 'cli_');
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 define('PHPUNIT_TESTSUITE', true);
-require dirname(__DIR__) . '/config/bootstrap.php';
 
-if (empty($_SERVER['HTTP_HOST']) && !Configure::read('App.fullBaseUrl')) {
-    Configure::write('App.fullBaseUrl', 'http://localhost');
-	// config/bootstrap.php ran above before HTTP_HOST was set, so Router never picked up
-	// a base URL. Set it explicitly here so Router::url(..., true) generates valid absolute URLs.
-	Router::fullBaseUrl('http://localhost');
-
+// Under the CLI SAPI there is no HTTP_HOST, so config/bootstrap.php would compute an
+// empty Router base URL ('http://'). Router::url(..., true) then yields malformed URLs
+// like 'http:///users/login', which parse_url() rejects, breaking the unauthenticated
+// redirect (it collapses to '/'). Set a host before bootstrapping so the base URL is valid.
+if (empty($_SERVER['HTTP_HOST'])) {
 	$_SERVER['PHP_SELF'] = '/index.php';
 	$_SERVER['SERVER_NAME'] = 'test.zuluru.org';
 	$_SERVER['HTTP_HOST'] = 'test.zuluru.org';
 	$_SERVER['REQUEST_SCHEME'] = 'https';
-	$_SERVER['HTTPS'] = 1;
+	$_SERVER['HTTPS'] = 'on';
 }
+
+require dirname(__DIR__) . '/config/bootstrap.php';
 
 // DebugKit skips settings these connection config if PHP SAPI is CLI / PHPDBG.
 // But since PagesControllerTest is run with debug enabled and DebugKit is loaded
