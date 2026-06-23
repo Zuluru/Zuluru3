@@ -148,8 +148,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface {
 		// TODO: Read these from site configuration
 		if (Configure::read('feature.authenticate_through') == 'Zuluru') {
-			// Don't use `true` parameter as base URL may not be set in tests, causing malformed URLs
-			$loginAction = Router::url(Configure::read('App.urls.login'));
+			$loginAction = Router::url(Configure::read('App.urls.login'), true);
 		} else {
 			$loginAction = Router::url(['plugin' => null, 'controller' => 'Leagues', 'action' => 'index'], true);
 		}

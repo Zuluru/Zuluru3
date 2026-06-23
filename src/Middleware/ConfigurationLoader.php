@@ -36,11 +36,10 @@ class ConfigurationLoader implements MiddlewareInterface {
 			Configure::write('feature.authenticate_through', 'Zuluru');
 		}
 
-		// Ensure login URL is set for authentication (always set to handle database config overwrites)
-		// Database config might set App.urls to a scalar value, corrupting the array from app.php
-		$urls = Configure::read('App.urls');
-		if (!is_array($urls) || !isset($urls['login']) || !is_array($urls['login'])) {
-			// App.urls or App.urls.login is missing/corrupted, restore it
+		// Ensure a login URL is set for authentication. A scalar string (e.g. an external
+		// SSO login page) is a valid value and must be preserved; only fill in the default
+		// when nothing has been configured.
+		if (!Configure::read('App.urls.login')) {
 			Configure::write('App.urls.login', ['plugin' => false, 'controller' => 'Users', 'action' => 'login']);
 		}
 	}
