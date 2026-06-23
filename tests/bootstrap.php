@@ -20,6 +20,7 @@ use Cake\Core\Configure;
 use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql;
 use Cake\Datasource\ConnectionManager;
+use Cake\Routing\Router;
 use Migrations\TestSuite\Migrator;
 
 /**
@@ -38,6 +39,9 @@ require dirname(__DIR__) . '/config/bootstrap.php';
 
 if (empty($_SERVER['HTTP_HOST']) && !Configure::read('App.fullBaseUrl')) {
     Configure::write('App.fullBaseUrl', 'http://localhost');
+	// config/bootstrap.php ran above before HTTP_HOST was set, so Router never picked up
+	// a base URL. Set it explicitly here so Router::url(..., true) generates valid absolute URLs.
+	Router::fullBaseUrl('http://localhost');
 
 	$_SERVER['PHP_SELF'] = '/index.php';
 	$_SERVER['SERVER_NAME'] = 'test.zuluru.org';

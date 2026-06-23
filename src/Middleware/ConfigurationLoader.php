@@ -35,5 +35,12 @@ class ConfigurationLoader implements MiddlewareInterface {
 			Configure::write('feature.control_account_creation', true);
 			Configure::write('feature.authenticate_through', 'Zuluru');
 		}
+
+		// Ensure a login URL is set for authentication. A scalar string (e.g. an external
+		// SSO login page) is a valid value and must be preserved; only fill in the default
+		// when nothing has been configured.
+		if (!Configure::read('App.urls.login')) {
+			Configure::write('App.urls.login', ['plugin' => false, 'controller' => 'Users', 'action' => 'login']);
+		}
 	}
 }
