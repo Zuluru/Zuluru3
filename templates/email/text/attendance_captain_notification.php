@@ -8,17 +8,26 @@
  * @var string $captains
  * @var \App\Model\Entity\Attendance $attendance
  * @var \Cake\I18n\FrozenDate $date
+ * @var string $captains
+ * @var string $code
  */
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 if (!$game->isNew()) {
-	$game_text = __(' against {0} at {1} starting at {2}',
-		$opponent->name,
-		$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
-		$this->Time->time($game->game_slot->game_start)
-	);
+	if ($opponent) {
+		$game_text = __(' against {0} at {1} starting at {2}',
+			$opponent->name,
+			$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
+			$this->Time->time($game->game_slot->game_start)
+		);
+	} else {
+		$game_text = __(' at {0} starting at {1}',
+			$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
+			$this->Time->time($game->game_slot->game_start)
+		);
+	}
 
 	$arg = 'game';
 	$val = $game->id;

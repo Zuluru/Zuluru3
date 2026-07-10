@@ -72,6 +72,7 @@ class GameListener implements EventListenerInterface {
 		// Just mention that it's been saved and move on
 		$status = $game->score_entries[0]->status;
 		if (in_array($status, Configure::read('unplayed_status'))) {
+			$score_for = $score_against = false;
 			$team_status = $opponent_status = __($status);
 		} else {
 			$score_for = $game->score_entries[0]->score_for;

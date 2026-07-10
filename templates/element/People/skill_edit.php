@@ -70,8 +70,8 @@ foreach ($sports as $sport => $name):
 	if (in_array(Configure::read('profile.year_started'), $access)) {
 		echo $this->Form->control("{$prefix}skills.{$i}.year_started", [
 			'type' => 'year',
-			'minYear' => Configure::read('options.year.started.min'),
-			'maxYear' => Configure::read('options.year.started.max'),
+			'min' => Configure::read('options.year.started.min'),
+			'max' => Configure::read('options.year.started.max'),
 			'orderYear' => 'desc',
 			// The "year" type will interpret a number like 2010 as a UNIX timestamp, and default the selected value here to 1970.
 			'value' => (isset($person) && isset($person->skills) && array_key_exists($i, $person->skills)) ? $person->skills[$i]->year_started : null,

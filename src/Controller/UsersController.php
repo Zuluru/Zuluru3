@@ -166,9 +166,11 @@ class UsersController extends AppController {
 			} else {
 				// Force the various rules checks to run, for better feedback to the user
 				$users_table->checkRules($user, RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
-				$users_table->People->checkRules($user->person, RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
-				if (!empty($user->person->relatives)) {
-					$users_table->People->checkRules($user->person->relatives[0], RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
+				if ($user->person) {
+					$users_table->People->checkRules($user->person, RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
+					if (!empty($user->person->relatives)) {
+						$users_table->People->checkRules($user->person->relatives[0], RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
+					}
 				}
 			}
 		} else {

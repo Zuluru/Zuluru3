@@ -21,7 +21,7 @@ if ($newsletter->personalize) {
 		'full_name' => $person->full_name,
 	]);
 }
-echo Html2Text::convert($text);
+echo Html2Text::convert($text, ['ignore_errors' => true]);
 ?>
 
 <?php

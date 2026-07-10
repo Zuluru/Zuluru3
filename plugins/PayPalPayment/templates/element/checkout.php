@@ -106,7 +106,7 @@ if (is_array($response)) {
 	}
 	$url = "{$paypal_url}webscr?cmd=_express-checkout&token=" . urlencode($response['TOKEN']);
 	$form_options = ['url' => $url, 'name' => 'paypal_form', 'escape' => false];
-	$submit_options = ['div' => false, 'alt' => 'Pay now'];
+	$submit_options = ['div' => false, 'alt' => 'Pay now', 'class' => 'bg-transparent'];
 	if (Configure::read('payment.popup')) {
 		$form_options['target'] = 'payment_window_paypal';
 		$submit_options['onClick'] = 'open_payment_window_paypal();';

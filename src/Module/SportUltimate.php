@@ -4,10 +4,15 @@
  */
 namespace App\Module;
 
+use App\Model\Entity\Game;
+use App\Model\Entity\StatType;
+use App\Model\Entity\Team;
+use Cake\Utility\Hash;
+
 class SportUltimate extends Sport {
 	protected $sport = 'ultimate';
 
-	public function TODOLATER_validatePlay($team, $play, $score_from, $details) {
+	public function TODOLATER_validatePlay(Team $team, string $play, int $score_from, array $details) {
 		switch ($play) {
 			case 'Half':
 				$half = Hash::extract(['X' => $details], '/X[play=Half]/.');
@@ -26,17 +31,11 @@ class SportUltimate extends Sport {
 		return parent::validatePlay($team, $play, $score_from, $details);
 	}
 
-	public function points_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to points_game', E_USER_ERROR);
-		}
+	public function points_game(StatType $stat_type, Game $game): void {
 		$this->gameSum($stat_type, $game, ['Goals', 'Assists', 'Second Assists']);
 	}
 
-	public function turnovers_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to turnovers_game', E_USER_ERROR);
-		}
+	public function turnovers_game(StatType $stat_type, Game $game): void {
 		$this->gameSum($stat_type, $game, ['Throwaways', 'Drops']);
 	}
 }

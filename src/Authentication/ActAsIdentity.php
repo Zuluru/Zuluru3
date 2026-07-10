@@ -322,7 +322,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if (isset($entity->divisions)) {
 				$league_divisions = collection($entity->divisions)->extract('id')->toArray();
 			} else {
-				$league_divisions = TableRegistry::getTableLocator()->get('Leagues')->divisions($entity);
+				$league_divisions = TableRegistry::getTableLocator()->get('Leagues')->divisions($entity->id);
 			}
 			$intersection = array_intersect($this->_coordinatedDivisionIds, $league_divisions);
 			return (count($league_divisions) == count($intersection));

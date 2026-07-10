@@ -81,8 +81,8 @@ foreach ($all_items as $item) {
 $header_cells[] = __('Total');
 $header_cells[] = '';
 ?>
-	<div class="table-responsive">
-		<table class="table table-striped table-hover table-condensed">
+	<div class="table-responsive sticky">
+		<table class="table table-striped table-hover table-condensed sticky">
 			<thead>
 				<?= $this->Html->tableHeaders($header_cells) ?>
 			</thead>
@@ -95,7 +95,7 @@ $people = $attendance->people ?? [];
 foreach ($people as $person):
 ?>
 				<tr>
-					<td><?= $this->element('People/block', compact('person')) ?></td>
+					<th><?= $this->element('People/block', compact('person')) ?></th>
 <?php
 	$total = 0;
 	foreach ($all_items as $key => $item):
@@ -144,22 +144,22 @@ foreach ($people as $person):
 	endforeach;
 ?>
 					<td><?= $total ?></td>
-					<td><?= $this->element('People/block', compact('person')) ?></td>
 				</tr>
 
 <?php
 endforeach;
-?>
 
-				<?= $this->Html->tableHeaders($header_cells) ?>
-<?php
 if ($this->Authorize->can('display_gender', new ContextResource($team, ['division' => $team->division]))):
 	foreach ($statuses as $status => $description):
 		$counts = [];
 		foreach (array_keys($all_items) as $key) {
 			foreach ([Configure::read('gender.woman'), Configure::read('gender.man')] as $gender) {
 				if ($count[$status][$key][$gender]) {
-					$counts[$key][] = $count[$status][$key][$gender] . substr(__x('gender', $gender), 0, 1);
+					if (Configure::read('offerings.genders') === 'Open') {
+						$counts[$key][] = $count[$status][$key][$gender];
+					} else {
+						$counts[$key][] = $count[$status][$key][$gender] . substr(__x('gender', $gender), 0, 1);
+					}
 				}
 			}
 		}
@@ -168,7 +168,7 @@ if ($this->Authorize->can('display_gender', new ContextResource($team, ['divisio
 			$icon = $this->Html->iconImg("attendance_{$low}_dedicated_24.png");
 ?>
 				<tr>
-					<td><?= $icon . '&nbsp;' . __($description) ?></td>
+					<th><?= $icon . '&nbsp;' . __($description) ?></th>
 <?php
 			foreach (array_keys($all_items) as $key):
 ?>
@@ -184,7 +184,6 @@ if ($this->Authorize->can('display_gender', new ContextResource($team, ['divisio
 <?php
 			endforeach;
 ?>
-					<td></td>
 					<td></td>
 				</tr>
 <?php

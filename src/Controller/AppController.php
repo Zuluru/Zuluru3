@@ -470,7 +470,9 @@ class AppController extends Controller {
 			// Parents always get the registration menu items
 			if (!Configure::read('feature.minimal_menus') && ($this->Authorization->can(\App\Controller\PeopleController::class, 'show_registration'))) {
 				//$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard']);
-				$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard'], __('Registration'));
+				if ($identity) {
+					$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard'], __('Registration'));
+				}
 				$this->_addMenuItem(__('All Events'), ['plugin' => false, 'controller' => 'Events', 'action' => 'index'], __('Registration'));
 				if ($identity && $identity->isLoggedIn() && !empty($this->UserCache->read('Registrations'))) {
 					$this->_addMenuItem(__('My History'), ['plugin' => false, 'controller' => 'People', 'action' => 'registrations'], __('Registration'));

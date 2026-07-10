@@ -2035,6 +2035,8 @@ class PeopleController extends AppController {
 			$this->Flash->success(__('The person has been deleted.'));
 		} else if ($person->getError('delete')) {
 			$this->Flash->warning(current($person->getError('delete')));
+		} else if ($person->getError('disposition')) {
+			$this->Flash->warning(current($person->getError('disposition')));
 		} else {
 			$this->Flash->warning(__('The person could not be deleted. Please, try again.'));
 		}

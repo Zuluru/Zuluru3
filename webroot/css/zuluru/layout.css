@@ -110,6 +110,17 @@ body.map
 {
 	border-bottom: 1px solid;
 }
+
+/** Sticky tables **/
+div.sticky {
+	max-height: 600px;
+	overflow: auto;
+}
+
+table.sticky thead, table.sticky th { position: sticky; }
+table.sticky thead { top: 0; z-index: 2; }
+table.sticky th { left: 0; z-index: 1; background: lightgray; }
+
 /** View pages **
 TODOBOOTSTRAP: Fix the below for the games view page
 */
@@ -612,6 +623,11 @@ div.register-help img
 }
 
 /* Stat sheet styling. */
+.zuluru .games.stats.form .row.number input.form-control {
+	width: auto;
+	--bs-gutter-x: 0;
+}
+
 .zuluru .stat-sheet table
 {
 	border-collapse: collapse;
