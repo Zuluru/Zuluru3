@@ -4,28 +4,27 @@
  */
 namespace App\Module;
 
+use App\Model\Entity\Game;
+use App\Model\Entity\StatType;
 use App\Model\Table\StatsTable;
 
 class SportSoccer extends Sport {
 	protected $sport = 'soccer';
 
 	// In soccer, a win is worth 3 points, not 2.
-	public function winValue() {
+	public function winValue(): int {
 		return 3;
 	}
 
-	public function points_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to points_game', E_USER_ERROR);
-		}
+	public function points_game(StatType $stat_type, Game $game): void {
 		$this->initRostersFromGame($game);
 
-		$g_id = $this->statTypeId('Goals');
-		$a_id = $this->statTypeId('Assists');
+		$g_type = $this->statType('Goals');
+		$a_type = $this->statType('Assists');
 
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$value = $this->value($g_id, $person_id, $game->stats) * 2 + $this->value($a_id, $person_id, $game->stats);
+				$value = $this->value($g_type, $person_id, $game->stats) * 2 + $this->value($a_type, $person_id, $game->stats);
 
 				if (StatsTable::applicable($stat_type, $position) || $value != 0) {
 					$game->stats[] = $this->Stats->newEntity([
@@ -40,31 +39,25 @@ class SportSoccer extends Sport {
 		}
 	}
 
-	public function shot_percent_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to shot_percent_game', E_USER_ERROR);
-		}
-		$this->gamePercent($stat_type, $game, $this->statTypeId('Goals'), $this->statTypeId('Shots'));
+	public function shot_percent_game(StatType $stat_type, Game $game): void {
+		$this->gamePercent($stat_type, $game, $this->statType('Goals'), $this->statType('Shots'));
 	}
 
-	public function shot_percent_season($stat_type, $calculated) {
-		$this->seasonPercent($stat_type, $calculated, $this->statTypeId('Goals'), $this->statTypeId('Shots'));
+	public function shot_percent_season(StatType $stat_type, \ArrayObject $calculated): void {
+		$this->seasonPercent($stat_type, $calculated, $this->statType('Goals'), $this->statType('Shots'));
 	}
 
-	public function save_percent_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to save_percent_game', E_USER_ERROR);
-		}
+	public function save_percent_game(StatType $stat_type, Game $game): void {
 		$this->initRostersFromGame($game);
 
-		$s_id = $this->statTypeId('Shots Against');
-		$g_id = $this->statTypeId('Goals Against');
+		$s_type = $this->statType('Shots Against');
+		$g_type = $this->statType('Goals Against');
 
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$shots = $this->value($s_id, $person_id, $game->stats);
+				$shots = $this->value($s_type, $person_id, $game->stats);
 				if ($shots) {
-					$value = round(($shots - $this->value($g_id, $person_id, $game->stats)) / $shots, 3);
+					$value = round(($shots - $this->value($g_type, $person_id, $game->stats)) / $shots, 3);
 				} else {
 					$value = 0;
 				}
@@ -82,15 +75,15 @@ class SportSoccer extends Sport {
 		}
 	}
 
-	public function save_percent_season($stat_type, $calculated) {
-		$s_id = $this->statTypeId('Shots Against');
-		$g_id = $this->statTypeId('Goals Against');
+	public function save_percent_season(StatType $stat_type, \ArrayObject $calculated): void {
+		$s_type = $this->statType('Shots Against');
+		$g_type = $this->statType('Goals Against');
 
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$shots = $this->valueSum($s_id, $person_id);
+				$shots = $this->valueSum($s_type, $person_id);
 				if ($shots) {
-					$value = round(($shots - $this->valueSum($g_id, $person_id)) / $shots, 3);
+					$value = round(($shots - $this->valueSum($g_type, $person_id)) / $shots, 3);
 				} else {
 					$value = 0;
 				}
@@ -102,15 +95,15 @@ class SportSoccer extends Sport {
 		}
 	}
 
-	public function gaa_season($stat_type, $calculated) {
-		$m_id = $this->statTypeId('Minutes Played');
-		$g_id = $this->statTypeId('Goals Against');
+	public function gaa_season(StatType $stat_type, \ArrayObject $calculated): void {
+		$m_type = $this->statType('Minutes Played');
+		$g_type = $this->statType('Goals Against');
 
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$minutes = $this->valueSum($m_id, $person_id);
+				$minutes = $this->valueSum($m_type, $person_id);
 				if ($minutes) {
-					$value = round(($this->valueSum($g_id, $person_id) * 90) / $minutes, 2);
+					$value = round(($this->valueSum($g_type, $person_id) * 90) / $minutes, 2);
 				} else {
 					$value = 0;
 				}

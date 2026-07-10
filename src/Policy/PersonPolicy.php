@@ -18,7 +18,7 @@ class PersonPolicy extends AppPolicy {
 	use HasherTrait;
 
 	public function before($identity, $resource, $action) {
-		$result = $this->blockAnonymousExcept($identity, $action, ['view', 'tooltip', 'approve_relative', 'remove_relative', 'vcf', 'ical']);
+		$result = $this->blockAnonymousExcept($identity, $action, ['show_registration', 'view', 'tooltip', 'approve_relative', 'remove_relative', 'vcf', 'ical']);
 		if ($result === false || $result instanceof ResultInterface) {
 			return $result;
 		}

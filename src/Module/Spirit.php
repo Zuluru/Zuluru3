@@ -102,10 +102,11 @@ abstract class Spirit {
 	public function max($q = null) {
 		if ($q == 'score_entry_penalty') {
 			return - Configure::read('scoring.missing_score_spirit_penalty');
-		} else if (array_key_exists($q, $this->questions))
+		} else if (array_key_exists($q, $this->questions)) {
 			return $this->maxq($q);
-		else
+		} else {
 			return $this->maxs();
+		}
 	}
 
 	/**

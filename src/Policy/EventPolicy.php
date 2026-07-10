@@ -328,6 +328,7 @@ class EventPolicy extends AppPolicy {
 		});
 
 		$rule_obj = ModuleRegistry::getInstance()->load('RuleEngine');
+		$redirect_url = null;
 		foreach ($prices as $price) {
 			$name = empty($price->name) ? __('this event') : $price->name;
 
@@ -372,8 +373,13 @@ class EventPolicy extends AppPolicy {
 						$price->canRegister['format'] = __('To register for {0}, you must {1}.');
 						$price->canRegister['replacements'] = [$name, $rule_obj->reason];
 						$price->canRegister['class'] = 'error-message';
-						if ($resource->strict && count($prices) == 1) {
-							$price->canRegister['redirect'] = $rule_obj->redirect;
+						if ($resource->strict) {
+							if (is_null($redirect_url)) {
+								$redirect_url = $rule_obj->redirect;
+							} else if ($redirect_url !== false && $redirect_url != $rule_obj->redirect) {
+								// There are multiple possible URLs to redirect to, so don't do any redirection
+								$redirect_url = false;
+							}
 						}
 					}
 				}
@@ -382,6 +388,12 @@ class EventPolicy extends AppPolicy {
 					'allowed' => true,
 					'text' => __('You may register for this because there are no prerequisites.'),
 				];
+			}
+		}
+
+		if ($redirect_url) {
+			foreach ($prices as $price) {
+				$price->canRegister['redirect'] = $redirect_url;
 			}
 		}
 

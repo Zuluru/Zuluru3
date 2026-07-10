@@ -1,0 +1,10 @@
+--- a/src/Controller/Component/FlashComponent.php
++++ b/src/Controller/Component/FlashComponent.php
+@@ -39,7 +39,7 @@ class FlashComponent extends CakeFlashComponent
+      * @param array $options Options
+      * @return void
+      */
+-    public function set($message, array $options = [])
++    public function set($message, array $options = []): void
+     {
+         $class = 'alert alert-'.$this->config('element');

@@ -571,12 +571,12 @@ class LeagueTypeTournament extends LeagueType {
 
 		// Round 5: Loser 4 vs Winner 6
 		$this->createTournamentGame($division, $pool, 7, 5, '7', $this->first_team + 2, BRACKET_GAME, 'game_loser', 4, 'game_winner', 6);
+		if ($consolation) {
+			$this->createTournamentGame($division, $pool, 8, 5, null, $this->first_team + 4, BRACKET_GAME, 'game_loser', 5, 'game_loser', 6);
+		}
 
 		// Round 6: Winner 4 vs Winner 7 1st/2nd Place, optional consolation game
-		$this->createTournamentGame($division, $pool, 8, 6, null, $this->first_team + 1, BRACKET_GAME, 'game_winner', 4, 'game_winner', 7);
-		if ($consolation) {
-			$this->createTournamentGame($division, $pool, 9, 6, null, $this->first_team + 4, BRACKET_GAME, 'game_loser', 5, 'game_loser', 6);
-		}
+		$this->createTournamentGame($division, $pool, 9, 6, null, $this->first_team + 1, BRACKET_GAME, 'game_winner', 4, 'game_winner', 7);
 	}
 
 	public function createSemisFiveMinimal(Division $division, Pool $pool) {
