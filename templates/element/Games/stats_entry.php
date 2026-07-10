@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
  * @var \App\Model\Entity\Team $attendance
+ * @var \App\Model\Entity\StatType[] $stat_types
  */
 
 use Cake\Core\Configure;
@@ -17,8 +18,8 @@ if (!$attendance->track_attendance) {
 $style = 'width:' . floor(80 / count($game->division->league->stat_types)) . '%;';
 $stats_table = TableRegistry::getTableLocator()->get('Stats');
 ?>
-<div class="table-responsive">
-	<table class="table table-striped table-hover table-condensed" id="team_<?= $attendance->id ?>">
+<div class="table-responsive sticky">
+	<table class="table table-striped table-hover table-condensed sticky" id="team_<?= $attendance->id ?>">
 		<thead>
 			<tr>
 				<th><?= __('Player') ?></th>
@@ -39,7 +40,7 @@ foreach ($attendance->people as $person):
 ?>
 
 			<tr class="<?= $record->status == ATTENDANCE_ATTENDING ? '' : 'attendance_details' ?>">
-				<td><?= $this->element('People/block', compact('person')) ?></td>
+				<th><?= $this->element('People/block', compact('person')) ?></th>
 				<td class="attendance_details"><?php
 					echo $this->element('Games/attendance_change', [
 						'team' => $attendance,
@@ -80,7 +81,7 @@ foreach ($attendance->people as $person):
 			$class = "stat_{$stat->id}";
 			// If there's no position for this person, or the stat is applicable to their position, or there's already
 			// data for it, we consider it to be applicable. Otherwise, no.
-			if (!empty($person->_joinData->position) && !StatsTable::applicable($stat, $person->_joinData->position) && empty($stat_record->value)) {
+			if (!empty($person->_joinData->position) && $person->_joinData->position != 'unspecified' && !StatsTable::applicable($stat, $person->_joinData->position) && empty($stat_record->value)) {
 				$class .= ' unapplicable';
 			}
 			echo $this->Form->control("stats.$i.value", ['div' => false, 'label' => false, 'size' => 3, 'type' => 'number', 'class' => $class, 'data-stat-id' => $stat->id, 'value' => $stat_record->value]);
@@ -111,7 +112,7 @@ endif;
 ?>
 
 			<tr id="sub_row">
-				<td><?= __('Unlisted Subs') ?></td>
+				<th><?= __('Unlisted Subs') ?></th>
 				<td class="attendance_details"></td>
 <?php
 foreach ($stat_types as $stat):

@@ -31,7 +31,10 @@ function countryCode($data) {
 		}
 	}
 
-	if (empty($country)) {
+	$countryRepository = new CountryRepository;
+	$countries = array_flip($countryRepository->getList());
+
+	if (empty($country) || !array_key_exists($country, $countries)) {
 		$country = Configure::read('organization.country');
 	}
 	if (empty($country)) {
@@ -39,8 +42,6 @@ function countryCode($data) {
 	}
 
 	// Convert to country code
-	$countryRepository = new CountryRepository;
-	$countries = array_flip($countryRepository->getList());
 	return $countries[$country];
 }
 

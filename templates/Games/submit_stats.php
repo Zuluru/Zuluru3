@@ -20,7 +20,7 @@ if ($team_id == $game->home_team->id || $team_id === null) {
 }
 ?>
 
-<div class="games form">
+<div class="games stats form">
 	<h2><?= __('Submit Game Stats') ?></h2>
 
 	<p><?php

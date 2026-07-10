@@ -381,7 +381,11 @@ abstract class LeagueType {
 					foreach ($game->getErrors() as $field => $error) {
 						$errors[] = $field . ': ';
 						foreach ($error as $message) {
-							$errors[] = $message;
+							if (is_array($message)) {
+								$errors[] = implode(' ', $message);
+							} else {
+								$errors[] = $message;
+							}
 						}
 					}
 					throw new ScheduleException($errors);

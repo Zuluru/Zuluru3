@@ -1,33 +1,44 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Test\Factory;
 
-use CakephpFixtureFactories\Factory\BaseFactory;
+use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
-class IncidentFactory extends BaseFactory
+/**
+ * IncidentFactory
+ *
+ * @method \App\Model\Entity\Incident getEntity()
+ * @method \App\Model\Entity\Incident[] getEntities()
+ * @method \App\Model\Entity\Incident|\App\Model\Entity\Incident[] persist()
+ * @method static \App\Model\Entity\Incident get(mixed $primaryKey, array $options = [])
+ */
+class IncidentFactory extends CakephpBaseFactory
 {
-	/**
-	 * Defines the Table Registry used to generate entities with
-	 * @return string
-	 */
-	protected function getRootTableRegistryName(): string
-	{
-		return 'Incidents';
-	}
+    /**
+     * Defines the Table Registry used to generate entities with
+     *
+     * @return string
+     */
+    protected function getRootTableRegistryName(): string
+    {
+        return 'Incidents';
+    }
 
-	/**
-	 * Defines the default values of you factory. Useful for
-	 * not nullable fields.
-	 * Use the patchData method to set the field values.
-	 * You may use methods of the factory here
-	 */
-	protected function setDefaultTemplate(): void
-	{
-		$this->setDefaultData(function(Generator $faker) {
+    /**
+     * Defines the factory's default values. This is useful for
+     * not nullable fields. You may use methods of the present factory here too.
+     *
+     * @return void
+     */
+    protected function setDefaultTemplate(): void
+    {
+        $this->setDefaultData(function (Generator $faker) {
 			return [
 				'type' => 'Other',
 				'details' => $faker->sentence(),
 			];
-		});
-	}
+        });
+    }
 }

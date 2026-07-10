@@ -7,16 +7,23 @@
  */
 namespace App\Module;
 
+use App\Model\Entity\Stat;
+use App\Model\Entity\StatType;
+use App\Model\Entity\Team;
 use Cake\ORM\TableRegistry;
 use App\Model\Entity\Game;
 use App\Model\Table\StatsTable;
 
 class Sport {
-	protected $rosters = [];
-	protected $stat_types = [];
-	protected $Stats = null;
+	protected array $rosters = [];
+	/**
+	 * @var StatType[]
+	 */
+	protected array $stat_types = [];
+	protected array $stats = [];
+	protected ?StatsTable $Stats = null;
 
-	public function validatePlay($team, $play, $score_from, $details) {
+	public function validatePlay(Team $team, string $play, int $score_from, array $details) {
 		switch ($play) {
 			case 'Start':
 				if (!empty($details)) {
@@ -29,19 +36,24 @@ class Sport {
 	/*
 	 * Default functions for how many points the various outcomes are worth.
 	 */
-	public function winValue() {
+	public function winValue(): int {
 		return 2;
 	}
 
-	public function tieValue() {
+	public function tieValue(): int {
 		return 1;
 	}
 
-	public function lossValue() {
+	public function lossValue(): int {
 		return 0;
 	}
 
-	public function calculateStats($stats, $stat_types) {
+	/**
+	 * @param Stat[] $stats
+	 * @param StatType[] $stat_types
+	 * @return array
+	 */
+	public function calculateStats(array $stats, array $stat_types): array {
 		$this->initRostersFromStats($stats);
 		$this->initStats($stats);
 		$calculated = new \ArrayObject();
@@ -93,7 +105,11 @@ class Sport {
 		$this->Stats = TableRegistry::getTableLocator()->get('Stats');
 	}
 
-	protected function initRostersFromStats($stats) {
+	/**
+	 * @param Stat[] $stats
+	 * @return void
+	 */
+	protected function initRostersFromStats(array $stats): void {
 		if (!empty($this->rosters)) {
 			return;
 		}
@@ -104,10 +120,10 @@ class Sport {
 		foreach ($teams as $team) {
 			$players = array_unique(collection($stats)->match(['team_id' => $team])->extract('person_id')->toArray());
 			$this->rosters[$team] = $roster_table->find('list', [
-				'conditions' => array(
+				'conditions' => [
 					'team_id' => $team,
 					'person_id IN' => $players,
-				),
+				],
 				'keyField' => 'person_id',
 				'valueField' => 'position',
 			])->toArray();
@@ -121,7 +137,11 @@ class Sport {
 		}
 	}
 
-	public function initStats($stats) {
+	/**
+	 * @param Stat[] $stats
+	 * @return void
+	 */
+	public function initStats(array $stats): void {
 		$this->stats = [];
 		foreach ($stats as $stat) {
 			if (!array_key_exists($stat->person_id, $this->stats)) {
@@ -135,7 +155,7 @@ class Sport {
 		}
 	}
 
-	protected function initStatTypes() {
+	protected function initStatTypes(): void {
 		if (!empty($this->stat_types)) {
 			return;
 		}
@@ -143,36 +163,28 @@ class Sport {
 		$stat_types_table = TableRegistry::getTableLocator()->get('StatTypes');
 
 		// "entered" stat types take priority
-		$stat_types = $stat_types_table->find()
+		$this->stat_types = $stat_types_table->find()
 			->where([
 				'sport' => $this->sport,
 				'type' => 'entered',
-			]);
-
-		foreach ($stat_types as $stat_type) {
-			if (array_key_exists($stat_type->internal_name, $this->stat_types)) {
-				trigger_error('TODOTESTING', E_USER_ERROR);
-			}
-			$this->stat_types[$stat_type->internal_name] = $stat_type->id;
-		}
+			])
+			->all()
+			->indexBy('internal_name')
+			->toArray();
 
 		// Add "game_calc" stats for internal names not already covered
-		$stat_types = $stat_types_table->find()
+		$this->stat_types += $stat_types_table->find()
 			->where([
 				'sport' => $this->sport,
 				'type' => 'game_calc',
 				'NOT' => ['internal_name IN' => array_keys($this->stat_types)],
-			]);
-
-		foreach ($stat_types as $stat_type) {
-			if (array_key_exists($stat_type->internal_name, $this->stat_types)) {
-				trigger_error('TODOTESTING', E_USER_ERROR);
-			}
-			$this->stat_types[$stat_type->internal_name] = $stat_type->id;
-		}
+			])
+			->all()
+			->indexBy('internal_name')
+			->toArray();
 	}
 
-	protected function statTypeId($stat_name) {
+	protected function statType(string $stat_name): StatType {
 		$this->initStatTypes();
 		if (!array_key_exists($stat_name, $this->stat_types)) {
 			trigger_error("Can't find stat type $stat_name in {$this->sport}!", E_USER_ERROR);
@@ -180,11 +192,11 @@ class Sport {
 		return $this->stat_types[$stat_name];
 	}
 
-	protected function value($stat_type_id, $person_id, $stats) {
+	protected function value(StatType $stat_type, int $person_id, array $stats): float {
 		// We can't use $this->stats to avoid the extra loop here, because this is called during submission
 		// and $this->stats is set during later viewing. Overhead will be minimal, as the data set being
 		// operated on during submission is quite small.
-		$value = collection($stats)->firstMatch(['stat_type_id' => $stat_type_id, 'person_id' => $person_id]);
+		$value = collection($stats)->firstMatch(['stat_type_id' => $stat_type->id, 'person_id' => $person_id]);
 		if (empty($value)) {
 			// Since we're only dealing with people that have had at least some stats entered here,
 			// we consider missing values to be zeros that were just not entered.
@@ -193,18 +205,18 @@ class Sport {
 		return $value->value;
 	}
 
-	protected function gameSum($stat_type, $game, $stat_names) {
+	protected function gameSum(StatType $stat_type, Game $game, array $stat_names): void {
 		$this->initRostersFromGame($game);
-		$ids = [];
+		$stat_types = [];
 		foreach ($stat_names as $stat_name) {
-			$ids[] = $this->statTypeId($stat_name);
+			$stat_types[] = $this->statType($stat_name);
 		}
 
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
 				$value = 0;
-				foreach ($ids as $id) {
-					$value += $this->value($id, $person_id, $game->stats);
+				foreach ($stat_types as $type) {
+					$value += $this->value($type, $person_id, $game->stats);
 				}
 
 				if (StatsTable::applicable($stat_type, $position) || $value != 0) {
@@ -220,13 +232,13 @@ class Sport {
 		}
 	}
 
-	protected function gameRatio($stat_type, $game, $numerator_id, $denominator_id) {
+	protected function gameRatio(StatType $stat_type, Game $game, StatType $numerator, StatType $denominator): void {
 		$this->initRostersFromGame($game);
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$denominator = $this->value($denominator_id, $person_id, $game->stats);
-				if ($denominator) {
-					$value = round($this->value($numerator_id, $person_id, $game->stats) / $denominator, 3);
+				$d = $this->value($denominator, $person_id, $game->stats);
+				if ($d) {
+					$value = round($this->value($numerator, $person_id, $game->stats) / $denominator, 3);
 				} else {
 					$value = 0;
 				}
@@ -244,13 +256,13 @@ class Sport {
 		}
 	}
 
-	protected function gamePercent($stat_type, $game, $numerator_id, $denominator_id) {
+	protected function gamePercent(StatType $stat_type, Game $game, StatType $numerator, StatType $denominator): void {
 		$this->initRostersFromGame($game);
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$denominator = $this->value($denominator_id, $person_id, $game->stats);
-				if ($denominator) {
-					$value = round($this->value($numerator_id, $person_id, $game->stats) * 100 / $denominator, 1);
+				$d = $this->value($denominator, $person_id, $game->stats);
+				if ($d) {
+					$value = round($this->value($numerator, $person_id, $game->stats) * 100 / $denominator, 1);
 				} else {
 					$value = 0;
 				}
@@ -268,20 +280,25 @@ class Sport {
 		}
 	}
 
-	protected function valueSum($stat_type_id, $person_id) {
+	protected function valueSum(StatType $stat_type, $person_id): float {
 		// Since we're only dealing with people that have had at least some stats entered here,
 		// we consider missing values to be zeros that were just not entered.
-		if (array_key_exists($stat_type_id, $this->stats[$person_id]['stats'])) {
-			return array_sum($this->stats[$person_id]['stats'][$stat_type_id]);
+		if (array_key_exists($stat_type->id, $this->stats[$person_id]['stats'])) {
+			if (empty($stat_type->sum_function)) {
+				return array_sum($this->stats[$person_id]['stats'][$stat_type->id]);
+			} else {
+				return $this->{$stat_type->sum_function}($this->stats[$person_id]['stats'][$stat_type->id]);
+			}
 		}
+
 		return 0;
 	}
 
-	protected function seasonTotal($stat_type, $calculated) {
-		$base_stat_type_id = $this->statTypeId($stat_type->base);
+	protected function seasonTotal(StatType $stat_type, \ArrayObject $calculated): void {
+		$base_type = $this->statType($stat_type->base);
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
-				$value = $this->valueSum($base_stat_type_id, $person_id);
+				$value = $this->valueSum($base_type, $person_id);
 				if (StatsTable::applicable($stat_type, $position) || $value != 0) {
 					$calculated[$person_id][$stat_type->id] = $value;
 				}
@@ -289,11 +306,11 @@ class Sport {
 		}
 	}
 
-	protected function seasonAvg($stat_type, $calculated) {
-		$base_stat_type_id = $this->statTypeId($stat_type->base);
+	protected function seasonAvg(StatType $stat_type, \ArrayObject $calculated): void {
+		$base_type = $this->statType($stat_type->base);
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
-				$value = round($this->valueSum($base_stat_type_id, $person_id) / $this->gamesPlayed($person_id), 1);
+				$value = round($this->valueSum($base_type, $person_id) / $this->gamesPlayed($person_id), 1);
 				if (StatsTable::applicable($stat_type, $position) || $value != 0) {
 					$calculated[$person_id][$stat_type->id] = $value;
 				}
@@ -301,12 +318,12 @@ class Sport {
 		}
 	}
 
-	protected function seasonRatio($stat_type, $calculated, $numerator_id, $denominator_id) {
+	protected function seasonRatio(StatType $stat_type, \ArrayObject $calculated, StatType $numerator, StatType $denominator): void {
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$denominator = $this->valueSum($denominator_id, $person_id);
-				if ($denominator) {
-					$value = round($this->valueSum($numerator_id, $person_id) / $denominator, 3);
+				$d = $this->valueSum($denominator, $person_id);
+				if ($d) {
+					$value = round($this->valueSum($numerator, $person_id) / $d, 3);
 				} else {
 					$value = 0;
 				}
@@ -318,12 +335,12 @@ class Sport {
 		}
 	}
 
-	protected function seasonPercent($stat_type, $calculated, $numerator_id, $denominator_id) {
+	protected function seasonPercent(StatType $stat_type, \ArrayObject $calculated, StatType $numerator, StatType $denominator): void {
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$denominator = $this->valueSum($denominator_id, $person_id);
-				if ($denominator) {
-					$value = round($this->valueSum($numerator_id, $person_id) * 100 / $denominator, 1);
+				$d = $this->valueSum($denominator, $person_id);
+				if ($d) {
+					$value = round($this->valueSum($numerator, $person_id) * 100 / $d, 1);
 				} else {
 					$value = 0;
 				}
@@ -335,7 +352,7 @@ class Sport {
 		}
 	}
 
-	protected function gamesPlayed($person_id) {
+	protected function gamesPlayed(int $person_id): int {
 		return count($this->stats[$person_id]['games']);
 	}
 
@@ -345,10 +362,7 @@ class Sport {
 	 * loss will need to override these functions or specify a different handler.
 	 */
 
-	public function wins_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to wins_game', E_USER_ERROR);
-		}
+	public function wins_game(StatType $stat_type, Game $game): void {
 		$this->initRostersFromGame($game);
 		foreach ($this->rosters as $team_id => $roster) {
 			$value = $this->isWin($game, $team_id);
@@ -366,7 +380,7 @@ class Sport {
 		}
 	}
 
-	public function winsGameRecalculate($stat_type, Game $game) {
+	public function winsGameRecalculate(StatType $stat_type, Game $game): void {
 		foreach (['home_team_id', 'away_team_id'] as $team) {
 			TableRegistry::getTableLocator()->get('Stats')->updateAll(
 				['value' => $this->isWin($game, $game->{$team})],
@@ -375,14 +389,14 @@ class Sport {
 		}
 	}
 
-	public function wins_season($stat_type, $calculated) {
-		$win_id = $this->statTypeId('Wins');
-		$tie_id = $this->statTypeId('Ties');
+	public function wins_season(StatType $stat_type, \ArrayObject $calculated): void {
+		$win_type = $this->statType('Wins');
+		$tie_type = $this->statType('Ties');
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
 				// TODO: Make this "2" configurable for soccer, etc.
-				$value = sprintf('%.03f', ($this->valueSum($win_id, $person_id) +
-					$this->valueSum($tie_id, $person_id) / 2) /
+				$value = sprintf('%.03f', ($this->valueSum($win_type, $person_id) +
+					$this->valueSum($tie_type, $person_id) / 2) /
 					$this->gamesPlayed($person_id));
 				if (StatsTable::applicable($stat_type, $position) || $value != 0) {
 					$calculated[$person_id][$stat_type->id] = $value;
@@ -391,7 +405,7 @@ class Sport {
 		}
 	}
 
-	public function games_season($stat_type, $calculated) {
+	public function games_season(StatType $stat_type, \ArrayObject $calculated): void {
 		foreach ($this->rosters as $roster) {
 			foreach ($roster as $person_id => $position) {
 				$value = $this->gamesPlayed($person_id);
@@ -402,7 +416,7 @@ class Sport {
 		}
 	}
 
-	protected function isWin(Game $game, $team_id) {
+	protected function isWin(Game $game, int $team_id): int {
 		if ($game->isFinalized()) {
 			if (($team_id == $game->home_team_id && $game->home_score > $game->away_score) ||
 				($team_id == $game->away_team_id && $game->away_score > $game->home_score))
@@ -438,10 +452,7 @@ class Sport {
 		return 0;
 	}
 
-	public function losses_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to losses_game', E_USER_ERROR);
-		}
+	public function losses_game(StatType $stat_type, Game $game): void {
 		$this->initRostersFromGame($game);
 		foreach ($this->rosters as $team_id => $roster) {
 			$value = $this->isLoss($game, $team_id);
@@ -459,7 +470,7 @@ class Sport {
 		}
 	}
 
-	public function lossesGameRecalculate($stat_type, Game $game) {
+	public function lossesGameRecalculate(StatType $stat_type, Game $game): void {
 		foreach (['home_team_id', 'away_team_id'] as $team) {
 			TableRegistry::getTableLocator()->get('Stats')->updateAll(
 				['value' => $this->isLoss($game, $game->{$team})],
@@ -468,7 +479,7 @@ class Sport {
 		}
 	}
 
-	protected function isLoss(Game $game, $team_id) {
+	protected function isLoss(Game $game, int $team_id): int {
 		if ($game->isFinalized()) {
 			if (($team_id == $game->home_team_id && $game->home_score < $game->away_score) ||
 				($team_id == $game->away_team_id && $game->away_score < $game->home_score))
@@ -504,10 +515,7 @@ class Sport {
 		return 0;
 	}
 
-	public function ties_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to ties_game', E_USER_ERROR);
-		}
+	public function ties_game(StatType $stat_type, Game $game): void {
 		$this->initRostersFromGame($game);
 		foreach ($this->rosters as $team_id => $roster) {
 			$value = $this->isTie($game, $team_id);
@@ -525,7 +533,7 @@ class Sport {
 		}
 	}
 
-	public function tiesGameRecalculate($stat_type, Game $game) {
+	public function tiesGameRecalculate(StatType $stat_type, Game $game): void {
 		foreach (['home_team_id', 'away_team_id'] as $team) {
 			TableRegistry::getTableLocator()->get('Stats')->updateAll(
 				['value' => $this->isTie($game, $game->{$team})],
@@ -534,7 +542,7 @@ class Sport {
 		}
 	}
 
-	protected function isTie(Game $game, $team_id) {
+	protected function isTie(Game $game, int $team_id): int {
 		if ($game->isFinalized()) {
 			if ($game->home_score == $game->away_score) {
 				return 1;
@@ -561,15 +569,15 @@ class Sport {
 	 *
 	 */
 
-	public function null_sum() {
+	public function null_sum(): string {
 		return '';
 	}
 
-	public function minutes_sum($minutes) {
+	public function minutes_sum(array $minutes): string {
 		$ret = 0;
 		foreach ($minutes as $m) {
 			if (strpos($m, '.') !== false) {
-				list($m,$s) = explode('.', $m);
+				[$m,$s] = explode('.', $m);
 			} else {
 				$s = 0;
 			}
@@ -584,7 +592,7 @@ class Sport {
 	 *
 	 */
 
-	public function minutes_format($value) {
+	public function minutes_format(float $value): string {
 		$minutes = floor($value);
 		$seconds = floor(($value - $minutes) * 100);
 		return sprintf('%d:%02d', $minutes, $seconds);
@@ -596,28 +604,28 @@ class Sport {
 	 *
 	 */
 
-	public function validate_team_score($stat) {
+	public function validate_team_score(StatType $stat): array {
 		$ret = [];
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
 		return $ret;
 	}
 
-	public function validate_team_score_fuzzy($stat) {
+	public function validate_team_score_fuzzy(StatType $stat): array {
 		$ret = [];
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score) confirm_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
 		return $ret;
 	}
 
-	public function validate_team_score_two($stat) {
+	public function validate_team_score_two(StatType $stat): array {
 		$ret = [];
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score * 2) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score * 2) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
 		return $ret;
 	}
 
-	public function validate_opponent_score($stat) {
+	public function validate_opponent_score(StatType $stat): array {
 		$ret = [];
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > opponent_score) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
 		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < opponent_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
