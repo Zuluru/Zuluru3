@@ -34,4 +34,8 @@ class WaiversPeopleTableTest extends TableTestCase {
 		parent::tearDown();
 	}
 
+	public function testInitialize(): void {
+		$this->markTestIncomplete('Not implemented yet.');
+	}
+
 }
