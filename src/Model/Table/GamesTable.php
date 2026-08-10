@@ -973,6 +973,8 @@ class GamesTable extends AppTable {
 	 */
 	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($this->Attendances->getConnection()->transactional(function () use ($entity) {
+			// Don't update the modified date when we do this
+			$this->Attendances->removeBehavior('Timestamp');
 			foreach ($this->Attendances->find()->where(['game_id' => $entity->id]) as $attendance) {
 				$attendance->game_id = null;
 				if (!$this->Attendances->save($attendance)) {
@@ -1572,6 +1574,19 @@ class GamesTable extends AppTable {
 
 				// It's possible that there were no patches made, in which case this is a no-op
 				$this->Attendances->save($record);
+			}
+
+			// Also update any other records that have no game_id yet; they will be non-roster players invited to sub
+			if ($this->Attendances->hasBehavior('Timestamp')) {
+				$this->Attendances->removeBehavior('Timestamp');
+			}
+			foreach ($attendance as $record) {
+				if (!$record->game_id) {
+					$record = $this->Attendances->patchEntity($record, [
+						'game_id' => $game_id,
+					]);
+					$this->Attendances->save($record);
+				}
 			}
 
 			return true;

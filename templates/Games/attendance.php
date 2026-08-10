@@ -80,7 +80,7 @@ $links = [];
 if ($this->Authorize->can('note', new ContextResource($game, ['home_team' => $game->home_team, 'away_team' => $game->away_team]))) {
 	$links[] = $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
-if ($this->Authorize->can('invite_sub', $team)) {
+if ($this->Authorize->can('invite_sub', $team) && !$game->game_slot->game_date->addDays(3)->isPast()) {
 	$links[] = $this->Html->link(__('Invite Sub'), ['action' => 'invite_sub', '?' => ['game' => $game->id, 'team' => $team->id]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
 if ($this->Authorize->can('stat_sheet', new ContextResource($team, ['league' => $game->division->league, 'stat_types' => $game->division->league->stat_types]))) {
