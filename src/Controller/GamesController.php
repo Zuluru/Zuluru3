@@ -1044,6 +1044,25 @@ class GamesController extends AppController {
 		$this->Authorization->authorize($game);
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 
+		// Don't let people delete games that another game has a dependency on
+		$dependencies = $this->Games->find()
+			->where(['OR' => [
+				[
+					'home_dependency_type IN' => ['game_winner', 'game_loser'],
+					'home_dependency_id' => $id,
+				],
+				[
+					'away_dependency_type IN' => ['game_winner', 'game_loser'],
+					'away_dependency_id' => $id,
+				],
+			]])
+			->all()
+			->count();
+		if ($dependencies > 0) {
+			$this->Flash->warning(__('This is a playoff game with dependencies. Either delete those dependencies first, or delete the entire round from the standings page.'));
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $game->division_id]]);
+		}
+
 		if (!$this->getRequest()->getQuery('force')) {
 			if ($game->isFinalized()) {
 				$msg = __('The score for that game has already been finalized.');
