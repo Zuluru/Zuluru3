@@ -1,8 +1,7 @@
-version: "3.7"
 services:
   db:
     image: mariadb:10.5
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql-mode=
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: zuluru
@@ -16,10 +15,26 @@ services:
   app:
     image: zuluru/zuluru:latest
     build: .
+    user: "1000:1000"
     volumes:
-      - app:/var/www/html
+      - .:/var/www/html
+    environment:
+      APP_NAME: Zuluru
+      DEBUG: "true"
+      SECURITY_SALT: "5C2Yi3REBrXA5cN06dcH6VdAeJySm6RR"
+      APP_DEFAULT_TIMEZONE: UTC
+      APP_DEFAULT_LOCALE: en_US
+      FIELD_NAME: field
+      SQL_DRIVER: Mysql
+      SQL_HOSTNAME: db
+      SQL_USERNAME: zuluru
+      SQL_PASSWORD: userpassword
+      SQL_DATABASE: zuluru
+      EMAIL_TRANSPORT: Mail
+      EMAIL_FROM: "you@localhost"
+      HOME: /tmp
     ports:
-      - "80:80"
+      - "8080:8080"
     depends_on:
       - db
     networks:
@@ -27,7 +42,6 @@ services:
 
 volumes:
   db:
-  app:
 
 networks:
   default:
