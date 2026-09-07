@@ -14,7 +14,7 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 ?>
 
-<p><?= __('The following incident report was submitted:') ?></p>
+<p><?= $incident->isNew() ? __('The following incident report was submitted:') : __('The following incident report was updated:') ?></p>
 <p><?= __('League') ?>: <?= $this->Html->link($division->league->name,
 	Router::url(['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $division->league_id]], true)) ?>
 <br><?= __('Game') ?>: <?= $this->Html->link($game->id,

@@ -225,6 +225,10 @@ class TeamsControllerTest extends ControllerTestCase {
 			],
 		]);
 
+		// Set a roster deadline
+		$team->division->roster_deadline = FrozenDate::now()->subMonths(1);
+		$this->assertNotFalse(TableRegistry::getTableLocator()->get('Divisions')->save($team->division, ['checkRules' => false]));
+
 		/** @var Team $affiliate_team */
 		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
 			'affiliate' => $admin->affiliates[1],
@@ -235,40 +239,56 @@ class TeamsControllerTest extends ControllerTestCase {
 		// The strings for edit are all longer here than other places, because there can be simple edit links in help text.
 		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
 		$this->assertResponseContains('/teams/delete?team=' . $team->id);
+		$this->assertResponseContains('/teams/add_player?team=' . $team->id);
+		$this->assertResponseNotContains('The roster deadline for this division has already passed.');
 
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $affiliate_team->id]], $admin->id);
 		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $affiliate_team->id);
 		$this->assertResponseContains('/teams/delete?team=' . $affiliate_team->id);
+		$this->assertResponseContains('/teams/add_player?team=' . $affiliate_team->id);
+		$this->assertResponseNotContains('The roster deadline for this division has already passed.');
 
 		// Managers are allowed to view teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], $manager->id);
 		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
 		$this->assertResponseContains('/teams/delete?team=' . $team->id);
+		$this->assertResponseContains('/teams/add_player?team=' . $team->id);
+		$this->assertResponseNotContains('The roster deadline for this division has already passed.');
 
 		// But are not allowed to edit ones in other affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $affiliate_team->id]], $manager->id);
 		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $affiliate_team->id);
 		$this->assertResponseNotContains('/teams/delete?team=' . $affiliate_team->id);
+		$this->assertResponseNotContains('/teams/add_player?team=' . $affiliate_team->id);
+		$this->assertResponseNotContains('The roster deadline for this division has already passed.');
 
 		// Coordinators are allowed to view teams but cannot edit
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], $volunteer->id);
 		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
 		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
+		$this->assertResponseNotContains('/teams/add_player?team=' . $team->id);
+		$this->assertResponseNotContains('The roster deadline for this division has already passed.');
 
 		// Captains are allowed to view and edit their teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], $team->people[0]->id);
 		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
 		// TODO: Test that captains can delete their own teams when the registration module is turned off
 		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
+		$this->assertResponseNotContains('/teams/add_player?team=' . $team->id);
+		$this->assertResponseContains('The roster deadline for this division has already passed.');
 
 		// Others are allowed to view teams, but have no edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], $player->id);
 		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
 		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
+		$this->assertResponseNotContains('/teams/add_player?team=' . $team->id);
+		$this->assertResponseNotContains('The roster deadline for this division has already passed.');
 
 		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
 		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
+		$this->assertResponseNotContains('/teams/add_player?team=' . $team->id);
+		$this->assertResponseNotContains('The roster deadline for this division has already passed.');
 	}
 
 	/**

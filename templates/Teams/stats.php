@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Team $team
+ * @var \App\Module\Sport $sport_obj
  */
 
 use Cake\Core\Configure;
@@ -101,6 +102,11 @@ foreach ($tables as $positions => $table):
 	if (!empty($positions)) {
 		foreach ($table['rows'] as $key => $row) {
 			$remove = true;
+
+			if ($has_numbers) {
+				// Skip number column
+				array_shift($row);
+			}
 
 			// Skip name column
 			array_shift($row);

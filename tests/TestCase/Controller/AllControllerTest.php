@@ -128,7 +128,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * 3b. Unauthenticated access to a protected resource, via HTTP.
 	 * Should redirect to somewhere, and set a custom message.
 	 */
-	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
+	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPRedirectResult(): void {
 		$player = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['status' => ROSTER_INVITED])->with('Teams'))
 			->persist();
@@ -170,9 +170,9 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 4c. Unauthorized 'get' access (e.g. an edit page or admin-only view)
 	 * Should redirect to home page. Will set a message (typically "you do not have permission").
-	 * Handled via custom authorization handler on the MissingIdentityException.
+	 * Handled via custom authorization handler on the MissingIdentityResult.
 	 */
-	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityException(): void {
+	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityResult(): void {
 		$player = PersonFactory::make()->player()->with('Teams')->persist();
 
 		$team = $player->teams[0];
@@ -182,9 +182,9 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 4d. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
 	 * Should redirect to home page. Will set a message (typically "you do not have permission").
-	 * Handled via custom authorization handler on the MissingIdentityException.
+	 * Handled via custom authorization handler on the MissingIdentityResult.
 	 */
-	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityException(): void {
+	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityResult(): void {
 		$player = PersonFactory::make()->player()->with('Teams')->persist();
 
 		$team = $player->teams[0];
@@ -207,9 +207,9 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 5b. Unauthorized 'get' access (e.g. an edit page or admin-only view)
 	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
-	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
+	 * Handled via custom authorization handler on the custom RedirectResult.
 	 */
-	public function testAuth5bUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
+	public function testAuth5bUnauthorizedAccessToProtectedResourceHTTPRedirectResult(): void {
 		$captain = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
 			->persist();
@@ -228,9 +228,9 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 5c. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
 	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
-	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
+	 * Handled via custom authorization handler on the custom RedirectResult.
 	 */
-	public function testAuth5cUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException(): void {
+	public function testAuth5cUnauthorizedAccessToProtectedResourceAjaxRedirectResult(): void {
 		$captain = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
 			->persist();

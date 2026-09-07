@@ -3,6 +3,7 @@ namespace App\Policy;
 
 use App\Model\Entity\Affiliate;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 
 class AffiliatePolicy extends AppPolicy {
@@ -12,7 +13,10 @@ class AffiliatePolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		$result = parent::before($identity, $resource, $action);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 
 		return $this->allowAdmin($identity);
 	}

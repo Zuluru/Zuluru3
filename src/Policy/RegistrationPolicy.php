@@ -3,7 +3,6 @@ namespace App\Policy;
 
 use App\Authorization\ContextResource;
 use App\Core\ModuleRegistry;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Registration;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
@@ -15,7 +14,7 @@ class RegistrationPolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canStatistics(IdentityInterface $identity, $controller) {
@@ -49,11 +48,11 @@ class RegistrationPolicy extends AppPolicy {
 		$unpaid = in_array($registration->payment, Configure::read('registration_unpaid')) && $registration->total_amount - $registration->total_payment > 0;
 		$unaccounted = $registration->payment === 'Paid' && $registration->total_payment != $registration->total_amount;
 		if (!$unpaid && !$unaccounted) {
-			throw new ForbiddenRedirectException(__('This registration is marked as {0}.', __($registration->payment)),
+			return new RedirectResult(__('This registration is marked as {0}.', __($registration->payment)),
 				['action' => 'checkout']);
 		}
 		if ($registration->balance <= 0) {
-			throw new ForbiddenRedirectException(__('This registration is already paid in full.'),
+			return new RedirectResult(__('This registration is already paid in full.'),
 				['action' => 'checkout']);
 		}
 
@@ -64,10 +63,10 @@ class RegistrationPolicy extends AppPolicy {
 				return $price->close->isFuture();
 			});
 			if ($other_prices->isEmpty()) {
-				throw new ForbiddenRedirectException(__('The payment deadline has passed.'),
+				return new RedirectResult(__('The payment deadline has passed.'),
 					['action' => 'checkout']);
 			} else {
-				throw new ForbiddenRedirectException(__('The payment deadline has passed. Please choose another payment option.'),
+				return new RedirectResult(__('The payment deadline has passed. Please choose another payment option.'),
 					['action' => 'edit', '?' => ['registration' => $registration->id]]);
 			}
 		}
@@ -79,13 +78,13 @@ class RegistrationPolicy extends AppPolicy {
 		if ($cap != CAP_UNLIMITED) {
 			$paid = $event->count($person->roster_designation, ['Registrations.id !=' => $registration->id]);
 			if ($cap <= $paid || $registration->payment === 'Waiting') {
-				throw new ForbiddenRedirectException(__('You are on the waiting list for this event.'),
+				return new RedirectResult(__('You are on the waiting list for this event.'),
 					['action' => 'checkout']);
 			}
 		}
 
 		if (empty($person->credits)) {
-			throw new ForbiddenRedirectException(__('You have no available credits.'),
+			return new RedirectResult(__('You have no available credits.'),
 				['action' => 'checkout']);
 		}
 
@@ -102,11 +101,11 @@ class RegistrationPolicy extends AppPolicy {
 		}
 
 		if (in_array($registration->payment, Configure::read('registration_some_paid')) && $registration->total_amount > 0) {
-			throw new ForbiddenRedirectException(__('You have already paid for this! Contact the office to arrange a refund.'),
+			return new RedirectResult(__('You have already paid for this! Contact the office to arrange a refund.'),
 				['action' => 'checkout']);
 		}
 		if (in_array($registration->payment, Configure::read('registration_cancelled'))) {
-			throw new ForbiddenRedirectException(__('This registration has already been cancelled. Cancelled records are kept on file for accounting purposes.'),
+			return new RedirectResult(__('This registration has already been cancelled. Cancelled records are kept on file for accounting purposes.'),
 				['action' => 'checkout']);
 		}
 
@@ -122,15 +121,15 @@ class RegistrationPolicy extends AppPolicy {
 		$unpaid = in_array($registration->payment, Configure::read('registration_unpaid')) && $registration->total_amount - $registration->total_payment > 0;
 		$unaccounted = $registration->payment === 'Paid' && $registration->total_payment != $registration->total_amount;
 		if (!$unpaid && !$unaccounted) {
-			throw new ForbiddenRedirectException(__('This registration is marked as {0}.', __($registration->payment)),
+			return new RedirectResult(__('This registration is marked as {0}.', __($registration->payment)),
 				['action' => 'view', '?' => ['registration' => $registration->id]]);
 		}
 		if ($registration->balance <= 0) {
-			throw new ForbiddenRedirectException(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.'),
+			return new RedirectResult(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.'),
 				['action' => 'view', '?' => ['registration' => $registration->id]]);
 		}
 		if ($registration->payment === 'Waiting') {
-			throw new ForbiddenRedirectException(__('Payments cannot be added for registrations on the waiting list.'),
+			return new RedirectResult(__('Payments cannot be added for registrations on the waiting list.'),
 				['action' => 'view', '?' => ['registration' => $registration->id]]);
 		}
 
@@ -149,7 +148,7 @@ class RegistrationPolicy extends AppPolicy {
 		if ($identity->isMe($registration) || $identity->isRelative($registration)) {
 			// TODO: Allow people to edit their responses.
 			if (!in_array($registration->payment, Configure::read('registration_none_paid')) && $registration->total_amount > 0) {
-				throw new ForbiddenRedirectException(__('You cannot edit a registration once a payment has been made.'));
+				return new RedirectResult(__('You cannot edit a registration once a payment has been made.'));
 			}
 
 			return true;

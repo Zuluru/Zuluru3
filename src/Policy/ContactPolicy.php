@@ -3,6 +3,7 @@ namespace App\Policy;
 
 use App\Model\Entity\Contact;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 
 class ContactPolicy extends AppPolicy {
@@ -12,8 +13,15 @@ class ContactPolicy extends AppPolicy {
 			return false;
 		}
 
-		$this->blockAnonymous($identity);
-		$this->blockLockedExcept($identity, $action, ['message']);
+		$result = $this->blockAnonymous($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
+
+		$result = $this->blockLockedExcept($identity, $action, ['message']);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 	}
 
 	public function canIndex(IdentityInterface $identity, $controller) {

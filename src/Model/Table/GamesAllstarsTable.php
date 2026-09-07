@@ -3,7 +3,6 @@ namespace App\Model\Table;
 
 use ArrayObject;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
 use App\Model\Rule\OnTeamRule;
 

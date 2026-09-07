@@ -5,12 +5,11 @@ use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
 use App\Core\UserCache;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Event;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 
 class EventPolicy extends AppPolicy {
 
@@ -24,8 +23,15 @@ class EventPolicy extends AppPolicy {
 			return false;
 		}
 
-		$this->blockAnonymousExcept($identity, $action, ['wizard']);
-		$this->blockLocked($identity);
+		$result = $this->blockAnonymousExcept($identity, $action, ['wizard']);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
+
+		$result = $this->blockLocked($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 	}
 
 	public function canAdmin(IdentityInterface $identity, $controller) {
@@ -34,7 +40,7 @@ class EventPolicy extends AppPolicy {
 
 	public function canWizard(IdentityInterface $identity = null, $resource) {
 		if (!$identity || !$identity->isLoggedIn()) {
-			throw new ForbiddenRedirectException(__('The registration wizard only works when you are logged in.'), ['controller' => 'Events', 'action' => 'index']);
+			return new RedirectResult(__('The registration wizard only works when you are logged in.'), ['controller' => 'Events', 'action' => 'index']);
 		}
 
 		return true;
@@ -70,7 +76,7 @@ class EventPolicy extends AppPolicy {
 
 	public function canWaiting(IdentityInterface $identity, Event $event) {
 		if (!Configure::read('feature.waiting_list')) {
-			throw new ForbiddenRedirectException(__('Waiting lists are not enabled on this site.'));
+			return new RedirectResult(__('Waiting lists are not enabled on this site.'));
 		}
 
 		return $identity->isManagerOf($event) || $identity->isCoordinatorOf($event);
@@ -125,7 +131,7 @@ class EventPolicy extends AppPolicy {
 			return true;
 		}
 
-		throw new ForbiddenRedirectException('{0}',
+		return new RedirectResult('{0}',
 			$redirect ? $resource->redirect : ['controller' => 'Events', 'action' => 'wizard'],
 			'html', ['params' => ['replacements' => $resource->notices, 'class' => 'warning']]);
 	}
@@ -322,6 +328,7 @@ class EventPolicy extends AppPolicy {
 		});
 
 		$rule_obj = ModuleRegistry::getInstance()->load('RuleEngine');
+		$redirect_url = null;
 		foreach ($prices as $price) {
 			$name = empty($price->name) ? __('this event') : $price->name;
 
@@ -330,7 +337,7 @@ class EventPolicy extends AppPolicy {
 				if ($price->open->isFuture() && (!$identity || !$identity->isManagerOf($event))) {
 					$price->canRegister = [
 						'allowed' => false,
-						'text' => __('Registration for {0} is not yet open.', $name),
+						'text' => __('Registration for {0} is does not open until {1}.', $name, $price->open->format('Y-m-d')),
 						'class' => 'closed',
 					];
 					continue;
@@ -366,8 +373,13 @@ class EventPolicy extends AppPolicy {
 						$price->canRegister['format'] = __('To register for {0}, you must {1}.');
 						$price->canRegister['replacements'] = [$name, $rule_obj->reason];
 						$price->canRegister['class'] = 'error-message';
-						if ($resource->strict && count($prices) == 1) {
-							$price->canRegister['redirect'] = $rule_obj->redirect;
+						if ($resource->strict) {
+							if (is_null($redirect_url)) {
+								$redirect_url = $rule_obj->redirect;
+							} else if ($redirect_url !== false && $redirect_url != $rule_obj->redirect) {
+								// There are multiple possible URLs to redirect to, so don't do any redirection
+								$redirect_url = false;
+							}
 						}
 					}
 				}
@@ -376,6 +388,12 @@ class EventPolicy extends AppPolicy {
 					'allowed' => true,
 					'text' => __('You may register for this because there are no prerequisites.'),
 				];
+			}
+		}
+
+		if ($redirect_url) {
+			foreach ($prices as $price) {
+				$price->canRegister['redirect'] = $redirect_url;
 			}
 		}
 

@@ -3,9 +3,9 @@ namespace App\Controller;
 
 use App\Authorization\ContextResource;
 use App\Model\Table\GamesTable;
-use Authorization\Exception\MissingIdentityException;
+use App\Policy\MissingIdentityResult;
+use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -15,7 +15,6 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use App\PasswordHasher\HasherTrait;
 use App\Model\Entity\Allstar;
-use App\Model\Entity\Game;
 use App\Model\Entity\Team;
 use App\Model\Table\PeopleTable;
 
@@ -719,6 +718,25 @@ class GamesController extends AppController {
 		$this->Authorization->authorize($game);
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 
+		// Don't let people delete games that another game has a dependency on
+		$dependencies = $this->Games->find()
+			->where(['OR' => [
+				[
+					'home_dependency_type IN' => ['game_winner', 'game_loser'],
+					'home_dependency_id' => $id,
+				],
+				[
+					'away_dependency_type IN' => ['game_winner', 'game_loser'],
+					'away_dependency_id' => $id,
+				],
+			]])
+			->all()
+			->count();
+		if ($dependencies > 0) {
+			$this->Flash->warning(__('This is a playoff game with dependencies. Either delete those dependencies first, or delete the entire round from the standings page.'));
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $game->division_id]]);
+		}
+
 		if (!$this->getRequest()->getQuery('force')) {
 			if ($game->isFinalized()) {
 				$msg = __('The score for that game has already been finalized.');
@@ -823,7 +841,7 @@ class GamesController extends AppController {
 
 		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		if (!$person_id) {
-			throw new MissingIdentityException();
+			throw new ForbiddenException(new MissingIdentityResult(), ['attendance_change', self::class]);
 		}
 
 		$captains_contain = [

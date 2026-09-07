@@ -12,7 +12,7 @@ class NotePolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canEdit_game(IdentityInterface $identity, Note $note) {

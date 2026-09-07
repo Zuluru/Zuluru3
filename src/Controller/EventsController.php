@@ -525,6 +525,19 @@ class EventsController extends AppController {
 
 		$this->getRequest()->allowMethod('ajax');
 
+		$id = $this->getRequest()->getQuery('event');
+		if ($id) {
+			try {
+				$event = $this->Events->get($id);
+				$this->set(compact('event'));
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+				$this->Flash->info(__('Invalid event.'));
+				return $this->redirect(['action' => 'index']);
+			}
+		} else {
+			$this->set('event', null);
+		}
+
 		$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->getRequest()->getData('event_type_id')]);
 		$this->set('event_obj', $this->moduleRegistry->load("EventType:{$type}"));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));

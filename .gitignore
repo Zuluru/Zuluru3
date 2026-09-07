@@ -7,7 +7,7 @@
 /plugins.local
 /logs/*
 /tmp/*
-/plugins/*
+/upload/*
 /vendor/*
 
 /webroot/debug_kit/*

@@ -4,26 +4,25 @@
  */
 namespace App\Module;
 
+use App\Model\Entity\Game;
+use App\Model\Entity\StatType;
 use App\Model\Table\StatsTable;
 
 class SportDodgeball extends Sport {
 	protected $sport = 'dodgeball';
 
-	public function points_game($stat_type, $game, $todotesting = null) {
-		if ($todotesting !== null) {
-			trigger_error('stats passed to points_game', E_USER_ERROR);
-		}
+	public function points_game(StatType $stat_type, Game $game): void {
 		$this->initRostersFromGame($game);
 
-		$kp_id = $this->statTypeId('Kills');
-		$km_id = $this->statTypeId('Killed');
-		$cp_id = $this->statTypeId('Catches');
-		$cm_id = $this->statTypeId('Caught');
+		$kp_type = $this->statType('Kills');
+		$km_type = $this->statType('Killed');
+		$cp_type = $this->statType('Catches');
+		$cm_type = $this->statType('Caught');
 
 		foreach ($this->rosters as $team_id => $roster) {
 			foreach ($roster as $person_id => $position) {
-				$value = $this->value($kp_id, $person_id, $game->stats) - $this->value($km_id, $person_id, $game->stats)
-					+ ($this->value($cp_id, $person_id, $game->stats) - $this->value($cm_id, $person_id, $game->stats)) * 2;
+				$value = $this->value($kp_type, $person_id, $game->stats) - $this->value($km_type, $person_id, $game->stats)
+					+ ($this->value($cp_type, $person_id, $game->stats) - $this->value($cm_type, $person_id, $game->stats)) * 2;
 
 				if (StatsTable::applicable($stat_type, $position) || $value != 0) {
 					$game->stats[] = $this->Stats->newEntity([

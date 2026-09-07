@@ -2,7 +2,6 @@
 namespace App\Policy;
 
 use App\Authorization\ContextResource;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\TaskSlot;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
@@ -14,7 +13,7 @@ class TaskSlotPolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canView(IdentityInterface $identity, TaskSlot $task_slot) {
@@ -28,13 +27,13 @@ class TaskSlotPolicy extends AppPolicy {
 	public function canAssign(IdentityInterface $identity, ContextResource $resource) {
 		$task = $resource->task;
 		if (!$task->allow_signup && !$identity->isManagerOf($task)) {
-			throw new ForbiddenRedirectException(__('Invalid task slot.'),
+			return new RedirectResult(__('Invalid task slot.'),
 				['controller' => 'Tasks', 'action' => 'index']);
 		}
 
 		$task_slot = $resource->resource();
 		if ($task_slot->person_id && !$identity->isManagerOf($task)) {
-			throw new ForbiddenRedirectException(__('This task slot has already been assigned.'),
+			return new RedirectResult(__('This task slot has already been assigned.'),
 				['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]]);
 		}
 

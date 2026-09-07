@@ -1,21 +1,16 @@
 <?php
 namespace App\Model\Table;
 
-use App\Authorization\ContextResource;
-use App\Model\Entity\Team;
 use App\Model\Entity\TeamsPerson;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event as CakeEvent;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
-use App\Model\Table\LeaguesTable;
 use InvalidArgumentException;
 
 /**

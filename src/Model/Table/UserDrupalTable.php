@@ -5,7 +5,6 @@ use App\Model\Entity\Person;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event as CakeEvent;
 use Cake\ORM\TableRegistry;
 
 /**

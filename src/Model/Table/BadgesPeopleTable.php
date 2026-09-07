@@ -1,10 +1,7 @@
 <?php
 namespace App\Model\Table;
 
-use ArrayObject;
-use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event as CakeEvent;
 use InvalidArgumentException;
 
 /**

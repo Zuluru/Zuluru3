@@ -174,8 +174,8 @@ if (array_key_exists($game->away_team_id, $game->score_entries)) {
 }
 
 if (!empty($game->spirit_entries) || Configure::read('scoring.spirit_default')) {
-	$homeSpiritEntry = $game->getSpiritEntry($game->home_team_id, $spirit_obj, false, true);
-	$awaySpiritEntry = $game->getSpiritEntry($game->away_team_id, $spirit_obj, false, true);
+	$homeSpiritEntry = $game->getSpiritEntry($game->home_team_id, $spirit_obj, false, $game->status == 'normal');
+	$awaySpiritEntry = $game->getSpiritEntry($game->away_team_id, $spirit_obj, false, $game->status == 'normal');
 } else {
 	$homeSpiritEntry = $awaySpiritEntry = false;
 }
@@ -188,7 +188,7 @@ if ($game->away_team) {
 }
 ?>
 
-	<fieldset class="clear-float wide-labels">
+	<fieldset class="clear-float">
 		<legend><?= __('Scoring') ?></legend>
 <?php
 if ($game->isFinalized()):
@@ -336,8 +336,8 @@ else:
 				</tr>
 				<tr>
 					<td><?= __('Entry Time') ?></td>
-					<td><?= isset($homeScoreEntry) ? $this->Time->datetime($homeScoreEntry->modified) : '' ?></td>
-					<td><?= isset($awayScoreEntry) ? $this->Time->datetime($awayScoreEntry->modified) : '' ?></td>
+					<td><?= isset($homeScoreEntry) && $homeScoreEntry->modified ? $this->Time->datetime($homeScoreEntry->modified) : '' ?></td>
+					<td><?= isset($awayScoreEntry) && $awayScoreEntry->modified ? $this->Time->datetime($awayScoreEntry->modified) : '' ?></td>
 				</tr>
 <?php
 		if ($show_spirit):

@@ -44,7 +44,7 @@ echo $this->Form->i18nControls('description', [
 ]);
 echo $this->Jquery->ajaxInput('event_type_id', [
 	'selector' => '#EventTypeFields',
-	'url' => ['action' => 'event_type_fields'],
+	'url' => ['action' => 'event_type_fields', '?' => ['event' => $event->id]],
 ], [
 	'empty' => '---',
 	'help' => __('Note that any team type will result in team records being created. If you don\'t want this, then use the appropriate individual type.'),

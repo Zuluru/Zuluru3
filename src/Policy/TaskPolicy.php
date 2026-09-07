@@ -1,7 +1,6 @@
 <?php
 namespace App\Policy;
 
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Task;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
@@ -13,7 +12,7 @@ class TaskPolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canIndex(IdentityInterface $identity, $controller) {
@@ -25,7 +24,7 @@ class TaskPolicy extends AppPolicy {
 			return true;
 		}
 
-		throw new ForbiddenRedirectException(__('Invalid task.'), ['action' => 'index']);
+		return new RedirectResult(__('Invalid task.'), ['action' => 'index']);
 	}
 
 	public function canAdd(IdentityInterface $identity, $controller) {

@@ -5,7 +5,6 @@ use App\Model\Entity\Person;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event as CakeEvent;
 
 /**
  * Class for handling authentication using the Joomla user database.

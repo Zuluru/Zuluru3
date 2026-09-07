@@ -2,7 +2,8 @@
 namespace PayPalPayment\Controller;
 
 use App\Controller\PaymentsTrait;
-use App\Exception\ForbiddenRedirectException;
+use App\Policy\RedirectResult;
+use Authorization\Exception\ForbiddenException;
 use Cake\Core\Configure;
 use PayPalPayment\Http\API;
 
@@ -60,7 +61,7 @@ class PaymentController extends AppController {
 			->where(['transaction_id' => $audit['transaction_id']])
 			->first();
 		if ($existing) {
-			throw new ForbiddenRedirectException('Duplicate transaction detected');
+			throw new ForbiddenException(new RedirectResult('Duplicate transaction detected'), ['index', self::class]);
 		}
 
 		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);

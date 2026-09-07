@@ -3,7 +3,6 @@ namespace App\Policy;
 
 use App\Authorization\ContextResource;
 use App\Core\UserCache;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Franchise;
 use Authorization\IdentityInterface;
 use Cake\Core\Configure;
@@ -15,7 +14,7 @@ class FranchisePolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canAdd(IdentityInterface $identity, $controller) {
@@ -47,7 +46,7 @@ class FranchisePolicy extends AppPolicy {
 		$people = $resource->people;
 
 		if (count($people) == 1) {
-			throw new ForbiddenRedirectException(__('You cannot remove the only owner of a franchise!'),
+			return new RedirectResult(__('You cannot remove the only owner of a franchise!'),
 				['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], 'warning');
 		}
 

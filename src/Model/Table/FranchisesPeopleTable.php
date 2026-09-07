@@ -2,14 +2,9 @@
 namespace App\Model\Table;
 
 use App\Core\UserCache;
-use App\Model\Entity\FranchisesPerson;
 use ArrayObject;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event as CakeEvent;
-use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
-use Cake\ORM\Table;
-use Cake\Validation\Validator;
 
 /**
  * FranchisesPeople Model

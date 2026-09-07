@@ -4,10 +4,9 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Authentication\ActAsIdentity;
-use App\Exception\ForbiddenRedirectException;
+use App\Policy\RedirectResult;
+use Authorization\Exception\ForbiddenException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Response;
-use Cake\Http\ServerRequest;
 use Cake\ORM\TableRegistry;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,7 +36,7 @@ class ActAsMiddleware implements MiddlewareInterface {
 						$identity->actAs($request, $target);
 						$request->getSession()->write('Zuluru.act_as_temporary', true);
 					} else {
-						throw new ForbiddenRedirectException(__('You do not have permission to act as that person.'), '/');
+						throw new ForbiddenException(new RedirectResult(__('You do not have permission to act as that person.')));
 					}
 				} catch (RecordNotFoundException $ex) {
 				}

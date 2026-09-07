@@ -7,6 +7,7 @@ namespace App\Event;
 
 use App\Core\UserCache;
 use App\Model\Entity\Game;
+use App\Model\Entity\Incident;
 use App\Model\Entity\Team;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
@@ -27,16 +28,16 @@ class GameListener implements EventListenerInterface {
 		];
 	}
 
-	public function incidentReport(CakeEvent $cakeEvent, Game $game) {
+	public function incidentReport(CakeEvent $cakeEvent, Incident $incident, Game $game) {
 		$addr = Configure::read('email.incident_report_email');
 		if (AppController::_sendMail([
 			'to' => [$addr => __('Incident Manager')],
 			'replyTo' => UserCache::getInstance()->read('Person'),
-			'subject' => function() use ($game) { return __('Incident report: {0}', $game->incidents[0]->type); },
+			'subject' => function() use ($incident, $game) { return __('Incident report: {0}', $incident->type); },
 			'template' => 'incident_report',
 			'sendAs' => 'both',
 			'viewVars' => [
-				'incident' => $game->incidents[0],
+				'incident' => $incident,
 				'game' => $game,
 				'division' => $game->division,
 				'slot' => $game->game_slot,
@@ -69,6 +70,7 @@ class GameListener implements EventListenerInterface {
 		// Just mention that it's been saved and move on
 		$status = $game->score_entries[0]->status;
 		if (in_array($status, Configure::read('unplayed_status'))) {
+			$score_for = $score_against = false;
 			$team_status = $opponent_status = __($status);
 		} else {
 			$score_for = $game->score_entries[0]->score_for;

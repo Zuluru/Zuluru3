@@ -35,7 +35,7 @@ use Psr\Log\LogLevel;
  * @package       cake
  * @subpackage    cake.cake.libs.controller
  * @property \App\Controller\Component\AuthenticationComponent $Authentication
- * @property \App\Controller\Component\AuthorizationComponent $Authorization
+ * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
  * @property \Cake\Controller\Component\FlashComponent $Flash
  * @property \Cake\Controller\Component\RequestHandlerComponent $RequestHandler
  * @property \Cake\Controller\Component\FormProtectionComponent $FormProtection
@@ -95,8 +95,7 @@ class AppController extends Controller {
 		$allowed = $this->getRequest()->is('json') ? $this->_noAuthenticationJsonActions() : $this->_noAuthenticationActions();
 		$this->Authentication->allowUnauthenticated($allowed);
 
-		// @todo Cake4: Fix policies and revert this to 'Authorization.Authorization'
-		$this->loadComponent('Authorization');
+		$this->loadComponent('Authorization.Authorization');
 
 		// Footprint trait needs the _userModel set to whatever is being used for authentication
 		$this->_userModel = Configure::read('Security.authModel');
@@ -464,7 +463,9 @@ class AppController extends Controller {
 			// Parents always get the registration menu items
 			if (!Configure::read('feature.minimal_menus') && ($this->Authorization->can(\App\Controller\PeopleController::class, 'show_registration'))) {
 				//$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard']);
-				$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard'], __('Registration'));
+				if ($identity) {
+					$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard'], __('Registration'));
+				}
 				$this->_addMenuItem(__('All Events'), ['plugin' => false, 'controller' => 'Events', 'action' => 'index'], __('Registration'));
 				if ($identity && $identity->isLoggedIn() && !empty($this->UserCache->read('Registrations'))) {
 					$this->_addMenuItem(__('My History'), ['plugin' => false, 'controller' => 'People', 'action' => 'registrations'], __('Registration'));

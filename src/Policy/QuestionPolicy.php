@@ -12,7 +12,7 @@ class QuestionPolicy extends AppPolicy {
 			return false;
 		}
 
-		parent::before($identity, $resource, $action);
+		return parent::before($identity, $resource, $action);
 	}
 
 	public function canIndex(IdentityInterface $identity, $controller) {

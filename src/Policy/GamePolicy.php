@@ -2,9 +2,9 @@
 namespace App\Policy;
 
 use App\Authorization\ContextResource;
-use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Game;
 use Authorization\IdentityInterface;
+use Authorization\Policy\ResultInterface;
 use Cake\Core\Configure;
 use Cake\Http\Exception\GoneException;
 use Cake\I18n\FrozenDate;
@@ -16,8 +16,15 @@ class GamePolicy extends AppPolicy {
 	 * situations where admins don't actually have complete access.
 	 */
 	public function before($identity, $resource, $action) {
-		$this->blockAnonymousExcept($identity, $action, ['view', 'tooltip', 'ical']);
-		$this->blockLocked($identity);
+		$result = $this->blockAnonymousExcept($identity, $action, ['view', 'tooltip', 'ical']);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
+
+		$result = $this->blockLocked($identity);
+		if ($result === false || $result instanceof ResultInterface) {
+			return $result;
+		}
 	}
 
 	public function canView(IdentityInterface $identity = null, Game $game) {
@@ -32,13 +39,13 @@ class GamePolicy extends AppPolicy {
 		$game = $resource->resource();
 		$ratings_obj = $resource->ratings_obj;
 		if (!$ratings_obj->perGameRatings()) {
-			throw new ForbiddenRedirectException(__('The ratings calculator in use for this division does not support per-game ratings.'),
+			return new RedirectResult(__('The ratings calculator in use for this division does not support per-game ratings.'),
 				['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		$division = $resource->division;
 		if ($division->schedule_type === 'competition') {
-			throw new ForbiddenRedirectException(__('Ratings table does not apply to competition divisions.'),
+			return new RedirectResult(__('Ratings table does not apply to competition divisions.'),
 				['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 		$preliminary = ($game->home_team_id === null || $game->away_team_id === null);
@@ -92,7 +99,7 @@ class GamePolicy extends AppPolicy {
 			return true;
 		}
 
-		throw new ForbiddenRedirectException(__('You are not on the roster of a team playing in this game.'),
+		return new RedirectResult(__('You are not on the roster of a team playing in this game.'),
 			['action' => 'view', '?' => ['game' => $game->id]]);
 	}
 
@@ -123,7 +130,7 @@ class GamePolicy extends AppPolicy {
 			return true;
 		}
 
-		throw new ForbiddenRedirectException(__('You are not on the roster of a team playing in this game.'),
+		return new RedirectResult(__('You are not on the roster of a team playing in this game.'),
 			['action' => 'view', '?' => ['game' => $game->id]]);
 	}
 
@@ -139,7 +146,7 @@ class GamePolicy extends AppPolicy {
 			}
 			*/
 
-			return new ForbiddenRedirectException($message);
+			return new RedirectResult($message);
 		}
 
 		return false;
@@ -171,15 +178,15 @@ class GamePolicy extends AppPolicy {
 
 	public function canSubmit_stats(IdentityInterface $identity, ContextResource $resource) {
 		if (!$resource->league->hasStats()) {
-			throw new ForbiddenRedirectException(__('This league does not have stat tracking enabled.'));
+			return new RedirectResult(__('This league does not have stat tracking enabled.'));
 		}
 		if (empty($resource->stat_types)) {
-			throw new ForbiddenRedirectException(__('This league does not have any entry-type stats selected.'));
+			return new RedirectResult(__('This league does not have any entry-type stats selected.'));
 		}
 
 		$game = $resource->resource();
 		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
-			throw new ForbiddenRedirectException(__('That game has not yet occurred!'));
+			return new RedirectResult(__('That game has not yet occurred!'));
 		}
 
 		if ($resource->team_id) {
@@ -189,7 +196,7 @@ class GamePolicy extends AppPolicy {
 			} else if ($team_id == $game->away_team_id) {
 				$team = $game->away_team;
 			} else {
-				throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
+				return new RedirectResult(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 			}
 
 			if (!$identity->isManagerOf($game) && !$identity->isCoordinatorOf($game) && !$identity->isCaptainOf($team)) {
@@ -197,14 +204,14 @@ class GamePolicy extends AppPolicy {
 			}
 
 			if (!$game->isFinalized() && !array_key_exists($team_id, $game->score_entries)) {
-				throw new ForbiddenRedirectException(__('You must submit a score for this game before you can submit stats.'),
+				return new RedirectResult(__('You must submit a score for this game before you can submit stats.'),
 					['action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 			}
 		} else {
 			// Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
 			// TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer
 			if (!$identity->isManagerOf($game) && !$identity->isCoordinatorOf($game) /* && !$identity->isVolunteer() && $identity->isOfficial() */) {
-				throw new ForbiddenRedirectException(__('You must provide a team ID.'));
+				return new RedirectResult(__('You must provide a team ID.'));
 			}
 		}
 
@@ -215,21 +222,21 @@ class GamePolicy extends AppPolicy {
 		$game = $resource->resource();
 
 		if (!$resource->league->hasStats()) {
-			throw new ForbiddenRedirectException(__('This league does not have stat tracking enabled.'), ['action' => 'view', '?' => ['game' => $game->id]]);
+			return new RedirectResult(__('This league does not have stat tracking enabled.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		if (!$game->isFinalized()) {
-			throw new ForbiddenRedirectException(__('The score of this game has not yet been finalized.'), ['action' => 'view', '?' => ['game' => $game->id]]);
+			return new RedirectResult(__('The score of this game has not yet been finalized.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		if ($game->game_slot->start_time->isFuture()) {
-			throw new ForbiddenRedirectException(__('This game has not yet started.'), ['action' => 'view', '?' => ['game' => $game->id]]);
+			return new RedirectResult(__('This game has not yet started.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		$team_id = $resource->team_id;
 
 		if ($team_id !== null && $team_id != $game->home_team_id && $team_id != $game->away_team_id) {
-			throw new ForbiddenRedirectException(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
+			return new RedirectResult(__('That team is not playing in this game.'), ['action' => 'view', '?' => ['game' => $game->id]]);
 		}
 
 		if (empty($game->stats)) {
@@ -255,7 +262,7 @@ class GamePolicy extends AppPolicy {
 				}
 			}
 
-			throw new ForbiddenRedirectException(__('No stats have been entered for this game.'), $redirect);
+			return new RedirectResult(__('No stats have been entered for this game.'), $redirect);
 		}
 
 		return Configure::read('feature.public') || ($identity && $identity->isLoggedIn());
